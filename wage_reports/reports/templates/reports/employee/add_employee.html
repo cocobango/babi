@@ -1,0 +1,9 @@
+<h1>Enter Monthly Data</h1>
+
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+<form action="{% url 'reports:add_employee' %}" method="post">
+    {% csrf_token %}
+    {{ form }}
+    <input type="submit" value="Vote" />
+</form>

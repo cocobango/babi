@@ -9,6 +9,8 @@ class Employer(models.Model):
     phone_number = models.IntegerField()
     name_of_contact = models.CharField(max_length=200)
     is_required_to_pay_vat = models.BooleanField(default=True)
+    def __str__(self):
+        return self.user.username
 
 
 class Employee(models.Model):
@@ -16,6 +18,8 @@ class Employee(models.Model):
     employer = models.ForeignKey(Employer)
     birthday = models.DateField()
     government_id = models.IntegerField()
+    def __str__(self):
+        return self.user.username
 
 
 class Monthly_employee_data(models.Model):
