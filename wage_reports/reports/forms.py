@@ -19,6 +19,6 @@ class EmployeeForm(ModelForm):
         }
 
 class EmployeeMonthlyEntryForm(ModelForm):
-	class Meta:
+    class Meta:
         model = Monthly_employee_data
         fields = '__all__'
