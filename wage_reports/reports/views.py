@@ -6,7 +6,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import UserCreationForm
 
 from .forms import EmployeeForm , EmployeeMonthlyEntryForm 
-from .models import Monthly_employee_data, Employee
+from .models import Monthly_employee_data, Employee , Employer
 
 @login_required
 def user_management(request):
@@ -14,6 +14,42 @@ def user_management(request):
 
 def add_employee(request):
     return render(request, 'reports/employee/add_employee.html' , { 'form' : EmployeeForm })
+
+def view_all_employees(request):
+    Employer_obj = Employer.objects.get(user=request.user)
+    employees = Employee.objects.filter(employer=Employer_obj)
+    return render(request, 'reports/employee/view_all_employees.html' , { 'employees' : employees })
+
+def neutralize_employee(request):
+    pass
+
+def view_history(request):
+    pass
+
+
+def view_all_months(request):
+    pass
+
+
+def view_a_single_month(request):
+    pass
+
+
+def view_report_of_type(request):
+    pass
+
+def current_month(request):
+    pass
+
+def show_entrees(request):
+    pass
+
+def set_as_valid(request):
+    pass
+
+def edit_specific_entry(request):
+    pass
+
 
 def enter_employee_monthly_data(request):
     return render(request, 'reports/employee/monthly_entry.html' , { 'form' : EmployeeForm })
@@ -29,8 +65,6 @@ def index(request):
 def redirect_to_login(request):
     redirect_to_login('/')
 
-def view_all_employees(request):
-    pass
 
 
 def login_destination(request):
