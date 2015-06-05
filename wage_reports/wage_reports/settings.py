@@ -80,7 +80,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'wage_reports',
-        'USER': 'root',
+        'USER': 'babi',
         'PASSWORD': 'HKa5aw0YWneB3vweBxH4',
     }
 }
