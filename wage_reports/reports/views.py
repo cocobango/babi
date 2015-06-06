@@ -17,18 +17,19 @@ def add_employee(request):
         form_registration = UserCreateForm(request.POST)
         
         if form_registration.is_valid():
-            new_user = form_registration.save()
+            form_registration.save(commit=False)
             form = EmployeeForm(request.POST)
             if form.is_valid():
+                new_user = form_registration.save()
                 employee_form_data = form.save(commit=False)
                 employer = Employer.objects.get(user=request.user)
                 new_employee = Employee(user=new_user , employer=employer , birthday=employee_form_data.birthday , government_id=employee_form_data.government_id)
                 new_employee.save()
                 return HttpResponseRedirect(reverse('my_login:messages' , args=('user added successfuly',)))
             else:
-                return HttpResponseRedirect(reverse('my_login:messages' , args=('user was not added, user data was not valid',)))
+                return HttpResponseRedirect(reverse('my_login:messages' , args=('user was not added, employee data was not valid',)))
         else:
-            return HttpResponseRedirect(reverse('my_login:messages' , args=('user was not added, employee data was not valid',)))
+            return HttpResponseRedirect(reverse('my_login:messages' , args=('user was not added, user data was not valid',)))
             
     else:
         form_registration = UserCreateForm()
