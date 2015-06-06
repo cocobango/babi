@@ -3,9 +3,9 @@ from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from django.contrib.auth import authenticate, login
-from django.contrib.auth.forms import UserCreationForm
+# from django.contrib.auth.forms import 
 
-from .forms import EmployeeForm , EmployeeMonthlyEntryForm 
+from .forms import EmployeeForm , EmployeeMonthlyEntryForm , UserCreateForm 
 from .models import Monthly_employee_data, Employee , Employer
 
 @login_required
@@ -13,8 +13,29 @@ def user_management(request):
     pass
 
 def add_employee(request):
-    return render(request, 'reports/employee/add_employee.html' , { 'form' : EmployeeForm })
+    if request.method == 'POST':
+        form_registration = UserCreateForm(request.POST)
+        
+        if form_registration.is_valid():
+            new_user = form_registration.save()
+            form = EmployeeForm(request.POST)
+            if form.is_valid():
+                employee_form_data = form.save(commit=False)
+                employer = Employer.objects.get(user=request.user)
+                new_employee = Employee(user=new_user , employer=employer , birthday=employee_form_data.birthday , government_id=employee_form_data.government_id)
+                new_employee.save()
+                return HttpResponseRedirect(reverse('my_login:messages' , args=('user added successfuly',)))
+            else:
+                return HttpResponseRedirect(reverse('my_login:messages' , args=('user was not added, user data was not valid',)))
+        else:
+            return HttpResponseRedirect(reverse('my_login:messages' , args=('user was not added, employee data was not valid',)))
+            
+    else:
+        form_registration = UserCreateForm()
+        form = EmployeeForm();
+    return render(request, 'reports/employee/add_employee.html' , { 'form' : EmployeeForm , 'form_registration' : form_registration })
 
+@login_required
 def view_all_employees(request):
     Employer_obj = Employer.objects.get(user=request.user)
     employees = Employee.objects.filter(employer=Employer_obj)
@@ -48,10 +69,6 @@ def set_as_valid(request):
     pass
 
 def edit_specific_entry(request):
-    pass
-
-
-def enter_employee_monthly_data(request):
     return render(request, 'reports/employee/monthly_entry.html' , { 'form' : EmployeeForm })
 
 

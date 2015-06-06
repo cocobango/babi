@@ -1,11 +1,23 @@
-from django.forms import ModelForm, Textarea
+from django import forms
+from django.forms import ModelForm, Textarea , EmailField , CharField
 from reports.models import Monthly_employee_data , Employee
 from django.utils.translation import ugettext_lazy as _
 
+from django.contrib.auth.models import User
+from django.contrib.auth.forms import UserCreationForm
+
+
+class Html5DateInput(forms.DateInput):
+    input_type = 'date'
+
+
 class EmployeeForm(ModelForm):
     class Meta:
+        widgets = {
+            'birthday': Html5DateInput()
+        }
         model = Employee
-        fields = '__all__'
+        fields = fields = ['birthday' , 'government_id']
         labels = {
             # 'name': _('Writer'),
         }
@@ -18,7 +30,29 @@ class EmployeeForm(ModelForm):
             # },
         }
 
+
+
+
 class EmployeeMonthlyEntryForm(ModelForm):
     class Meta:
         model = Monthly_employee_data
         fields = '__all__'
+
+
+class UserCreateForm(UserCreationForm):
+    email = EmailField(label=_("Email address"), required=True)
+    first_name = CharField(label=_("first_name"), required=True,)
+    last_name = CharField(label=_("last_name"), required=True)
+ 
+    class Meta:
+        model = User
+        fields = ("username", "email", "first_name" , "last_name" , "password1", "password2")
+ 
+    def save(self, commit=True):
+        user = super(UserCreateForm, self).save(commit=False)
+        user.email = self.cleaned_data["email"]
+        user.first_name = self.cleaned_data["first_name"]
+        user.last_name = self.cleaned_data["last_name"]
+        if commit:
+            user.save()
+        return user

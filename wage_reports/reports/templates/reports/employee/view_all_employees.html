@@ -2,3 +2,11 @@
 
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
+{% for employee in employees %}
+<div>
+  <a href="{{ employee.id }}">
+    
+  </a>
+  {{ employee.user.last_name }} {{ employee.user.first_name }}
+</div>
+{% endfor %}

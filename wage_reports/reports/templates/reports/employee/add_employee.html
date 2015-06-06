@@ -5,5 +5,7 @@
 <form action="{% url 'reports:add_employee' %}" method="post">
     {% csrf_token %}
     {{ form }}
-    <input type="submit" value="Vote" />
+    <br>
+    {{ form_registration }}
+    <input type="submit" value="Add a New Employee" />
 </form>

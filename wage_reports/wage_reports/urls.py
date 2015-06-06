@@ -20,7 +20,7 @@ from django.contrib.auth import views as auth_views
 urlpatterns = [
     url('^', include('django.contrib.auth.urls')),
     url(r'^$', auth_views.login),
-    url(r'^accounts/profile/$', 'reports.views.enter_employee_monthly_data'),
+    url(r'^accounts/profile/$', 'reports.views.edit_specific_entry'),
     url(r'^accounts/login/$', 'reports.views.redirect_to_login'),
     url(r'^my_login/', include('my_login.urls' , namespace='my_login')),
     url(r'^reports/', include('reports.urls' , namespace='reports') ),
