@@ -2,11 +2,25 @@
 
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
-{% for employee in employees %}
-<div>
-  <a href="{{ employee.id }}">
-    
-  </a>
-  {{ employee.user.last_name }} {{ employee.user.first_name }}
-</div>
-{% endfor %}
+<table>
+	<th>user id</th><th>first name</th><th>last name</th><th>Government id</th><th>email</th><th>username</th><th>Birthday</th>
+	{% for employee in employees %}
+	<td>
+	  	{{ employee.user.id }}
+	</td>
+	<td>
+		{{ employee.user.first_name }}
+	</td>
+	<td>
+		{{ employee.user.last_name }}
+	</td>
+	<td>
+		{{ employee.government_id }}
+	</td>
+	<td>
+		{{ employee.birthday }}
+	</td>   
+	</div>
+	{% endfor %}
+
+</table>

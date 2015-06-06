@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from django.contrib.auth import authenticate, login
-# from django.contrib.auth.forms import 
+from django.core import serializers
 
 from .forms import EmployeeForm , EmployeeMonthlyEntryForm , UserCreateForm 
 from .models import Monthly_employee_data, Employee , Employer
@@ -39,7 +39,7 @@ def add_employee(request):
 def view_all_employees(request):
     Employer_obj = Employer.objects.get(user=request.user)
     employees = Employee.objects.filter(employer=Employer_obj)
-    return render(request, 'reports/employee/view_all_employees.html' , { 'employees' : employees })
+    return render(request, 'reports/employee/view_all_employees.html' , { 'json' : serializers.serialize('json' , employees) , 'employees' : employees })
 
 def neutralize_employee(request):
     pass
