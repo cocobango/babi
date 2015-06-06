@@ -6,7 +6,7 @@ class Employer(models.Model):
     user = models.OneToOneField(User)
     business_id = models.IntegerField()
     income_tax_id = models.IntegerField()
-    phone_number = models.IntegerField()
+    phone_number = models.BigIntegerField()
     name_of_contact = models.CharField(max_length=200)
     is_required_to_pay_vat = models.BooleanField(default=True)
     def __str__(self):
