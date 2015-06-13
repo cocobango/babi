@@ -42,8 +42,20 @@ def view_all_employees(request):
     employees = Employee.objects.filter(employer=Employer_obj)
     return render(request, 'reports/employee/view_all_employees.html' , { 'json' : serializers.serialize('json' , employees) , 'employees' : employees })
 
-def change_employee_status(request):
-    pass
+def toggle_employee_status(request):
+    if request.method == 'POST':
+        employer = get_object_or_404(Employer , user=request.user)
+        # employee = Employee.objects.get(employer=employer , user_id=request.POST['employee_user_id'])
+        employee = get_object_or_404(Employee , employer=employer , user_id=request.POST['employee_user_id'])
+
+        if employee.user.is_active:
+            employee.user.is_active = False
+        else:
+            employee.user.is_active = True
+        employee.user.save()
+        return HttpResponseRedirect(reverse('reports:view_all_employees' , ))
+    else:
+        return HttpResponseRedirect(reverse('my_login:messages' , args=('Error, this is a POST gateway, not GET',)))
 
 def view_history(request):
     pass

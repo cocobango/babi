@@ -4,12 +4,14 @@
         <title>Wage reports babi</title>
         {% load staticfiles %}
 
-		<link rel="stylesheet" type="text/css" href="{% static 'reports/style.css' %}" />
+		<link rel="stylesheet" type="text/css" href="{% static 'reports/css/style.css' %}" />
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
     </head>
 
     <body>
     {% block content %}{% endblock content %}
     </body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+    <script src="{% static 'reports/js/general.js' %}"></script>
 </html>

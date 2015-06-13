@@ -6,7 +6,14 @@
 
 <table class="table">
 	<tr>
-		<th>user id</th><th>first name</th><th>last name</th><th>Government id</th><th>email</th><th>username</th><th>Birthday</th>
+		<th>user id</th>
+		<th>first name</th>
+		<th>last name</th>
+		<th>Government id</th>
+		<th>email</th>
+		<th>username</th>
+		<th>Birthday</th>
+		<th>Action</th>
 	</tr>
 	{% for employee in employees %}
 	<tr>
@@ -31,10 +38,22 @@
 		<td>
 			{{ employee.birthday }}
 		</td>
+		<td>
+		{% if employee.user.is_active %}
+   			<button class="btn btn-warning" onclick="toggle_user_status({{employee.user.id}})">Disable user</button> 
+		{% else %}
+		    <button class="btn btn-success" onclick="toggle_user_status({{employee.user.id}})">Activate user</button> 
+		{% endif %}
+			
+		</td>
 	</tr>   
 	{% endfor %}
 
 </table>
-
+<form id="toggle_employee_status" action="{% url 'reports:toggle_employee_status' %}" method="post">
+	<input type="hidden" value="" name="employee_user_id" id="employee_user_id" />
+	
+	{% csrf_token %}
+</form>
 
 {% endblock content %}
