@@ -10,7 +10,7 @@ from .models import Monthly_employee_data, Employee , Employer
 
 @login_required
 def user_management(request):
-    pass
+    return render(request, 'reports/employer/user_management.html' , { })
 
 def add_employee(request):
     if request.method == 'POST':
@@ -34,13 +34,13 @@ def add_employee(request):
     else:
         form_registration = UserCreateForm()
         form = EmployeeForm();
-    return render(request, 'reports/employee/add_employee.html' , { 'form' : EmployeeForm , 'form_registration' : form_registration })
+    return render(request, 'reports/employer/add_employee.html' , { 'form' : EmployeeForm , 'form_registration' : form_registration })
 
 @login_required
 def view_all_employees(request):
     Employer_obj = Employer.objects.get(user=request.user)
     employees = Employee.objects.filter(employer=Employer_obj)
-    return render(request, 'reports/employee/view_all_employees.html' , { 'json' : serializers.serialize('json' , employees) , 'employees' : employees })
+    return render(request, 'reports/employer/view_all_employees.html' , { 'json' : serializers.serialize('json' , employees) , 'employees' : employees })
 
 def toggle_employee_status(request):
     if request.method == 'POST':
@@ -75,14 +75,42 @@ def view_report_of_type(request):
 def current_month(request):
     pass
 
-def show_entrees(request):
-    pass
+def show_entries(request):
+    Employer_obj = Employer.objects.get(user=request.user)
+    employees = Employee.objects.filter(employer=Employer_obj)
+    entries = {}
+    for employee in employees:
+        try:
+            single_entry = Monthly_employee_data.objects.get(employee=employee).last()
+            entries[employee.user.id] = single_entry 
+        except Monthly_employee_data.DoesNotExist:
+            entries[employee.user.id] = Employee()
+        
+    
+    return render(request, 'reports/employer/show_entries.html' , { 'employees' : employees , 'entries' : entries })
 
 def set_as_valid(request):
     pass
 
-def edit_specific_entry(request):
-    return render(request, 'reports/employee/monthly_entry.html' , { 'form' : EmployeeForm })
+def edit_specific_entry(request , employee_user_id):
+    if request.method == 'POST':
+        form_entry = EmployeeMonthlyEntryForm(request.POST)
+        
+        if form_entry.is_valid():
+            employer = get_object_or_404(Employer , user=request.user)
+            employee = get_object_or_404(Employee , employer=employer , user_id=request.POST['employee_user_id'])
+
+            form_entry.employee = employee
+            form_entry.entered_by = 'employer'
+            form_entry.save()
+            return HttpResponseRedirect(reverse('reports:show_entries' ))
+        else:
+            return HttpResponseRedirect(reverse('my_login:messages' , args=('entry was not added, data was not valid',)))
+            
+    else:
+        form_registration = UserCreateForm()
+        form = EmployeeForm();
+    return render(request, 'reports/employer/monthly_entry.html' , { 'form' : EmployeeMonthlyEntryForm , 'employee_user_id' : employee_user_id })
 
 
 def enter_employer_monthly_data(request):
@@ -90,7 +118,7 @@ def enter_employer_monthly_data(request):
 
 @login_required
 def index(request):
-    return render(request, 'reports/employee/add_employee.html' , { 'form' : EmployeeForm })
+    return render(request, 'reports/employer/add_employee.html' , { 'form' : EmployeeForm })
 
 def redirect_to_login(request):
     redirect_to_login('/')

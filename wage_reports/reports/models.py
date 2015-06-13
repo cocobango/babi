@@ -1,4 +1,5 @@
 from django.db import models
+from datetime import datetime 
 
 from django.contrib.auth.models import User
 
@@ -25,6 +26,8 @@ class Employee(models.Model):
 class Monthly_employee_data(models.Model):
     """The information an employee enters each month is called Monthly_employee_data"""
     employee = models.ForeignKey(Employee)
+    created = models.DateTimeField(default=datetime.now , blank=True)
+    entered_by = models.CharField(max_length=30 , default='employee')
     gross_payment = models.DecimalField(max_digits=11, decimal_places=2)
     travel_expenses = models.DecimalField(max_digits=11, decimal_places=2)
     gross_or_cost = models.BooleanField(default=True)
@@ -35,6 +38,7 @@ class Monthly_employee_data(models.Model):
 class Monthly_employer_data(models.Model):
     """The information an employer enters each month is called Monthly_employee_data"""
     monthly_employee_data = models.OneToOneField(Monthly_employee_data)
+    created = models.DateTimeField(default=datetime.now , blank=True)
     is_required_to_pay_vat = models.BooleanField(default=True)
     is_required_to_pay_income_tax = models.BooleanField(default=True)
     lower_tax_threshold = models.DecimalField(max_digits=11, decimal_places=2)

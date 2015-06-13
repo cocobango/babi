@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Enter Monthly Data</h1>
+
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+<form action="{% url 'reports:edit_specific_entry' employee_user_id %}" method="post">
+    {% csrf_token %}
+    {{ form }}
+    <input type="hidden" name="employee_user_id" value="{{employee_user_id}}" />
+    <input type="submit" value="submit" />
+</form>
+
+{% endblock content %}

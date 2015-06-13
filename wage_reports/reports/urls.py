@@ -21,8 +21,8 @@ urlpatterns = [
     url(r'^view_history/view_a_single_month/(?P<year>[0-9]{4})/(?P<month>[0-9]{2})$', views.view_a_single_month, name='view_a_single_month'),
     url(r'^view_history/view_report_of_type/(?P<report_type>[a-z]+)/(?P<year>[0-9]{4})/(?P<month>[0-9]{2})$', views.view_report_of_type, name='view_report_of_type'),
     url(r'^current_month$', views.current_month, name='current_month'),
-    url(r'^current_month/show_entrees$', views.show_entrees, name='show_entrees'),
+    url(r'^current_month/show_entries$', views.show_entries, name='show_entries'),
     url(r'^current_month/set_as_valid/(?P<entry_id>[0-9]+)$', views.set_as_valid, name='set_as_valid'),
-    url(r'^current_month/edit_specific_entry/(?P<entry_id>[0-9]+)$', views.edit_specific_entry, name='edit_specific_entry'),
+    url(r'^current_month/edit_specific_entry/(?P<employee_user_id>[0-9]+)$', views.edit_specific_entry, name='edit_specific_entry'),
     url(r'^current_month/edit_specific_entry$', views.edit_specific_entry, name='edit_specific_entry'),
 ]

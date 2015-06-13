@@ -36,7 +36,7 @@ class EmployeeForm(ModelForm):
 class EmployeeMonthlyEntryForm(ModelForm):
     class Meta:
         model = Monthly_employee_data
-        fields = '__all__'
+        fields = ['gross_payment' , 'travel_expenses' , 'gross_or_cost' , 'is_required_to_pay_social_security' , 'is_employer_the_main_employer' , 'gross_payment_from_others']
 
 
 class UserCreateForm(UserCreationForm):

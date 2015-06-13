@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>View This Month's Entries</h1>
+
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+<table class="table">
+	<tr>
+		<th>User id</th>
+		<th>Name</th>
+		<th>created</th>
+		<th>gross_payment</th>
+		<th>travel_expenses</th>
+		<th>gross_or_cost</th>
+		<th>is_required_to_pay_social_security</th>
+		<th>is_employer_the_main_employer</th>
+		<th>gross_payment_from_others</th>
+
+		<th>Action</th>
+	</tr>
+	{% for entry in entries %}
+	<tr>
+		<td>
+		  	{{ entry.user.id }}
+		</td>
+		<td>
+			{{ entry.user.first_name }} {{ entry.employee.user.last_name }}
+		</td>
+		<td>
+			
+		</td>
+		<td>
+			{{ employee.government_id }}
+		</td>
+		<td>
+			{{ employee.user.email }}
+		</td>
+		<td>
+			{{ employee.user.username }}
+		</td>
+		<td>
+			{{ employee.birthday }}
+		</td>
+		<td>
+		{% if employee.user.is_active %}
+   			<button class="btn btn-warning" onclick="toggle_user_status({{employee.user.id}})">Disable user</button> 
+		{% else %}
+		    <button class="btn btn-success" onclick="toggle_user_status({{employee.user.id}})">Activate user</button> 
+		{% endif %}
+			
+		</td>
+	</tr>   
+	{% endfor %}
+
+</table>
+<form id="toggle_employee_status" action="{% url 'reports:toggle_employee_status' %}" method="post">
+	<input type="hidden" value="" name="employee_user_id" id="employee_user_id" />
+	
+	{% csrf_token %}
+</form>
+
+{% endblock content %}
