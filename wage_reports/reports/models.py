@@ -35,6 +35,9 @@ class Monthly_employee_data(models.Model):
     is_employer_the_main_employer = models.BooleanField(default=True)
     gross_payment_from_others = models.DecimalField(max_digits=11, decimal_places=2)
 
+    def __str__(self):
+        return self.created
+
 class Monthly_employer_data(models.Model):
     """The information an employer enters each month is called Monthly_employee_data"""
     monthly_employee_data = models.OneToOneField(Monthly_employee_data)

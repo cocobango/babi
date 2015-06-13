@@ -78,13 +78,13 @@ def current_month(request):
 def show_entries(request):
     Employer_obj = Employer.objects.get(user=request.user)
     employees = Employee.objects.filter(employer=Employer_obj)
-    entries = {}
+    entries = []
     for employee in employees:
         try:
-            single_entry = Monthly_employee_data.objects.get(employee=employee).last()
-            entries[employee.user.id] = single_entry 
+            single_entry = Monthly_employee_data.objects.filter(employee=employee).latest('created')
+            entries.append(single_entry) 
         except Monthly_employee_data.DoesNotExist:
-            entries[employee.user.id] = Employee()
+            entries.append( Employee(user = employee.user) )
         
     
     return render(request, 'reports/employer/show_entries.html' , { 'employees' : employees , 'entries' : entries })
@@ -100,9 +100,10 @@ def edit_specific_entry(request , employee_user_id):
             employer = get_object_or_404(Employer , user=request.user)
             employee = get_object_or_404(Employee , employer=employer , user_id=request.POST['employee_user_id'])
 
-            form_entry.employee = employee
-            form_entry.entered_by = 'employer'
-            form_entry.save()
+            partial_monthly_entree = form_entry.save(commit=False)
+            partial_monthly_entree.employee = employee
+            partial_monthly_entree.entered_by = 'employer'
+            partial_monthly_entree.save()
             return HttpResponseRedirect(reverse('reports:show_entries' ))
         else:
             return HttpResponseRedirect(reverse('my_login:messages' , args=('entry was not added, data was not valid',)))

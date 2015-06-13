@@ -2,6 +2,8 @@
 {% block content %}
 <h1>View This Month's Entries</h1>
 
+{{json}}
+
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
 <table class="table">
@@ -17,11 +19,12 @@
 		<th>gross_payment_from_others</th>
 
 		<th>Action</th>
+		
 	</tr>
 	{% for entry in entries %}
 	<tr>
 		<td>
-		  	{{ entry.user.id }}
+		  	{{ entry.id }}
 		</td>
 		<td>
 			{{ entry.user.first_name }} {{ entry.employee.user.last_name }}
@@ -30,7 +33,7 @@
 			
 		</td>
 		<td>
-			{{ employee.government_id }}
+			{{ entry.gross_payment }}
 		</td>
 		<td>
 			{{ employee.user.email }}
