@@ -4,25 +4,34 @@
 
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
-<table>
-	<th>user id</th><th>first name</th><th>last name</th><th>Government id</th><th>email</th><th>username</th><th>Birthday</th>
+<table class="table">
+	<tr>
+		<th>user id</th><th>first name</th><th>last name</th><th>Government id</th><th>email</th><th>username</th><th>Birthday</th>
+	</tr>
 	{% for employee in employees %}
-	<td>
-	  	{{ employee.user.id }}
-	</td>
-	<td>
-		{{ employee.user.first_name }}
-	</td>
-	<td>
-		{{ employee.user.last_name }}
-	</td>
-	<td>
-		{{ employee.government_id }}
-	</td>
-	<td>
-		{{ employee.birthday }}
-	</td>   
-	</div>
+	<tr>
+		<td>
+		  	{{ employee.user.id }}
+		</td>
+		<td>
+			{{ employee.user.first_name }}
+		</td>
+		<td>
+			{{ employee.user.last_name }}
+		</td>
+		<td>
+			{{ employee.government_id }}
+		</td>
+		<td>
+			{{ employee.user.email }}
+		</td>
+		<td>
+			{{ employee.user.username }}
+		</td>
+		<td>
+			{{ employee.birthday }}
+		</td>
+	</tr>   
 	{% endfor %}
 
 </table>

@@ -42,7 +42,7 @@ def view_all_employees(request):
     employees = Employee.objects.filter(employer=Employer_obj)
     return render(request, 'reports/employee/view_all_employees.html' , { 'json' : serializers.serialize('json' , employees) , 'employees' : employees })
 
-def neutralize_employee(request):
+def change_employee_status(request):
     pass
 
 def view_history(request):
