@@ -93,8 +93,24 @@ def show_entries(request):
             entries.append( empty_entry )
     return render(request, 'reports/employer/show_entries.html' , { 'employees' : employees , 'entries' : entries })
 
-def pre_aprove_month(request):
-    pass
+def pre_approve_month(request):
+    Employer_obj = Employer.objects.get(user=request.user)
+    employees = Employee.objects.filter(employer=Employer_obj)
+    approved_entries = []
+    disapproved_entries = []
+    empty_entries = []
+    for employee in employees:
+        try:
+            single_entry = Monthly_employee_data.objects.filter(employee=employee).latest('created')
+            if single_entry.is_approved:
+                approved_entries.append(single_entry) 
+            else:
+                disapproved_entries.append(single_entry)
+        except Monthly_employee_data.DoesNotExist:
+            empty_entry = { 'employee' : Employee(user = employee.user) , 'has_data' : False }
+            empty_entries.append( empty_entry )
+    return render(request, 'reports/employer/pre_approve_month.html' , { 'approved_entries' : approved_entries , 'disapproved_entries' : disapproved_entries , 'empty_entries' : empty_entries })
+
 
 def set_as_valid(request):
     if request.method == 'POST':
@@ -104,6 +120,7 @@ def set_as_valid(request):
             single_entry.pk = None
             # Monthly_employee_data.objects.filter( employee__user_id=11 , created__gte=timezone.now().replace(day=1,hour=0, minute=0) ).update(is_approved=False)
             Monthly_employee_data.objects.select_related('employee__user').filter( employee__user_id=request.POST['employee_user_id'] , created__gte=timezone.now().replace(day=1,hour=0, minute=0) ).update(is_approved=False)
+            single_entry.created = None
             single_entry.save()
             return JsonResponse({'is_okay':True , 'message' : 'successfully approved entry' , 'data' : single_entry.id})
         except Monthly_employee_data.DoesNotExist:
