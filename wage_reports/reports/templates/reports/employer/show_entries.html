@@ -67,13 +67,11 @@
 		<td>
 			<a href="{% url 'reports:edit_specific_entry' entry.employee.user.id %}" class="btn btn-defualt" >Edit entry</a>
 			{% if entry.has_data %}
-	   			<button class="btn btn-success" onclick="approve_employee_monthly_entry({{ entry.id }})">Approve input</button>
+	   			<button class="btn btn-success" onclick="approve_employee_monthly_entry('{% url 'reports:set_as_valid' %}' ,{{ entry.id }} , {{entry.employee.user.id }} , '{{ csrf_token }}')">Approve input</button>
 			{% endif %}
 			
 		</td>
 	</tr>   
 	{% endfor %}
-
 </table>
-
 {% endblock content %}

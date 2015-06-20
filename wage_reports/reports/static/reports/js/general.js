@@ -3,10 +3,39 @@ toggle_user_status = function(user_id){
 	$('#toggle_employee_status').submit();
 }
 
-approve_employee_monthly_entry = function(entry_id){
-	alert(entry_id + 'will be approved');
+approve_employee_monthly_entry = function(url , entry_id , employee_user_id , csrf_token){
+	formData = {
+		entry_id : entry_id,
+		employee_user_id : employee_user_id
+	};
+	generic_ajax_call(url , formData , csrf_token);
 }
 
-exclude_from_this_report = function(entry_id){
-	alert(entry_id + 'will be approved');
+default_success_callback = function(){
+	alert('Success!');
 }
+
+default_error_callback = function(){
+	alert('Error, Check your internet connection or contact support!');
+}
+
+generic_ajax_call = function(url , formData , csrf_token , success_callback , error_callback){
+	formData.csrfmiddlewaretoken = csrf_token;
+	$.ajax({
+	    url : url,
+	    type: "POST",
+	    data : formData,
+	    success: function(data, textStatus, jqXHR)
+	    {
+    	    success_callback = typeof success_callback !== 'undefined' ? success_callback : default_success_callback;
+	        success_callback(data);
+	    },
+	    error: function (jqXHR, textStatus, errorThrown)
+	    {
+    	    error_callback = typeof error_callback !== 'undefined' ? error_callback : default_error_callback;
+	        error_callback();
+	    }
+	});
+
+}
+

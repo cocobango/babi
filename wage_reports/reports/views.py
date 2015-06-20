@@ -1,9 +1,13 @@
+from datetime import datetime
+
+
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, render
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse , JsonResponse
 from django.core.urlresolvers import reverse
 from django.contrib.auth import authenticate, login
 from django.core import serializers
+from django.utils import timezone
 
 from .forms import EmployeeForm , EmployeeMonthlyEntryForm , UserCreateForm 
 from .models import Monthly_employee_data, Employee , Employer
@@ -93,7 +97,20 @@ def pre_aprove_month(request):
     pass
 
 def set_as_valid(request):
-    pass
+    if request.method == 'POST':
+        try:
+            single_entry = Monthly_employee_data.objects.select_related('employee__user').get(pk=request.POST['entry_id'] , employee__user_id=request.POST['employee_user_id'] , employee__employer__user=request.user )
+            single_entry.is_approved = True
+            single_entry.pk = None
+            # Monthly_employee_data.objects.filter( employee__user_id=11 , created__gte=timezone.now().replace(day=1,hour=0, minute=0) ).update(is_approved=False)
+            Monthly_employee_data.objects.select_related('employee__user').filter( employee__user_id=request.POST['employee_user_id'] , created__gte=timezone.now().replace(day=1,hour=0, minute=0) ).update(is_approved=False)
+            single_entry.save()
+            return JsonResponse({'is_okay':True , 'message' : 'successfully approved entry' , 'data' : single_entry.id})
+        except Monthly_employee_data.DoesNotExist:
+            return JsonResponse({'is_okay':True , 'message' : 'Error: Failed to approve entry' , 'data' : 'entry was not added, entry %s ,employee_user %s , employer %s' % { request.POST['entry_id'] , request.POST['employee_user_id'] , request.user}})
+    else:
+        return HttpResponseRedirect(reverse('my_login:messages' , args=('Error, this is a POST gateway, not GET',)))
+    
 
 def edit_specific_entry(request , employee_user_id):
     if request.method == 'POST':

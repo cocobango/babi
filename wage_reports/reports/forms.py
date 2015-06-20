@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import ModelForm, Textarea , EmailField , CharField
-from reports.models import Monthly_employee_data , Employee
+from reports.models import Monthly_employee_data , Employee , Monthly_employer_data
 from django.utils.translation import ugettext_lazy as _
 
 from django.contrib.auth.models import User
