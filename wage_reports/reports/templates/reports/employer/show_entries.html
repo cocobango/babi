@@ -24,42 +24,56 @@
 	{% for entry in entries %}
 	<tr>
 		<td>
-		  	{{ entry.id }}
+		  	{{entry.employee.user.id }}
 		</td>
 		<td>
-			{{ entry.user.first_name }} {{ entry.employee.user.last_name }}
+			{{ entry.employee.user.first_name }} {{ entry.employee.user.last_name }}
 		</td>
 		<td>
-			
+			{{ entry.created }}
 		</td>
 		<td>
 			{{ entry.gross_payment }}
 		</td>
 		<td>
-			{{ employee.user.email }}
+			{{ entry.travel_expenses }}
 		</td>
 		<td>
-			{{ employee.user.username }}
-		</td>
-		<td>
-			{{ employee.birthday }}
-		</td>
-		<td>
-		{% if employee.user.is_active %}
-   			<button class="btn btn-warning" onclick="toggle_user_status({{employee.user.id}})">Disable user</button> 
+		{% if entry.gross_or_cost %}
+   			Gross
 		{% else %}
-		    <button class="btn btn-success" onclick="toggle_user_status({{employee.user.id}})">Activate user</button> 
+		    Cost
 		{% endif %}
+			
+		</td>
+		<td>
+		{% if entry.is_required_to_pay_social_security %}
+   			Need to pay social security 
+		{% else %}
+		    Free of social security 
+		{% endif %}
+			
+		</td>
+		<td>
+		{% if entry.is_employer_the_main_employer %}
+   			Am main employer
+		{% else %}
+		    Not main employer
+		{% endif %}
+		</td>
+		<td>
+			{{ entry.gross_payment_from_others }}	
+		</td>
+		<td>
+			<a href="{% url 'reports:edit_specific_entry' entry.employee.user.id %}" class="btn btn-defualt" >Edit entry</a>
+			{% if entry.has_data %}
+	   			<button class="btn btn-success" onclick="approve_employee_monthly_entry({{ entry.id }})">Approve input</button>
+			{% endif %}
 			
 		</td>
 	</tr>   
 	{% endfor %}
 
 </table>
-<form id="toggle_employee_status" action="{% url 'reports:toggle_employee_status' %}" method="post">
-	<input type="hidden" value="" name="employee_user_id" id="employee_user_id" />
-	
-	{% csrf_token %}
-</form>
 
 {% endblock content %}

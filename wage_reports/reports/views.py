@@ -82,12 +82,17 @@ def show_entries(request):
     for employee in employees:
         try:
             single_entry = Monthly_employee_data.objects.filter(employee=employee).latest('created')
+            single_entry.has_data = True
             entries.append(single_entry) 
         except Monthly_employee_data.DoesNotExist:
-            entries.append( Employee(user = employee.user) )
+            empty_entry = { 'employee' : Employee(user = employee.user) , 'has_data' : False }
+            entries.append( empty_entry )
         
     
     return render(request, 'reports/employer/show_entries.html' , { 'employees' : employees , 'entries' : entries })
+
+def pre_aprove_month(request):
+    pass
 
 def set_as_valid(request):
     pass
