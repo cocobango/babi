@@ -38,6 +38,13 @@ class EmployeeMonthlyEntryForm(ModelForm):
         model = Monthly_employee_data
         fields = ['gross_payment' , 'travel_expenses' , 'gross_or_cost' , 'is_required_to_pay_social_security' , 'is_employer_the_main_employer' , 'gross_payment_from_others']
 
+    def save(self, commit=True):
+        monthly_employee_data = super(EmployeeMonthlyEntryForm, self).save(commit=False)
+        
+        if commit:
+            monthly_employee_data.save()
+        return monthly_employee_data
+
 
 class UserCreateForm(UserCreationForm):
     email = EmailField(label=_("Email address"), required=True)

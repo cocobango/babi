@@ -87,8 +87,6 @@ def show_entries(request):
         except Monthly_employee_data.DoesNotExist:
             empty_entry = { 'employee' : Employee(user = employee.user) , 'has_data' : False }
             entries.append( empty_entry )
-        
-    
     return render(request, 'reports/employer/show_entries.html' , { 'employees' : employees , 'entries' : entries })
 
 def pre_aprove_month(request):
@@ -100,11 +98,9 @@ def set_as_valid(request):
 def edit_specific_entry(request , employee_user_id):
     if request.method == 'POST':
         form_entry = EmployeeMonthlyEntryForm(request.POST)
-        
         if form_entry.is_valid():
             employer = get_object_or_404(Employer , user=request.user)
             employee = get_object_or_404(Employee , employer=employer , user_id=request.POST['employee_user_id'])
-
             partial_monthly_entree = form_entry.save(commit=False)
             partial_monthly_entree.employee = employee
             partial_monthly_entree.entered_by = 'employer'
@@ -114,9 +110,14 @@ def edit_specific_entry(request , employee_user_id):
             return HttpResponseRedirect(reverse('my_login:messages' , args=('entry was not added, data was not valid',)))
             
     else:
-        form_registration = UserCreateForm()
-        form = EmployeeForm();
-    return render(request, 'reports/employer/monthly_entry.html' , { 'form' : EmployeeMonthlyEntryForm , 'employee_user_id' : employee_user_id })
+        employee = get_object_or_404(Employee , user_id=employee_user_id)
+        try:
+            single_entry = Monthly_employee_data.objects.filter(employee=employee).latest('created')
+            form = EmployeeMonthlyEntryForm(instance=single_entry)
+        except Monthly_employee_data.DoesNotExist:
+            form = EmployeeMonthlyEntryForm()
+        return render(request, 'reports/employer/monthly_entry.html' , { 'form' : form , 'employee_user_id' : employee_user_id })
+    
 
 
 def enter_employer_monthly_data(request):
