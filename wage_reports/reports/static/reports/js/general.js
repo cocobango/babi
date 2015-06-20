@@ -11,8 +11,13 @@ approve_employee_monthly_entry = function(url , entry_id , employee_user_id , cs
 	generic_ajax_call(url , formData , csrf_token);
 }
 
-default_success_callback = function(){
-	alert('Success!');
+default_success_callback = function(data){
+	json = JSON.Parse(data);
+	if (json.is_okay) {
+		alert('Success!');
+	} else {
+		alert(json.message);
+	}
 }
 
 default_error_callback = function(){
