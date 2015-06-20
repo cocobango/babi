@@ -28,6 +28,7 @@ class Monthly_employee_data(models.Model):
     employee = models.ForeignKey(Employee)
     created = models.DateTimeField(default=datetime.now , blank=True)
     entered_by = models.CharField(max_length=30 , default='employee')
+    is_approved = models.BooleanField(default=False)
     gross_payment = models.DecimalField(max_digits=11, decimal_places=2)
     travel_expenses = models.DecimalField(max_digits=11, decimal_places=2)
     gross_or_cost = models.BooleanField(default=True)
