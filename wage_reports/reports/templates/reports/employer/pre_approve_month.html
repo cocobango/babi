@@ -1,0 +1,273 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>View This Month's Entries</h1>
+<p class="danger">NOTICE: After approving this month you will not be able to change its data.</p>
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+<h2>Approved Entries</h2>
+<p>These are the only entries that will be included in this month's report.</p>
+<table class="table">
+	<tr>
+		<th>User id</th>
+		<th>Name</th>
+		<th>created</th>
+		<th>gross_payment</th>
+		<th>travel_expenses</th>
+		<th>gross_or_cost</th>
+		<th>is_required_to_pay_social_security</th>
+		<th>is_employer_the_main_employer</th>
+		<th>gross_payment_from_others</th>		
+	</tr>
+	{% for entry in approved_entries %}
+	<tr>
+		<td>
+		  	{{entry.employee.user.id }}
+		</td>
+		<td>
+			{{ entry.employee.user.first_name }} {{ entry.employee.user.last_name }}
+		</td>
+		<td>
+			{{ entry.created }}
+		</td>
+		<td>
+			{{ entry.gross_payment }}
+		</td>
+		<td>
+			{{ entry.travel_expenses }}
+		</td>
+		<td>
+		{% if entry.gross_or_cost %}
+   			Gross
+		{% else %}
+		    Cost
+		{% endif %}
+			
+		</td>
+		<td>
+		{% if entry.is_required_to_pay_social_security %}
+   			Need to pay social security 
+		{% else %}
+		    Free of social security 
+		{% endif %}
+			
+		</td>
+		<td>
+		{% if entry.is_employer_the_main_employer %}
+   			Am main employer
+		{% else %}
+		    Not main employer
+		{% endif %}
+		</td>
+		<td>
+			{{ entry.gross_payment_from_others }}	
+		</td>
+	</tr>   
+	{% endfor %}
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h2>Disapproved Entries</h2>
+<p>Entries from this month that have not been approved and will not be included in the report.</p>
+<table class="table">
+	<tr>
+		<th>User id</th>
+		<th>Name</th>
+		<th>created</th>
+		<th>gross_payment</th>
+		<th>travel_expenses</th>
+		<th>gross_or_cost</th>
+		<th>is_required_to_pay_social_security</th>
+		<th>is_employer_the_main_employer</th>
+		<th>gross_payment_from_others</th>		
+	</tr>
+	{% for entry in disapproved_entries %}
+	<tr>
+		<td>
+		  	{{entry.employee.user.id }}
+		</td>
+		<td>
+			{{ entry.employee.user.first_name }} {{ entry.employee.user.last_name }}
+		</td>
+		<td>
+			{{ entry.created }}
+		</td>
+		<td>
+			{{ entry.gross_payment }}
+		</td>
+		<td>
+			{{ entry.travel_expenses }}
+		</td>
+		<td>
+		{% if entry.gross_or_cost %}
+   			Gross
+		{% else %}
+		    Cost
+		{% endif %}
+			
+		</td>
+		<td>
+		{% if entry.is_required_to_pay_social_security %}
+   			Need to pay social security 
+		{% else %}
+		    Free of social security 
+		{% endif %}
+			
+		</td>
+		<td>
+		{% if entry.is_employer_the_main_employer %}
+   			Am main employer
+		{% else %}
+		    Not main employer
+		{% endif %}
+		</td>
+		<td>
+			{{ entry.gross_payment_from_others }}	
+		</td>
+	</tr>   
+	{% endfor %}
+</table>
+
+
+<h2>Old Entries</h2>
+<p>Entries from past months that have no new data in this month and will not be included in the report.</p>
+<table class="table">
+	<tr>
+		<th>User id</th>
+		<th>Name</th>
+		<th>created</th>
+		<th>gross_payment</th>
+		<th>travel_expenses</th>
+		<th>gross_or_cost</th>
+		<th>is_required_to_pay_social_security</th>
+		<th>is_employer_the_main_employer</th>
+		<th>gross_payment_from_others</th>		
+	</tr>
+	{% for entry in no_recent_entries %}
+	<tr>
+		<td>
+		  	{{entry.employee.user.id }}
+		</td>
+		<td>
+			{{ entry.employee.user.first_name }} {{ entry.employee.user.last_name }}
+		</td>
+		<td>
+			{{ entry.created }}
+		</td>
+		<td>
+			{{ entry.gross_payment }}
+		</td>
+		<td>
+			{{ entry.travel_expenses }}
+		</td>
+		<td>
+		{% if entry.gross_or_cost %}
+   			Gross
+		{% else %}
+		    Cost
+		{% endif %}
+			
+		</td>
+		<td>
+		{% if entry.is_required_to_pay_social_security %}
+   			Need to pay social security 
+		{% else %}
+		    Free of social security 
+		{% endif %}
+			
+		</td>
+		<td>
+		{% if entry.is_employer_the_main_employer %}
+   			Am main employer
+		{% else %}
+		    Not main employer
+		{% endif %}
+		</td>
+		<td>
+			{{ entry.gross_payment_from_others }}	
+		</td>
+	</tr>   
+	{% endfor %}
+</table>
+
+
+
+
+
+
+
+
+
+
+<h2>Empty Entries</h2>
+<p>Employees that have never had any entries</p>
+<table class="table">
+	<tr>
+		<th>User id</th>
+		<th>Name</th>
+		<th>created</th>
+		<th>gross_payment</th>
+		<th>travel_expenses</th>
+		<th>gross_or_cost</th>
+		<th>is_required_to_pay_social_security</th>
+		<th>is_employer_the_main_employer</th>
+		<th>gross_payment_from_others</th>		
+	</tr>
+	{% for entry in empty_entries %}
+	<tr>
+		<td>
+		  	{{entry.employee.user.id }}
+		</td>
+		<td>
+			{{ entry.employee.user.first_name }} {{ entry.employee.user.last_name }}
+		</td>
+		<td>
+			{{ entry.created }}
+		</td>
+		<td>
+			{{ entry.gross_payment }}
+		</td>
+		<td>
+			{{ entry.travel_expenses }}
+		</td>
+		<td>
+		{% if entry.gross_or_cost %}
+   			Gross
+		{% else %}
+		    Cost
+		{% endif %}
+			
+		</td>
+		<td>
+		{% if entry.is_required_to_pay_social_security %}
+   			Need to pay social security 
+		{% else %}
+		    Free of social security 
+		{% endif %}
+			
+		</td>
+		<td>
+		{% if entry.is_employer_the_main_employer %}
+   			Am main employer
+		{% else %}
+		    Not main employer
+		{% endif %}
+		</td>
+		<td>
+			{{ entry.gross_payment_from_others }}	
+		</td>
+	</tr>   
+	{% endfor %}
+</table>
+{% endblock content %}

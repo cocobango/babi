@@ -99,17 +99,22 @@ def pre_approve_month(request):
     approved_entries = []
     disapproved_entries = []
     empty_entries = []
+    no_recent_entries = []
     for employee in employees:
         try:
             single_entry = Monthly_employee_data.objects.filter(employee=employee).latest('created')
-            if single_entry.is_approved:
-                approved_entries.append(single_entry) 
+            this_month = timezone.now()
+            if single_entry.created.month == this_month.month and single_entry.created.year == this_month.year:
+                if single_entry.is_approved:
+                    approved_entries.append(single_entry) 
+                else:
+                    disapproved_entries.append(single_entry)
             else:
-                disapproved_entries.append(single_entry)
+                no_recent_entries.append(single_entry)
         except Monthly_employee_data.DoesNotExist:
             empty_entry = { 'employee' : Employee(user = employee.user) , 'has_data' : False }
             empty_entries.append( empty_entry )
-    return render(request, 'reports/employer/pre_approve_month.html' , { 'approved_entries' : approved_entries , 'disapproved_entries' : disapproved_entries , 'empty_entries' : empty_entries })
+    return render(request, 'reports/employer/pre_approve_month.html' , { 'approved_entries' : approved_entries , 'disapproved_entries' : disapproved_entries , 'no_recent_entries' : no_recent_entries , 'empty_entries' : empty_entries })
 
 
 def set_as_valid(request):

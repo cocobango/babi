@@ -3,7 +3,7 @@
 <h1>View This Month's Entries</h1>
 
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
-
+<a href="{% url 'reports:pre_approve_month' %}" class="btn btn-primary"> Approve this month</a>
 <table class="table">
 	<tr>
 		<th>User id</th>
