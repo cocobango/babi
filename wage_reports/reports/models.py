@@ -39,7 +39,36 @@ class Monthly_employee_data(models.Model):
     gross_payment_from_others = models.DecimalField(max_digits=11, decimal_places=2)
 
     def __str__(self):
-        return self.created
+        return str(self.created)
+
+    def save(self, commit=True, *args, **kwargs):
+        if commit:
+            if self.is_valid_month():
+                super(Monthly_employee_data, self).save(*args, **kwargs)
+                return self
+            else:
+                return False
+        return monthly_employee_data
+    # @todo check locked months
+    def is_valid_month(self ):
+        """ 
+        Need to check if this entry can be added.
+        An employee cannot add to a month that an employer had entered data for
+        An employee cannot add after a month is over
+        An employee and an employer cannot add to a locked month
+        """
+        # return False
+        latest_entry = Monthly_employee_data.objects.select_related('employee__employer').filter(employee=self.employee_id).latest('created')
+        if latest_entry.entered_by == 'employee':
+            if latest_entry.entered_by == 'employer':
+                return False
+            now = timezone.now()
+            if not (latest_entry.created.month == now.month and latest_entry.created.year == now.year):
+                return False
+        is_month_locked = Locked_months.objects.select_related('employer').filter(for_month=self.for_month , for_year=self.for_year, employer=latest_entry.employee.employer)
+        if is_month_locked:
+            return False
+        return True
 
 class Monthly_employer_data(models.Model):
     """The information an employer enters each month is called Monthly_employee_data"""
@@ -51,6 +80,7 @@ class Monthly_employer_data(models.Model):
     upper_tax_threshold = models.DecimalField(max_digits=11, decimal_places=2)
     income_tax_threshold = models.DecimalField(max_digits=11, decimal_places=2)
     exact_income_tax_percentage = models.DecimalField(max_digits=5, decimal_places=2)
+    
 
 class Monthly_system_data(models.Model):
     """The parameters that are used for each month's calculations is called Monthly_system_data"""

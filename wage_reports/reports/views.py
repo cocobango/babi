@@ -12,6 +12,9 @@ from django.utils import timezone
 from .forms import EmployeeForm , EmployeeMonthlyEntryForm , UserCreateForm 
 from .models import Monthly_employee_data, Employee , Employer
 
+def index(request):
+    pass
+
 @login_required
 def user_management(request):
     return render(request, 'reports/employer/user_management.html' , { })
@@ -116,6 +119,8 @@ def pre_approve_month(request):
             empty_entries.append( empty_entry )
     return render(request, 'reports/employer/pre_approve_month.html' , { 'approved_entries' : approved_entries , 'disapproved_entries' : disapproved_entries , 'no_recent_entries' : no_recent_entries , 'empty_entries' : empty_entries })
 
+def approve_this_month(request):
+    pass
 
 def set_as_valid(request):
     if request.method == 'POST':
