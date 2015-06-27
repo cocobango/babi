@@ -49,7 +49,7 @@ class Monthly_employee_data(models.Model):
             else:
                 return False
         return monthly_employee_data
-    # @todo check locked months
+    # @todo check locked months for first entry of users
     def is_valid_month(self ):
         """ 
         Need to check if this entry can be added.
