@@ -36,14 +36,34 @@ class EmployeeForm(ModelForm):
 class EmployeeMonthlyEntryForm(ModelForm):
     class Meta:
         model = Monthly_employee_data
-        fields = ['gross_payment' , 'travel_expenses' , 'gross_or_cost' , 'is_required_to_pay_social_security' , 'is_employer_the_main_employer' , 'gross_payment_from_others']
-
+        fields = ['for_year' , 'for_month' , 'gross_payment' , 'travel_expenses' , 'gross_or_cost' , 'is_required_to_pay_social_security' , 'is_employer_the_main_employer' , 'gross_payment_from_others']
+        help_texts = {
+            'for_month': _('month as a number from 1-12, For example, July is 7'),
+            'for_year': _('year as a number like YYYY, For example, 2015'),
+        }
     def save(self, commit=True):
         monthly_employee_data = super(EmployeeMonthlyEntryForm, self).save(commit=False)
-        
         if commit:
+            if not self.is_valid_month(monthly_employee_data):
+                return False
             monthly_employee_data.save()
         return monthly_employee_data
+    # @todo check locked months
+    def is_valid_month(self , monthly_employee_data):
+        """ 
+        Need to check if this entry can be added.
+        An employee cannot add to a month that an employer had entered data for
+        An employee cannot add after a month is over
+        An employee and an employer cannot add to a locked month
+        """
+        latest_entry = Monthly_employee_data.objects.filter(employee=monthly_employee_data.employee_id).latest('created')
+        if monthly_employee_data.entered_by == 'employee':
+            if latest_entry.entered_by == 'employer':
+                return False
+            now = timezone.now()
+            if not (latest_entry.created.month == now.month and latest_entry.created.year == now.year):
+                return False
+        
 
 
 class UserCreateForm(UserCreationForm):

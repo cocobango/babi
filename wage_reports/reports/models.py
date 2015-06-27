@@ -30,6 +30,7 @@ class Monthly_employee_data(models.Model):
     entered_by = models.CharField(max_length=30 , default='employee')
     is_approved = models.BooleanField(default=False)
     for_month = models.IntegerField(default=0) 
+    for_year = models.IntegerField(default=0) 
     gross_payment = models.DecimalField(max_digits=11, decimal_places=2)
     travel_expenses = models.DecimalField(max_digits=11, decimal_places=2)
     gross_or_cost = models.BooleanField(default=True)
@@ -61,3 +62,11 @@ class Monthly_system_data(models.Model):
     upper_employer_social_security_percentage = models.DecimalField(max_digits=5, decimal_places=2)
     maximal_sum_to_pay_social_security = models.DecimalField(max_digits=11, decimal_places=2)
     income_tax_default = models.DecimalField(max_digits=11, decimal_places=2)
+
+
+class Locked_months(models.Model):
+    """A table of keys specifying which employer has locked which month"""
+    employer = models.ForeignKey(Employer)
+    for_month = models.IntegerField(default=0) 
+    for_year = models.IntegerField(default=0) 
+    lock_time = models.DateTimeField(auto_now_add=True , blank=True)
