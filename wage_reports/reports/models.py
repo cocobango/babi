@@ -1,6 +1,6 @@
 from django.db import models
 from datetime import datetime 
-
+from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User
 
 class Employer(models.Model):
@@ -58,16 +58,21 @@ class Monthly_employee_data(models.Model):
         An employee and an employer cannot add to a locked month
         """
         # return False
-        latest_entry = Monthly_employee_data.objects.select_related('employee__employer').filter(employee=self.employee_id).latest('created')
-        if latest_entry.entered_by == 'employee':
-            if latest_entry.entered_by == 'employer':
-                return False
+        try:
+            latest_entry = Monthly_employee_data.objects.select_related('employee__employer').filter(employee=self.employee_id).latest('created')
+        except ObjectDoesNotExist:
+            latest_entry = {}
+        if self.entered_by == 'employee':
+            if latest_entry:
+                if latest_entry.entered_by == 'employer':
+                    return False
             now = timezone.now()
-            if not (latest_entry.created.month == now.month and latest_entry.created.year == now.year):
+            if not (self.for_month == now.month and self.for_year == now.year):
                 return False
-        is_month_locked = Locked_months.objects.select_related('employer').filter(for_month=self.for_month , for_year=self.for_year, employer=latest_entry.employee.employer)
-        if is_month_locked:
-            return False
+        if latest_entry:
+            is_month_locked = Locked_months.objects.select_related('employer').filter(for_month=self.for_month , for_year=self.for_year, employer=latest_entry.employee.employer)
+            if is_month_locked:
+                return False
         return True
 
 class Monthly_employer_data(models.Model):
