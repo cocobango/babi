@@ -10,7 +10,7 @@ from django.core import serializers
 from django.utils import timezone
 
 from .forms import EmployeeForm , EmployeeMonthlyEntryForm , UserCreateForm 
-from .models import Monthly_employee_data, Employee , Employer
+from .models import Monthly_employee_data, Employee , Employer , Locked_months
 
 def index(request):
     pass
@@ -120,7 +120,19 @@ def pre_approve_month(request):
     return render(request, 'reports/employer/pre_approve_month.html' , { 'approved_entries' : approved_entries , 'disapproved_entries' : disapproved_entries , 'no_recent_entries' : no_recent_entries , 'empty_entries' : empty_entries })
 
 def approve_this_month(request):
-    pass
+    if request.method == 'POST':
+        try:
+            now = timezone.now()
+            locked_month = Locked_months.objects.select_related('employer').get(for_month=request['for_month'] , for_year=request['for_year'], employer__user=request['user'])
+            return HttpResponseRedirect(reverse('my_login:messages' , args=('month allready locked',)))
+        except ObjectDoesNotExist:
+            locked_month = Locked_months()
+        else:
+            pass
+        finally:
+            pass
+    else:
+        return HttpResponseRedirect(reverse('my_login:messages' , args=('Error, this is a POST gateway, not GET',)))
 
 def set_as_valid(request):
     if request.method == 'POST':
