@@ -2,6 +2,7 @@ from datetime import datetime
 
 
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import redirect_to_login
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect, HttpResponse , JsonResponse
 from django.core.urlresolvers import reverse
@@ -12,8 +13,15 @@ from django.utils import timezone
 from .forms import EmployeeForm , EmployeeMonthlyEntryForm , UserCreateForm 
 from .models import Monthly_employee_data, Employee , Employer , Locked_months
 
+
+from .helpers import is_employer
+@login_required
 def index(request):
-    pass
+    if is_employer(request.user):
+        return render(request, 'reports/employer/index.html' , {})
+    else:
+        return render(request, 'reports/employee/index.html' , {})
+
 
 @login_required
 def user_management(request):
@@ -179,12 +187,8 @@ def edit_specific_entry(request , employee_user_id):
 def enter_employer_monthly_data(request):
     pass
 
-@login_required
-def index(request):
-    return render(request, 'reports/employer/add_employee.html' , { 'form' : EmployeeForm })
-
-def redirect_to_login(request):
-    redirect_to_login('/')
+def redirect_to_real_login(request):
+    return redirect_to_login('accounts/profile')
 
 
 

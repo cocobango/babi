@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Welcome</h1>
+
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+<a href="{% url 'reports:current_month' %}">Insert data for current month</a>
+<br>
+<a href="{% url 'reports:view_history' %}">View data for past months</a>
+{% endblock content %}
