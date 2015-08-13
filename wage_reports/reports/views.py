@@ -10,7 +10,7 @@ from django.contrib.auth import authenticate, login
 from django.core import serializers
 from django.utils import timezone
 
-from .forms import EmployeeForm , EmployeeMonthlyEntryForm , UserCreateForm 
+from .forms import EmployeeForm , EmployeeMonthlyEntryForm , EmployerMonthlyEntryForm , UserCreateForm 
 from .models import Monthly_employer_data, Monthly_employee_data, Employee , Employer , Locked_months
 
 
@@ -40,7 +40,7 @@ def add_employee(request):
                 employer = Employer.objects.get(user=request.user)
                 new_employee = Employee(user=new_user , employer=employer , birthday=employee_form_data.birthday , government_id=employee_form_data.government_id)
                 new_employee.save()
-                return HttpResponseRedirect(reverse('my_login:messages' , args=('user added successfuly',)))
+                return HttpResponseRedirect(reverse('reports:edit_specific_monthly_employer_data' , args=(new_user.id,)))
             else:
                 return HttpResponseRedirect(reverse('my_login:messages' , args=('user was not added, employee data was not valid',)))
         else:
@@ -180,7 +180,7 @@ def edit_specific_entry(request , employee_user_id):
             form = EmployeeMonthlyEntryForm(instance=single_entry)
         except Monthly_employee_data.DoesNotExist:
             form = EmployeeMonthlyEntryForm()
-        return render(request, 'reports/employer/monthly_entry.html' , { 'form' : form , 'employee_user_id' : employee_user_id })
+        return render(request, 'reports/employee/monthly_entry.html' , { 'form' : form , 'employee_user_id' : employee_user_id })
     
 
 
@@ -194,7 +194,7 @@ def edit_specific_monthly_employer_data(request, employee_user_id):
             partial_monthly_entree.employee = employee
             partial_monthly_entree.entered_by = 'employer'
             partial_monthly_entree.save()
-            return HttpResponseRedirect(reverse('reports:show_entries' ))
+            return HttpResponseRedirect(reverse('reports:view_all_employees' ))
         else:
             return HttpResponseRedirect(reverse('my_login:messages' , args=('entry was not added, data was not valid',)))
             

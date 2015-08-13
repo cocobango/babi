@@ -4,7 +4,7 @@
 
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
-<form action="{% url 'reports:edit_specific_entry' employee_user_id %}" method="post">
+<form action="{% url 'reports:edit_specific_monthly_employer_data' employee_user_id %}" method="post">
     {% csrf_token %}
     {{ form }}
     <input type="hidden" name="employee_user_id" value="{{employee_user_id}}" />

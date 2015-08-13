@@ -39,6 +39,7 @@
 			{{ employee.birthday }}
 		</td>
 		<td>
+			<a class="btn btn-info" href="{% url 'reports:edit_specific_monthly_employer_data' employee.user.id %}">Edit user</a> 
 		{% if employee.user.is_active %}
    			<button class="btn btn-warning" onclick="toggle_user_status({{employee.user.id}})">Disable user</button> 
 		{% else %}
