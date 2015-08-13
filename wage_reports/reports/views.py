@@ -87,9 +87,6 @@ def view_a_single_month(request):
 def view_report_of_type(request):
     pass
 
-def current_month(request):
-    pass
-
 def show_entries(request):
     Employer_obj = Employer.objects.get(user=request.user)
     employees = Employee.objects.filter(employer=Employer_obj)
@@ -135,10 +132,6 @@ def approve_this_month(request):
             return HttpResponseRedirect(reverse('my_login:messages' , args=('month allready locked',)))
         except ObjectDoesNotExist:
             locked_month = Locked_months()
-        else:
-            pass
-        finally:
-            pass
     else:
         return HttpResponseRedirect(reverse('my_login:messages' , args=('Error, this is a POST gateway, not GET',)))
 

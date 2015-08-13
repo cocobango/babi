@@ -20,7 +20,6 @@ urlpatterns = [
     url(r'^view_history/view_all_months$', views.view_all_months, name='view_all_months'),
     url(r'^view_history/view_a_single_month/(?P<year>[0-9]{4})/(?P<month>[0-9]{2})$', views.view_a_single_month, name='view_a_single_month'),
     url(r'^view_history/view_report_of_type/(?P<report_type>[a-z]+)/(?P<year>[0-9]{4})/(?P<month>[0-9]{2})$', views.view_report_of_type, name='view_report_of_type'),
-    url(r'^current_month$', views.current_month, name='current_month'),
     url(r'^current_month/show_entries$', views.show_entries, name='show_entries'),
     url(r'^current_month/pre_approve_month$', views.pre_approve_month, name='pre_approve_month'),
     url(r'^current_month/approve_this_month$', views.approve_this_month, name='approve_this_month'),
