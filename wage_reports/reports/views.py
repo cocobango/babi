@@ -11,7 +11,7 @@ from django.core import serializers
 from django.utils import timezone
 
 from .forms import EmployeeForm , EmployeeMonthlyEntryForm , UserCreateForm 
-from .models import Monthly_employee_data, Employee , Employer , Locked_months
+from .models import Monthly_employer_data, Monthly_employee_data, Employee , Employer , Locked_months
 
 
 from .helpers import is_employer
@@ -184,8 +184,29 @@ def edit_specific_entry(request , employee_user_id):
     
 
 
-def enter_employer_monthly_data(request):
-    pass
+def edit_specific_monthly_employer_data(request, employee_user_id):
+    if request.method == 'POST':
+        form_entry = EmployerMonthlyEntryForm(request.POST)
+        if form_entry.is_valid():
+            employer = get_object_or_404(Employer , user=request.user)
+            employee = get_object_or_404(Employee , employer=employer , user_id=request.POST['employee_user_id'])
+            partial_monthly_entree = form_entry.save(commit=False)
+            partial_monthly_entree.employee = employee
+            partial_monthly_entree.entered_by = 'employer'
+            partial_monthly_entree.save()
+            return HttpResponseRedirect(reverse('reports:show_entries' ))
+        else:
+            return HttpResponseRedirect(reverse('my_login:messages' , args=('entry was not added, data was not valid',)))
+            
+    else:
+        employee = get_object_or_404(Employee , user_id=employee_user_id)
+        try:
+            single_entry = Monthly_employer_data.objects.filter(employee=employee).latest('created')
+            form = EmployerMonthlyEntryForm(instance=single_entry)
+        except Monthly_employer_data.DoesNotExist:
+            form = EmployerMonthlyEntryForm()
+        return render(request, 'reports/employer/monthly_entry.html' , { 'form' : form , 'employee_user_id' : employee_user_id })
+    
 
 def redirect_to_real_login(request):
     return redirect_to_login('accounts/profile')

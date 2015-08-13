@@ -42,6 +42,15 @@ class EmployeeMonthlyEntryForm(ModelForm):
             'for_year': _('year as a number like YYYY, For example, 2015'),
         }
 
+class EmployerMonthlyEntryForm(ModelForm):
+    class Meta:
+        model = Monthly_employer_data
+        fields = ['for_year' , 'for_month' , 'is_required_to_pay_vat' , 'is_required_to_pay_income_tax' , 'lower_tax_threshold' , 'upper_tax_threshold' , 'income_tax_threshold' , 'exact_income_tax_percentage']
+        help_texts = {
+            'for_month': _('month as a number from 1-12, For example, July is 7'),
+            'for_year': _('year as a number like YYYY, For example, 2015'),
+        }
+
 
 class UserCreateForm(UserCreationForm):
     email = EmailField(label=_("Email address"), required=True)
