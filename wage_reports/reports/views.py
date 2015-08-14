@@ -1,6 +1,6 @@
 from datetime import datetime
 
-
+from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import redirect_to_login
 from django.shortcuts import get_object_or_404, render
@@ -14,7 +14,7 @@ from .forms import EmployeeForm , EmployeeMonthlyEntryForm , EmployerMonthlyEntr
 from .models import Monthly_employer_data, Monthly_employee_data, Employee , Employer , Locked_months
 
 
-from .helpers import is_employer
+from .helpers import is_employer , get_latest_locked_month_by_employer , get_month_in_question_for_employer_locking , get_year_in_question_for_employer_locking , get_employer_from_user
 @login_required
 def index(request):
     if is_employer(request.user):
@@ -104,6 +104,9 @@ def show_entries(request):
 def pre_approve_month(request):
     Employer_obj = Employer.objects.get(user=request.user)
     employees = Employee.objects.filter(employer=Employer_obj)
+    this_month = timezone.now()
+    month_in_question = get_month_in_question_for_employer_locking()
+    year_in_question = get_year_in_question_for_employer_locking()
     approved_entries = []
     disapproved_entries = []
     empty_entries = []
@@ -111,8 +114,7 @@ def pre_approve_month(request):
     for employee in employees:
         try:
             single_entry = Monthly_employee_data.objects.filter(employee=employee).latest('created')
-            this_month = timezone.now()
-            if single_entry.created.month == this_month.month and single_entry.created.year == this_month.year:
+            if single_entry.for_month == month_in_question and single_entry.for_year == year_in_question:
                 if single_entry.is_approved:
                     approved_entries.append(single_entry) 
                 else:
@@ -122,16 +124,21 @@ def pre_approve_month(request):
         except Monthly_employee_data.DoesNotExist:
             empty_entry = { 'employee' : Employee(user = employee.user) , 'has_data' : False }
             empty_entries.append( empty_entry )
-    return render(request, 'reports/employer/pre_approve_month.html' , { 'approved_entries' : approved_entries , 'disapproved_entries' : disapproved_entries , 'no_recent_entries' : no_recent_entries , 'empty_entries' : empty_entries })
+    return render(request, 'reports/employer/pre_approve_month.html' , { 'month_in_question': month_in_question , 'year_in_question': year_in_question , 'approved_entries' : approved_entries , 'disapproved_entries' : disapproved_entries , 'no_recent_entries' : no_recent_entries , 'empty_entries' : empty_entries })
 
 def approve_this_month(request):
     if request.method == 'POST':
         try:
             now = timezone.now()
-            locked_month = Locked_months.objects.select_related('employer').get(for_month=request['for_month'] , for_year=request['for_year'], employer__user=request['user'])
-            return HttpResponseRedirect(reverse('my_login:messages' , args=('month allready locked',)))
-        except ObjectDoesNotExist:
-            locked_month = Locked_months()
+            locked_month = Locked_months.objects.select_related('employer__user').get(for_month=request.POST['for_month'] , for_year=request.POST['for_year'], employer__user=request.user)
+            return JsonResponse({'is_okay':False , 'message' : 'This month is already locked' , 'data' : None })
+        except Locked_months.DoesNotExist:
+            if is_employer(request.user):
+                employer = get_employer_from_user(request.user)
+                first_day_in_month = datetime( int(request.POST['for_year']), int(request.POST['for_month']), 1)
+                locked_month = Locked_months(for_year = request.POST['for_year'] , for_month = request.POST['for_month'], employer = employer , first_day_in_month = first_day_in_month)
+                locked_month.save()
+                return JsonResponse({'is_okay':True , 'message' : 'successfully locked month. you can now get reports for this month' , 'data' : None })
     else:
         return HttpResponseRedirect(reverse('my_login:messages' , args=('Error, this is a POST gateway, not GET',)))
 
@@ -151,6 +158,17 @@ def set_as_valid(request):
     else:
         return HttpResponseRedirect(reverse('my_login:messages' , args=('Error, this is a POST gateway, not GET',)))
     
+def withdraw_approval_of_single_entry(request):
+    if request.method == 'POST':
+        try:
+            single_entry = Monthly_employee_data.objects.select_related('employee__user').get(pk=request.POST['entry_id'] , employee__user_id=request.POST['employee_user_id'] , employee__employer__user=request.user )
+            single_entry.is_approved = False
+            single_entry.save()
+            return JsonResponse({'is_okay':True , 'message' : 'successfully withdraw approval from entry' , 'data' : single_entry.id})
+        except Monthly_employee_data.DoesNotExist:
+            return JsonResponse({'is_okay':True , 'message' : 'Error: Failed to withdraw approval from entry' , 'data' : 'entry was not updated, entry %s ,employee_user %s , employer %s' % { request.POST['entry_id'] , request.POST['employee_user_id'] , request.user}})
+    else:
+        return render(request, 'reports/general/display_message.html' , { 'headline' : "Error" , 'body' : "This is a POST gateway, not GET" })   
 
 def edit_specific_entry(request , employee_user_id):
     if request.method == 'POST':
@@ -224,3 +242,10 @@ def login_destination(request):
 def login(request):
     pass
 
+def logout(request):
+    logout(request)
+    return render(request, 'reports/general/display_message.html' , { 'headline' : "successfully logged out" , 'body' : "" })
+
+def my_test(request):
+    response = get_latest_locked_month_by_employer(request.user.id)
+    return render(request, 'reports/general/display_message.html' , { 'headline' : "test response:" , 'body' : response })

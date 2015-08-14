@@ -1,9 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>View This Month's Entries</h1>
+<h1>View The Past Month's Entries</h1>
+<h2>NOTICE: The data and approval in this page reffer to the month {{ month_in_question }} and the year {{ year_in_question }}</h2>
 <p class="danger">NOTICE: After approving this month you will not be able to change its data.</p>
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
-
+<button class="btn btn-danger" onclick="approve_and_lock_month('{% url 'reports:approve_this_month' %}' ,{{ month_in_question }} , {{ year_in_question }} , '{{ csrf_token }}')">Finally approve and lock this month</button>
 <h2>Approved Entries</h2>
 <p>These are the only entries that will be included in this month's report.</p>
 <table class="table">
