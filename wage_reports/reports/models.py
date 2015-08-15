@@ -47,7 +47,8 @@ class Monthly_employee_data(models.Model):
     for_month = models.IntegerField(default=0) 
     for_year = models.IntegerField(default=0) 
     gross_payment = models.DecimalField(max_digits=11, decimal_places=2)
-    travel_expenses = models.DecimalField(max_digits=11, decimal_places=2)
+    salary = models.DecimalField(max_digits=11, decimal_places=2)
+    general_expenses = models.DecimalField(max_digits=11, decimal_places=2)
     gross_or_cost = models.BooleanField(default=True)
     is_required_to_pay_social_security = models.BooleanField(default=True)
     is_employer_the_main_employer = models.BooleanField(default=True)
@@ -59,6 +60,7 @@ class Monthly_employee_data(models.Model):
     def save(self, commit=True, *args, **kwargs):
         if commit:
             if self.is_valid_month():
+                self.gross_payment = self.salary + self.general_expenses
                 super(Monthly_employee_data, self).save(*args, **kwargs)
                 return self
             else:

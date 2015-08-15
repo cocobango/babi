@@ -36,7 +36,7 @@ class EmployeeForm(ModelForm):
 class EmployeeMonthlyEntryForm(ModelForm):
     class Meta:
         model = Monthly_employee_data
-        fields = ['for_year' , 'for_month' , 'gross_payment' , 'travel_expenses' , 'gross_or_cost' , 'is_required_to_pay_social_security' , 'is_employer_the_main_employer' , 'gross_payment_from_others']
+        fields = ['for_year' , 'for_month' , 'salary' , 'general_expenses' , 'gross_or_cost' , 'is_required_to_pay_social_security' , 'is_employer_the_main_employer' , 'gross_payment_from_others']
         help_texts = {
             'for_month': _('month as a number from 1-12, For example, July is 7'),
             'for_year': _('year as a number like YYYY, For example, 2015'),

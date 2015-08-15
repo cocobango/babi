@@ -155,11 +155,16 @@ def set_as_valid(request):
             single_entry = Monthly_employee_data.objects.select_related('employee__user').get(pk=request.POST['entry_id'] , employee__user_id=request.POST['employee_user_id'] , employee__employer__user=request.user )
             single_entry.is_approved = True
             single_entry.pk = None
+            month_in_question = get_month_in_question_for_employer_locking()
+            year_in_question = get_year_in_question_for_employer_locking()
+            single_entry.for_year = year_in_question
+            single_entry.for_month = month_in_question
             # Monthly_employee_data.objects.filter( employee__user_id=11 , created__gte=timezone.now().replace(day=1,hour=0, minute=0) ).update(is_approved=False)
-            Monthly_employee_data.objects.select_related('employee__user').filter( employee__user_id=request.POST['employee_user_id'] , created__gte=timezone.now().replace(day=1,hour=0, minute=0) ).update(is_approved=False)
+            Monthly_employee_data.objects.select_related('employee__user').filter( employee__user_id=request.POST['employee_user_id'] , for_year=year_in_question, for_month=month_in_question).update(is_approved=False)
             single_entry.created = None
-            single_entry.save()
-            return JsonResponse({'is_okay':True , 'message' : 'successfully approved entry' , 'data' : single_entry.id})
+            if single_entry.save():
+                return JsonResponse({'is_okay':True , 'message' : 'successfully approved entry' , 'data' : single_entry.id})
+            return JsonResponse({'is_okay':False , 'message' : 'Error: Failed to approve entry, code 4534' , 'data' : 'entry was not added'})
         except Monthly_employee_data.DoesNotExist:
             return JsonResponse({'is_okay':True , 'message' : 'Error: Failed to approve entry' , 'data' : 'entry was not added, entry %s ,employee_user %s , employer %s' % { request.POST['entry_id'] , request.POST['employee_user_id'] , request.user}})
     else:
