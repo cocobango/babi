@@ -14,7 +14,7 @@ from .forms import EmployeeForm , EmployeeMonthlyEntryForm , EmployerMonthlyEntr
 from .models import Monthly_employer_data, Monthly_employee_data, Employee , Employer , Locked_months
 
 
-from .helpers import get_month_in_question_for_employer_locking , get_year_in_question_for_employer_locking , calculate_social_security_employer , calculate_social_security_employee
+from .helpers import get_month_in_question_for_employer_locking , get_year_in_question_for_employer_locking , calculate_social_security_employer , calculate_social_security_employee , calculate_income_tax
 @login_required
 def index(request):
     if Employer.is_employer(request.user):
@@ -258,7 +258,7 @@ def social_security_employer_test(request):
     return render(request, 'reports/general/display_message.html' , { 'headline' : "test response:" , 'body' : response + expected_result })
 
 
-def my_test(request):
+def social_security_employee_test(request):
     response_1 = calculate_social_security_employee(overall_gross=7000,social_security_threshold=5500,lower_employee_social_security_percentage=0.033,upper_employee_social_security_percentage=0.12,is_required_to_pay_social_security=True, is_employer_the_main_employer=False, gross_payment_from_others=2000)
     expected_result_1 = '535.5'
 
@@ -269,3 +269,18 @@ def my_test(request):
     return render(request, 'reports/general/display_message.html' , { 'headline' : "test response:" , 'body' : ' expected_result_1: ' + expected_result_1 + 'got result: ' + str(response_1)     + '<br>' +
         ' expected_result_2: ' + expected_result_2 + 'got result: ' + str(response_2)
         })
+
+
+def my_test(request):
+    result_set=[
+        # basic threshold calculation
+        [ 250 , calculate_income_tax(overall_gross=7000,income_tax_threshold=15000,lower_tax_threshold=0.05,upper_tax_threshold=0.2,is_required_to_pay_income_tax=True,exact_income_tax_percentage=0,accumulated_gross_including_this_month=9000,accumulated_income_tax_not_including_this_month=200,vat_due_this_month=0)],
+        # expecting tax refund
+        [-550, calculate_income_tax(overall_gross=7000,income_tax_threshold=15000,lower_tax_threshold=0.05,upper_tax_threshold=0.2,is_required_to_pay_income_tax=True,exact_income_tax_percentage=0,accumulated_gross_including_this_month=9000,accumulated_income_tax_not_including_this_month=1000,vat_due_this_month=0)],
+        # fix income tax without vat
+        [210, calculate_income_tax(overall_gross=7000,income_tax_threshold=15000,lower_tax_threshold=0.05,upper_tax_threshold=0.2,is_required_to_pay_income_tax=True,exact_income_tax_percentage=0.03,accumulated_gross_including_this_month=9000,accumulated_income_tax_not_including_this_month=1000,vat_due_this_month=0)],
+        # fix income tax with vat
+        [248, calculate_income_tax(overall_gross=7000,income_tax_threshold=15000,lower_tax_threshold=0.05,upper_tax_threshold=0.2,is_required_to_pay_income_tax=True,exact_income_tax_percentage=0.03,accumulated_gross_including_this_month=9000,accumulated_income_tax_not_including_this_month=1000,vat_due_this_month=1260)],
+    ]
+    # response = Monthly_employee_data.objects.select_related('employee__employer__user').filter(employee__employer__user=request.user.id)
+    return render(request, 'reports/general/test_results.html' , { 'headline' : "test response:" , 'result_set' : result_set})
