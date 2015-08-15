@@ -111,7 +111,6 @@ class Monthly_employer_data(models.Model):
     income_tax_threshold = models.DecimalField(max_digits=11, decimal_places=2)
     exact_income_tax_percentage = models.DecimalField(max_digits=5, decimal_places=2)
     
-
 class Monthly_system_data(models.Model):
     """The parameters that are used for each month's calculations is called Monthly_system_data"""
     vat_percentage = models.DecimalField(max_digits=5, decimal_places=2)

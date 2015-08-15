@@ -55,10 +55,17 @@ def calculate_income_tax(overall_gross,income_tax_threshold,lower_tax_threshold,
         return 0
     if exact_income_tax_percentage > 0:
         return (overall_gross + vat_due_this_month) * exact_income_tax_percentage
-    # return 9999
     if accumulated_gross_including_this_month <= income_tax_threshold:
         return ( accumulated_gross_including_this_month * lower_tax_threshold ) - accumulated_income_tax_not_including_this_month
-    return 7777
     standard_sum = (accumulated_gross_including_this_month - income_tax_threshold) * upper_tax_threshold
     diminished_sum = income_tax_threshold * lower_tax_threshold
     return standard_sum + diminished_sum - accumulated_income_tax_not_including_this_month
+
+def calculate_output_tax(overall_gross,vat_percentage,is_required_to_pay_vat):
+    if not is_required_to_pay_vat:
+        return 0
+    return overall_gross * vat_percentage
+
+def calculate_monthly_net(overall_gross, output_tax, social_security_employee, income_tax ):
+    return overall_gross + output_tax - social_security_employee - income_tax
+
