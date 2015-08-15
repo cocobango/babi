@@ -14,10 +14,10 @@ from .forms import EmployeeForm , EmployeeMonthlyEntryForm , EmployerMonthlyEntr
 from .models import Monthly_employer_data, Monthly_employee_data, Employee , Employer , Locked_months
 
 
-from .helpers import is_employer , get_latest_locked_month_by_employer , get_month_in_question_for_employer_locking , get_year_in_question_for_employer_locking , get_employer_from_user
+from .helpers import get_month_in_question_for_employer_locking , get_year_in_question_for_employer_locking , calculate_social_security_employer
 @login_required
 def index(request):
-    if is_employer(request.user):
+    if Employer.is_employer(request.user):
         return render(request, 'reports/employer/index.html' , {})
     else:
         return render(request, 'reports/employee/index.html' , {})
@@ -91,6 +91,11 @@ def show_entries(request):
     Employer_obj = Employer.objects.get(user=request.user)
     employees = Employee.objects.filter(employer=Employer_obj)
     entries = []
+    month_in_question = get_month_in_question_for_employer_locking()
+    year_in_question = get_year_in_question_for_employer_locking()
+    locked_month = Locked_months.objects.select_related('employer').filter(employer__user=request.user).latest('lock_time')
+    if locked_month.for_month == month_in_question and locked_month.for_year == year_in_question:
+        return render(request, 'reports/general/display_message.html' , { 'headline' : "Month locked" , 'body' : "This month is locked for editing. you can view reports on it in the appropriate section" })
     for employee in employees:
         try:
             single_entry = Monthly_employee_data.objects.filter(employee=employee).latest('created')
@@ -133,7 +138,7 @@ def approve_this_month(request):
             locked_month = Locked_months.objects.select_related('employer__user').get(for_month=request.POST['for_month'] , for_year=request.POST['for_year'], employer__user=request.user)
             return JsonResponse({'is_okay':False , 'message' : 'This month is already locked' , 'data' : None })
         except Locked_months.DoesNotExist:
-            if is_employer(request.user):
+            if Employer.is_employer(request.user):
                 employer = get_employer_from_user(request.user)
                 first_day_in_month = datetime( int(request.POST['for_year']), int(request.POST['for_month']), 1)
                 locked_month = Locked_months(for_year = request.POST['for_year'] , for_month = request.POST['for_month'], employer = employer , first_day_in_month = first_day_in_month)
@@ -174,13 +179,22 @@ def edit_specific_entry(request , employee_user_id):
     if request.method == 'POST':
         form_entry = EmployeeMonthlyEntryForm(request.POST)
         if form_entry.is_valid():
-            employer = get_object_or_404(Employer , user=request.user)
-            employee = get_object_or_404(Employee , employer=employer , user_id=request.POST['employee_user_id'])
+            if Employer.is_employer(request.user):
+                employer = get_object_or_404(Employer , user=request.user)
+                employee = get_object_or_404(Employee , employer=employer , user_id=request.POST['employee_user_id'])
+            else:
+                employee = get_object_or_404(Employee , user=request.user) 
+                employer = employee.employer
             partial_monthly_entree = form_entry.save(commit=False)
             partial_monthly_entree.employee = employee
             partial_monthly_entree.entered_by = 'employer'
-            partial_monthly_entree.save()
-            return HttpResponseRedirect(reverse('reports:show_entries' ))
+            if partial_monthly_entree.save():
+                if Employer.is_employer(request.user):
+                    return HttpResponseRedirect(reverse('reports:show_entries' ))
+                else:
+                    return render(request, 'reports/general/display_message.html' , { 'headline' : "Success" , 'body' : "Your input was received successfully" })
+            else:
+                return render(request, 'reports/general/display_message.html' , { 'headline' : "Error" , 'body' : "Your input was not registerred. Make sure you have the permissions to enter this data at this time." })
         else:
             return HttpResponseRedirect(reverse('my_login:messages' , args=('entry was not added, data was not valid',)))
             
@@ -193,8 +207,6 @@ def edit_specific_entry(request , employee_user_id):
             form = EmployeeMonthlyEntryForm()
         return render(request, 'reports/employee/monthly_entry.html' , { 'form' : form , 'employee_user_id' : employee_user_id })
     
-
-
 def edit_specific_monthly_employer_data(request, employee_user_id):
     if request.method == 'POST':
         form_entry = EmployerMonthlyEntryForm(request.POST)
@@ -218,11 +230,8 @@ def edit_specific_monthly_employer_data(request, employee_user_id):
             form = EmployerMonthlyEntryForm()
         return render(request, 'reports/employer/monthly_entry.html' , { 'form' : form , 'employee_user_id' : employee_user_id })
     
-
 def redirect_to_real_login(request):
     return redirect_to_login('accounts/profile')
-
-
 
 def login_destination(request):
     username = request.POST['username']
@@ -238,14 +247,11 @@ def login_destination(request):
     else:
         return HttpResponseRedirect(reverse('my_login:messages' , args=('invalid login',)))
 
-
-def login(request):
-    pass
-
 def logout(request):
     logout(request)
     return render(request, 'reports/general/display_message.html' , { 'headline' : "successfully logged out" , 'body' : "" })
 
 def my_test(request):
-    response = get_latest_locked_month_by_employer(request.user.id)
+    response = calculate_social_security_employer(overall_gross=7000,social_security_threshold=5500,lower_employer_social_security_percentage=0.035,upper_employer_social_security_percentage=0.069,is_required_to_pay_social_security=True)
+    # response = Monthly_employee_data.objects.select_related('employee__employer__user').filter(employee__employer__user=request.user.id)
     return render(request, 'reports/general/display_message.html' , { 'headline' : "test response:" , 'body' : response })

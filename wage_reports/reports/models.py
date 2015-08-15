@@ -3,6 +3,8 @@ from datetime import datetime
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User
 
+
+from .helpers import get_month_in_question_for_employer_locking , get_year_in_question_for_employer_locking , get_month_in_question_for_employee_locking , get_year_in_question_for_employee_locking
 class Employer(models.Model):
     user = models.OneToOneField(User)
     business_id = models.IntegerField()
@@ -12,6 +14,19 @@ class Employer(models.Model):
     is_required_to_pay_vat = models.BooleanField(default=True)
     def __str__(self):
         return self.user.username
+
+    def is_employer(user):
+        try:
+            employer = Employer.objects.get(user=user)
+            return True
+        except Exception as e:
+            return False
+    def get_employer_from_user(user):
+        try:
+            employer = Employer.objects.get(user=user)
+            return employer
+        except Exception as e:
+            return False
 
 
 class Employee(models.Model):
@@ -62,17 +77,23 @@ class Monthly_employee_data(models.Model):
             latest_entry = Monthly_employee_data.objects.select_related('employee__employer').filter(employee=self.employee_id).latest('created')
         except ObjectDoesNotExist:
             latest_entry = {}
+        month_for_employee = get_month_in_question_for_employee_locking()
+        year_for_employee = get_year_in_question_for_employee_locking()
         if self.entered_by == 'employee':
             if latest_entry:
                 if latest_entry.entered_by == 'employer':
                     return False
-            now = timezone.now()
-            if not (self.for_month == now.month and self.for_year == now.year):
+            if not (self.for_month == month_for_employee and self.for_year == year_for_employee):
                 return False
-        if latest_entry:
-            is_month_locked = Locked_months.objects.select_related('employer').filter(for_month=self.for_month , for_year=self.for_year, employer=latest_entry.employee.employer)
-            if is_month_locked:
-                return False
+        else:
+            month_for_employer = get_month_in_question_for_employer_locking()
+            year_for_employer = get_year_in_question_for_employer_locking()
+            if not (self.for_month == month_for_employer and self.for_year == year_for_employer):
+                if not (self.for_month == month_for_employee and self.for_year == year_for_employee):
+                    return False
+        is_month_locked = Locked_months.objects.select_related('employer').filter(for_month=self.for_month , for_year=self.for_year, employer=self.employee.employer)
+        if is_month_locked:
+            return False
         return True
 
 class Monthly_employer_data(models.Model):
