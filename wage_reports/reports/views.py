@@ -141,7 +141,7 @@ def approve_this_month(request):
             return JsonResponse({'is_okay':False , 'message' : 'This month is already locked' , 'data' : None })
         except Locked_months.DoesNotExist:
             if Employer.is_employer(request.user):
-                employer = get_employer_from_user(request.user)
+                employer = Employer.get_employer_from_user(request.user) 
                 first_day_in_month = datetime( int(request.POST['for_year']), int(request.POST['for_month']), 1)
                 locked_month = Locked_months(for_year = request.POST['for_year'] , for_month = request.POST['for_month'], employer = employer , first_day_in_month = first_day_in_month)
                 locked_month.save()
