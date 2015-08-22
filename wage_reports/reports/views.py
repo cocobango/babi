@@ -86,8 +86,15 @@ def view_a_single_month(request):
     pass
 
 
-def view_report_of_type(request):
-    pass
+def view_report_of_type(request , report_type):
+    # calculator = social_security_calculations(request.user)
+    # for_year = get_year_in_question_for_employer_locking()
+    # for_month = get_month_in_question_for_employer_locking()
+    # if report_type == 1:
+
+    # response = calculator.get_count_of_employees_that_are_required_to_pay_social_security_by_employer(for_year, for_month) 
+    # expected_result = 1
+    return render(request, 'reports/general/display_message.html' , { 'headline' : "test response:" , 'body' : str(response) + ' ' + str(expected_result) })
 
 def show_entries(request , past_or_current_month):
     if past_or_current_month == 'past':
@@ -331,11 +338,36 @@ def employee_monthly_report_test(request):
     ]
 
     return render(request, 'reports/general/test_results.html' , { 'headline' : "test response:" , 'result_set' : result_set})
-
-def my_test(request):
+#@todo: use for real calculation
+def get_count_of_employees_that_are_required_to_pay_social_security_by_employer_test(request):
     calculator = social_security_calculations(request.user)
     for_year = get_year_in_question_for_employer_locking()
     for_month = get_month_in_question_for_employer_locking()
     response = calculator.get_count_of_employees_that_are_required_to_pay_social_security_by_employer(for_year, for_month) 
+    expected_result = 1234324
+    return render(request, 'reports/general/display_message.html' , { 'headline' : "test response:" , 'body' : str(response) + ' ' + str(expected_result) })
+
+def get_sum_of_gross_payment_of_employees_that_are_required_to_pay_social_security_by_employer_test(request):
+    calculator = social_security_calculations(request.user)
+    for_year = get_year_in_question_for_employer_locking()
+    for_month = get_month_in_question_for_employer_locking()
+    response = calculator.get_sum_of_gross_payment_of_employees_that_are_required_to_pay_social_security_by_employer(for_year, for_month) 
+    expected_result = 1
+    return render(request, 'reports/general/display_message.html' , { 'headline' : "test response:" , 'body' : str(response) + ' ' + str(expected_result) })
+# get_sum_of_lower_employee_social_security_by_employer
+def get_sum_of_lower_employee_social_security_by_employer_test(request):
+    calculator = social_security_calculations(request.user)
+    for_year = get_year_in_question_for_employer_locking()
+    for_month = get_month_in_question_for_employer_locking()
+    response = calculator.get_sum_of_lower_employee_social_security_by_employer(for_year, for_month) 
+    expected_result = 1
+    return render(request, 'reports/general/display_message.html' , { 'headline' : "test response:" , 'body' : str(response) + ' ' + str(expected_result) })
+    
+# get_sum_of_lower_employee_social_security_by_employer
+def my_test(request):
+    calculator = social_security_calculations(request.user)
+    for_year = get_year_in_question_for_employer_locking()
+    for_month = get_month_in_question_for_employer_locking()
+    response = calculator.get_sum_of_lower_employee_social_security_by_employer(for_year, for_month) 
     expected_result = 1
     return render(request, 'reports/general/display_message.html' , { 'headline' : "test response:" , 'body' : str(response) + ' ' + str(expected_result) })
