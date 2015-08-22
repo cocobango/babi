@@ -1,12 +1,14 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>View This Month's Entries</h1>
+<h1>View Monthly Entries</h1>
 {% if employees_that_do_not_have_employer_data %}<p><strong>The following employees have no employer data associated to them and therefore cannot be included in this report until some data is entered by their employer</strong></p>{% endif %}
 {% for invalid_employee in employees_that_do_not_have_employer_data %}
 	<p>{{ invalid_employee.user.first_name }} {{ invalid_employee.user.last_name }}</p>
 {% endfor %}
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+{% if past_or_current_month == 'past' %}
 <a href="{% url 'reports:pre_approve_month' %}" class="btn btn-primary"> Approve this month</a>
+{% endif %}
 <table class="table">
 	<tr>
 		<th>User id</th>
@@ -68,7 +70,7 @@
 		<td>
 			<a href="{% url 'reports:edit_specific_entry' entry.employee.user.id %}" class="btn btn-defualt" >Edit entry</a>
 			{% if not entry.is_approved and entry.has_data %}
-	   			<button class="btn btn-success" onclick="toggle_employee_monthly_entry_approval('{% url 'reports:set_as_valid' %}' ,{{ entry.id }} , {{entry.employee.user.id }} , '{{ csrf_token }}')">Approve input</button>
+	   			<button class="btn btn-success" onclick="toggle_employee_monthly_entry_approval('{% url 'reports:set_as_valid' past_or_current_month %}' ,{{ entry.id }} , {{entry.employee.user.id }} , '{{ csrf_token }}')">Approve input</button>
 			{% endif %}
 			{% if entry.is_approved %}
 	   			<button class="btn btn-danger" onclick="toggle_employee_monthly_entry_approval('{% url 'reports:withdraw_approval_of_single_entry' %}' ,{{ entry.id }} , {{entry.employee.user.id }} , '{{ csrf_token }}')">Cancel approval of this input</button>

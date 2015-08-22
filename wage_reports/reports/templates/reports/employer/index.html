@@ -5,6 +5,10 @@
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
 <a href="{% url 'reports:user_management' %}">Manage users</a>
-<a href="{% url 'reports:show_entries' %}">Manage current month</a>
+<br>
+<a href="{% url 'reports:show_entries' 'current' %}">Manage current month</a>
+<br>
+<a href="{% url 'reports:show_entries' 'past' %}">Manage past month</a>
+<br>
 <a href="{% url 'reports:view_history' %}">View data for past months</a>
 {% endblock content %}
