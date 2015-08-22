@@ -68,7 +68,7 @@ class Monthly_employee_data(models.Model):
                     return False
             else:
                 return False
-        return monthly_employee_data
+        return self
     # @todo check locked months for first entry of users
     def is_valid_month(self ):
         """ 
@@ -106,7 +106,6 @@ class Monthly_employee_data(models.Model):
             latest_employer_data = Monthly_employer_data.objects.filter(employee=self.employee).latest('created')
         except ObjectDoesNotExist:
             return False
-        Monthly_employer_data.objects.filter(employee=self.employee , for_month=self.for_month, for_year=self.for_year).update(is_approved=False)
         latest_employer_data.for_month = self.for_month
         latest_employer_data.for_year = self.for_year
         latest_employer_data.pk = None
@@ -128,6 +127,22 @@ class Monthly_employer_data(models.Model):
     upper_tax_threshold = models.DecimalField(max_digits=11, decimal_places=2)
     income_tax_threshold = models.DecimalField(max_digits=11, decimal_places=2)
     exact_income_tax_percentage = models.DecimalField(max_digits=5, decimal_places=2)
+
+    def save(self, commit=True, *args, **kwargs):
+        if commit:
+            if self.is_valid_month():
+                Monthly_employer_data.objects.filter(employee=self.employee , for_month=self.for_month, for_year=self.for_year).update(is_approved=False)
+                super(Monthly_employer_data, self).save(*args, **kwargs)
+                return self
+            else:
+                return False
+        return self
+
+    def is_valid_month(self):
+        is_month_locked = Locked_months.objects.filter(for_month=self.for_month , for_year=self.for_year, employer=self.employee.employer)
+        if is_month_locked:
+            return False
+        return True
     
 class Monthly_system_data(models.Model):
     """The parameters that are used for each month's calculations is called Monthly_system_data"""

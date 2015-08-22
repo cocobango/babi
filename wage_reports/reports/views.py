@@ -229,6 +229,7 @@ def edit_specific_monthly_employer_data(request, employee_user_id):
             partial_monthly_entree = form_entry.save(commit=False)
             partial_monthly_entree.employee = employee
             partial_monthly_entree.entered_by = 'employer'
+            partial_monthly_entree.is_approved = True
             partial_monthly_entree.save()
             return HttpResponseRedirect(reverse('reports:view_all_employees' ))
         else:
