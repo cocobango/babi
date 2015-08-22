@@ -60,9 +60,12 @@ class Monthly_employee_data(models.Model):
     def save(self, commit=True, *args, **kwargs):
         if commit:
             if self.is_valid_month():
-                self.gross_payment = self.salary + self.general_expenses
-                super(Monthly_employee_data, self).save(*args, **kwargs)
-                return self
+                if self.duplicate_employer_data():
+                    self.gross_payment = self.salary + self.general_expenses
+                    super(Monthly_employee_data, self).save(*args, **kwargs)
+                    return self
+                else:
+                    return False
             else:
                 return False
         return monthly_employee_data
@@ -96,6 +99,19 @@ class Monthly_employee_data(models.Model):
         is_month_locked = Locked_months.objects.select_related('employer').filter(for_month=self.for_month , for_year=self.for_year, employer=self.employee.employer)
         if is_month_locked:
             return False
+        return True
+
+    def duplicate_employer_data(self):
+        try:
+            latest_employer_data = Monthly_employer_data.objects.filter(employee=self.employee).latest('created')
+        except ObjectDoesNotExist:
+            return False
+        Monthly_employer_data.objects.filter(employee=self.employee , for_month=self.for_month, for_year=self.for_year).update(is_approved=False)
+        latest_employer_data.for_month = self.for_month
+        latest_employer_data.for_year = self.for_year
+        latest_employer_data.pk = None
+        latest_employer_data.is_approved = True
+        latest_employer_data.save()
         return True
 
 class Monthly_employer_data(models.Model):

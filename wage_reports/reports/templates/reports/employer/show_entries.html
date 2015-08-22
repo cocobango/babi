@@ -1,7 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
 <h1>View This Month's Entries</h1>
-
+{% if employees_that_do_not_have_employer_data %}<p><strong>The following employees have no employer data associated to them and therefore cannot be included in this report until some data is entered by their employer</strong></p>{% endif %}
+{% for invalid_employee in employees_that_do_not_have_employer_data %}
+	<p>{{ invalid_employee.user.first_name }} {{ invalid_employee.user.last_name }}</p>
+{% endfor %}
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 <a href="{% url 'reports:pre_approve_month' %}" class="btn btn-primary"> Approve this month</a>
 <table class="table">

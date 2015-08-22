@@ -92,21 +92,27 @@ def view_report_of_type(request):
 def show_entries(request):
     Employer_obj = Employer.objects.get(user=request.user)
     employees = Employee.objects.filter(employer=Employer_obj)
+    # return render(request, 'reports/general/display_message.html' , { 'headline' : "Month locked" , 'body' : employer_data })
     entries = []
     month_in_question = get_month_in_question_for_employer_locking()
     year_in_question = get_year_in_question_for_employer_locking()
     locked_month = Locked_months.objects.select_related('employer').filter(employer__user=request.user).latest('lock_time')
     if locked_month.for_month == month_in_question and locked_month.for_year == year_in_question:
         return render(request, 'reports/general/display_message.html' , { 'headline' : "Month locked" , 'body' : "This month is locked for editing. you can view reports on it in the appropriate section" })
+    # employees[:] = [employee for employee in employees if not Monthly_employer_data.objects.filter(employee=employee)]
+    employees_that_do_not_have_employer_data = []
     for employee in employees:
-        try:
-            single_entry = Monthly_employee_data.objects.filter(employee=employee).latest('created')
-            single_entry.has_data = True
-            entries.append(single_entry) 
-        except Monthly_employee_data.DoesNotExist:
-            empty_entry = { 'employee' : Employee(user = employee.user) , 'has_data' : False }
-            entries.append( empty_entry )
-    return render(request, 'reports/employer/show_entries.html' , { 'employees' : employees , 'entries' : entries })
+        if not Monthly_employer_data.objects.filter(employee=employee):
+            employees_that_do_not_have_employer_data.append(employee)
+        else:
+            try:
+                single_entry = Monthly_employee_data.objects.filter(employee=employee).latest('created')
+                single_entry.has_data = True
+                entries.append(single_entry) 
+            except Monthly_employee_data.DoesNotExist:
+                empty_entry = { 'employee' : Employee(user = employee.user) , 'has_data' : False }
+                entries.append( empty_entry )
+    return render(request, 'reports/employer/show_entries.html' , { 'employees' : employees , 'entries' : entries , 'employees_that_do_not_have_employer_data' : employees_that_do_not_have_employer_data })
 
 def pre_approve_month(request):
     Employer_obj = Employer.objects.get(user=request.user)
