@@ -16,7 +16,7 @@ from .models import Monthly_employer_data, Monthly_employee_data, Employee , Emp
 
 from .helpers import get_month_in_question_for_employer_locking , get_year_in_question_for_employer_locking , get_month_in_question_for_employee_locking , get_year_in_question_for_employee_locking , calculate_social_security_employer , calculate_social_security_employee , calculate_income_tax , calculate_output_tax , calculate_monthly_net
 
-from .calculations import social_security_calculations
+from .calculations import social_security_calculations , vat_calculations
 @login_required
 def index(request):
     if Employer.is_employer(request.user):
@@ -388,5 +388,14 @@ def get_count_of_employees_that_do_not_exceed_the_social_security_threshold_by_e
     for_year = get_year_in_question_for_employer_locking()
     for_month = get_month_in_question_for_employer_locking()
     response = calculator.get_count_of_employees_that_do_not_exceed_the_social_security_threshold_by_employer(for_year, for_month) 
+    expected_result = 1
+    return render(request, 'reports/general/display_message.html' , { 'headline' : "test response:" , 'body' : str(response) + ' ' + str(expected_result) })
+
+# get_sum_of_gross_payment_where_no_vat_is_required
+def my_test(request):
+    calculator = vat_calculations(request.user)
+    for_year = get_year_in_question_for_employer_locking()
+    for_month = get_month_in_question_for_employer_locking()
+    response = calculator.get_sum_of_gross_payment_where_no_vat_is_required(for_year, for_month) 
     expected_result = 1
     return render(request, 'reports/general/display_message.html' , { 'headline' : "test response:" , 'body' : str(response) + ' ' + str(expected_result) })

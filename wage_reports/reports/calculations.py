@@ -47,7 +47,7 @@ class social_security_calculations(object):
         for entry in entries:
             response_employee = self.internal_calculate_social_security_employee(entry)
             if response_employee['standard_sum'] == 0 and response_employee['diminished_sum'] > 0:
-            	count +=1
+                count +=1
         return count
 
     # internal
@@ -76,6 +76,38 @@ class social_security_calculations(object):
     def internal_calculate_social_security_employer(self, entry):
         system_data = self.getter.get_system_data_by_month(for_year=entry.for_year , for_month=entry.for_month)
         return calculate_social_security_employer(overall_gross=entry.gross_payment,social_security_threshold=system_data.social_security_threshold,lower_employer_social_security_percentage=system_data.lower_employer_social_security_percentage,upper_employer_social_security_percentage=system_data.upper_employer_social_security_percentage,is_required_to_pay_social_security=entry.is_required_to_pay_social_security)
+
+class vat_calculations(object):
+    """docstring for vat_calculations"""
+    def __init__(self, user_id):
+        super(vat_calculations, self).__init__()
+        self.user_id = user_id
+        if Employer.is_employer(user_id):
+            self.employer = Employer.get_employer_from_user(user_id)
+        self.getter = settings_data_getter()
+
+    def get_sum_of_gross_payment_where_no_vat_is_required(self , for_year, for_month):
+        entries = self.internal_get_entries_for_month(for_year=for_year , for_month=for_month , is_required_to_pay_vat=False)
+        sum_to_return = 0
+        return_arr = []
+        for entry in entries:
+            # return_arr.append(vars(entry.Monthly_employee_data)['gross_payment']) 
+            sum_to_return += entry.Monthly_employee_data['gross_payment']
+        return sum_to_return
+
+    def internal_get_entries_for_month(self , for_year, for_month , is_required_to_pay_vat=True):
+        employer_entries = Monthly_employer_data.objects.select_related('employee').filter(is_required_to_pay_vat=is_required_to_pay_vat, employee__employer=self.employer, is_approved=True, for_year=for_year, for_month=for_month)
+        for employer_entry in employer_entries:
+            employer_entry.Monthly_employee_data = vars(Monthly_employee_data.objects.get(employee=employer_entry.employee, is_approved=True, for_year=for_year, for_month=for_month))
+        return employer_entries
+
+
+
+
+
+
+
+
 
 class settings_data_getter(object):
     """docstring for settings_data_getter"""
