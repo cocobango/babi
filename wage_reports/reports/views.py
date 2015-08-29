@@ -339,6 +339,7 @@ def employee_monthly_report_test(request):
 
     return render(request, 'reports/general/test_results.html' , { 'headline' : "test response:" , 'result_set' : result_set})
 #@todo: use for real calculation
+#get_count_of_employees_that_are_required_to_pay_social_security_by_employer_test
 def get_count_of_employees_that_are_required_to_pay_social_security_by_employer_test(request):
     calculator = social_security_calculations(request.user)
     for_year = get_year_in_question_for_employer_locking()
@@ -346,7 +347,7 @@ def get_count_of_employees_that_are_required_to_pay_social_security_by_employer_
     response = calculator.get_count_of_employees_that_are_required_to_pay_social_security_by_employer(for_year, for_month) 
     expected_result = 1234324
     return render(request, 'reports/general/display_message.html' , { 'headline' : "test response:" , 'body' : str(response) + ' ' + str(expected_result) })
-
+#get_sum_of_gross_payment_of_employees_that_are_required_to_pay_social_security_by_employer_test
 def get_sum_of_gross_payment_of_employees_that_are_required_to_pay_social_security_by_employer_test(request):
     calculator = social_security_calculations(request.user)
     for_year = get_year_in_question_for_employer_locking()
@@ -355,19 +356,37 @@ def get_sum_of_gross_payment_of_employees_that_are_required_to_pay_social_securi
     expected_result = 1
     return render(request, 'reports/general/display_message.html' , { 'headline' : "test response:" , 'body' : str(response) + ' ' + str(expected_result) })
 # get_sum_of_lower_employee_social_security_by_employer
-def get_sum_of_lower_employee_social_security_by_employer_test(request):
+def get_sum_of_lower_employee_social_security_by_employer(request):
     calculator = social_security_calculations(request.user)
     for_year = get_year_in_question_for_employer_locking()
     for_month = get_month_in_question_for_employer_locking()
     response = calculator.get_sum_of_lower_employee_social_security_by_employer(for_year, for_month) 
     expected_result = 1
     return render(request, 'reports/general/display_message.html' , { 'headline' : "test response:" , 'body' : str(response) + ' ' + str(expected_result) })
-    
-# get_sum_of_lower_employee_social_security_by_employer
-def my_test(request):
+
+# get_sum_of_lower_employer_social_security_by_employer_test
+def get_sum_of_lower_employer_social_security_by_employer_test(request):
     calculator = social_security_calculations(request.user)
     for_year = get_year_in_question_for_employer_locking()
     for_month = get_month_in_question_for_employer_locking()
-    response = calculator.get_sum_of_lower_employee_social_security_by_employer(for_year, for_month) 
+    response = calculator.get_sum_of_lower_employer_social_security_by_employer(for_year, for_month) 
+    expected_result = 1
+    return render(request, 'reports/general/display_message.html' , { 'headline' : "test response:" , 'body' : str(response) + ' ' + str(expected_result) })
+
+# get_total_of_social_security_due_by_employer
+def get_total_of_social_security_due_by_employer(request):
+    calculator = social_security_calculations(request.user)
+    for_year = get_year_in_question_for_employer_locking()
+    for_month = get_month_in_question_for_employer_locking()
+    response = calculator.get_total_of_social_security_due_by_employer(for_year, for_month) 
+    expected_result = 1
+    return render(request, 'reports/general/display_message.html' , { 'headline' : "test response:" , 'body' : str(response) + ' ' + str(expected_result) })
+
+# get_count_of_employees_that_do_not_exceed_the_social_security_threshold_by_employer
+def get_count_of_employees_that_do_not_exceed_the_social_security_threshold_by_employer(request):
+    calculator = social_security_calculations(request.user)
+    for_year = get_year_in_question_for_employer_locking()
+    for_month = get_month_in_question_for_employer_locking()
+    response = calculator.get_count_of_employees_that_do_not_exceed_the_social_security_threshold_by_employer(for_year, for_month) 
     expected_result = 1
     return render(request, 'reports/general/display_message.html' , { 'headline' : "test response:" , 'body' : str(response) + ' ' + str(expected_result) })
