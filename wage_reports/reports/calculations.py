@@ -12,7 +12,7 @@ class social_security_calculations(object):
         self.user_id = user_id
         if Employer.is_employer(user_id):
             self.employer = Employer.get_employer_from_user(user_id)
-        self.getter = settings_data_getter()
+        self.getter = data_getter()
     #employer
     def get_count_of_employees_that_are_required_to_pay_social_security_by_employer(self , for_year, for_month):
         return Monthly_employee_data.objects.select_related('employee').filter(is_required_to_pay_social_security=True, employee__employer=self.employer, is_approved=True, for_year=for_year, for_month=for_month).count()
@@ -84,7 +84,7 @@ class vat_calculations(object):
         self.user_id = user_id
         if Employer.is_employer(user_id):
             self.employer = Employer.get_employer_from_user(user_id)
-        self.getter = settings_data_getter()
+        self.getter = data_getter()
 
     def get_sum_of_gross_payment_where_no_vat_is_required(self , for_year, for_month):
         entries = self.internal_get_entries_for_month(for_year=for_year , for_month=for_month , is_required_to_pay_vat=False)
@@ -95,6 +95,16 @@ class vat_calculations(object):
             sum_to_return += entry.Monthly_employee_data['gross_payment']
         return sum_to_return
 
+    def get_count_of_employees_where_no_vat_is_required(self , for_year, for_month):
+        entries = self.internal_get_entries_for_month(for_year=for_year , for_month=for_month , is_required_to_pay_vat=False)
+        count = len(entries)
+        return count
+
+    def get_sum_of_vat_due_where_no_vat_is_required(self , for_year, for_month):
+        sum_of_gross_payment_where_no_vat_is_required = self.get_sum_of_gross_payment_where_no_vat_is_required(for_year=for_year , for_month=for_month)
+        vat_percentage = self.getter.get_system_data_by_month(for_year=for_year , for_month=for_month).vat_percentage
+        return vat_percentage * sum_of_gross_payment_where_no_vat_is_required
+
     def internal_get_entries_for_month(self , for_year, for_month , is_required_to_pay_vat=True):
         employer_entries = Monthly_employer_data.objects.select_related('employee').filter(is_required_to_pay_vat=is_required_to_pay_vat, employee__employer=self.employer, is_approved=True, for_year=for_year, for_month=for_month)
         for employer_entry in employer_entries:
@@ -102,6 +112,104 @@ class vat_calculations(object):
         return employer_entries
 
 
+class income_tax_calculations(object):
+    """docstring for income_tax_calculations"""
+    def __init__(self, user_id):
+        super(income_tax_calculations, self).__init__()
+        self.user_id = user_id
+        if Employer.is_employer(user_id):
+            self.employer = Employer.get_employer_from_user(user_id)
+        self.getter = data_getter()
+
+    def get_count_of_employees_that_got_paid_this_month(self , for_year, for_month):
+        employees_that_got_paid_this_month = self.internal_get_all_of_employees_that_got_paid_this_month(for_year=for_year, for_month=for_month)
+        return len(employees_that_got_paid_this_month['employees_that_are_required_to_pay_income_tax']) + len(employees_that_got_paid_this_month['employees_that_are_not_required_to_pay_income_tax'])
+    
+    def get_sum_of_gross_payment_and_vat_for_employees_that_got_paid_this_month(self , for_year, for_month):
+        unparsed_employees_that_got_paid_this_month = self.internal_get_all_of_employees_that_got_paid_this_month(for_year=for_year, for_month=for_month)
+        employees_that_got_paid_this_month = self.internal_join_all_of_employees_that_got_paid_this_month(unparsed_employees_that_got_paid_this_month)
+        sum_vat = 0
+        sum_gross = 0
+        vat_percentage = self.getter.get_system_data_by_month(for_year=for_year , for_month=for_month).vat_percentage
+        for entry in employees_that_got_paid_this_month:
+            if entry.is_required_to_pay_vat:
+                sum_vat += entry.Monthly_employee_data['gross_payment'] * vat_percentage
+            sum_gross += entry.Monthly_employee_data['gross_payment']
+        return sum_vat + sum_gross
+
+    def get_sum_of_income_tax(self , for_year, for_month):
+        unparsed_employees_that_got_paid_this_month = self.internal_get_all_of_employees_that_got_paid_this_month(for_year=for_year, for_month=for_month)
+        employees_that_got_paid_this_month = self.internal_join_all_of_employees_that_got_paid_this_month(unparsed_employees_that_got_paid_this_month)
+        sum_to_return = 0
+        # return employees_that_got_paid_this_month[1].employee.id
+        return self.internal_calculate_income_tax(entry=employees_that_got_paid_this_month[1])
+        for entry in employees_that_got_paid_this_month:
+            sum_to_return += self.internal_calculate_income_tax(entry=entry)
+        return sum_to_return
+   
+    def internal_get_entries_for_month(self , for_year, for_month , is_required_to_pay_income_tax=True):
+        employer_entries = Monthly_employer_data.objects.select_related('employee').filter(is_required_to_pay_income_tax=is_required_to_pay_income_tax, employee__employer=self.employer, is_approved=True, for_year=for_year, for_month=for_month)
+        for employer_entry in employer_entries:
+            employer_entry.Monthly_employee_data = vars(Monthly_employee_data.objects.get(employee=employer_entry.employee, is_approved=True, for_year=for_year, for_month=for_month))
+        return employer_entries
+
+    def internal_get_all_of_employees_that_got_paid_this_month(self , for_year, for_month):
+        employees_that_are_required_to_pay_income_tax = self.internal_get_entries_for_month(for_year=for_year, for_month=for_month , is_required_to_pay_income_tax=True)
+        employees_that_are_not_required_to_pay_income_tax = self.internal_get_entries_for_month(for_year=for_year, for_month=for_month , is_required_to_pay_income_tax=False)
+        return { 'employees_that_are_required_to_pay_income_tax' : employees_that_are_required_to_pay_income_tax , 'employees_that_are_not_required_to_pay_income_tax' : employees_that_are_not_required_to_pay_income_tax }
+
+    def internal_join_all_of_employees_that_got_paid_this_month(self , employees_that_got_paid_this_month):
+        employees_that_are_required_to_pay_income_tax = list(employees_that_got_paid_this_month['employees_that_are_required_to_pay_income_tax'])
+        employees_that_are_not_required_to_pay_income_tax = list(employees_that_got_paid_this_month['employees_that_are_not_required_to_pay_income_tax'])
+        employees_that_are_required_to_pay_income_tax.extend(employees_that_are_not_required_to_pay_income_tax)
+        return employees_that_are_required_to_pay_income_tax
+
+    def internal_calculate_income_tax(self , *args , **kwargs ):
+        entry = kwargs.get('entry' , False)
+        first_month = self.internal_get_first_month_for_user(entry)
+        # return first_month
+        return self.internal_calculate_income_tax_recursion(*args , for_month=entry.for_month , first_month = first_month , **kwargs)
+
+    def internal_get_first_month_for_user(self, entry):
+        try:
+            first_entry_in_year = Monthly_employee_data.objects.filter(employee=entry.employee , for_year=entry.for_year , is_approved=True).order_by('for_month')[:1][0]
+        except Exception as e:
+            return entry.for_month
+        return first_entry_in_year.for_month
+
+    def internal_calculate_income_tax_recursion(self , *args , **kwargs ):
+        entry = kwargs.get('entry' , False)
+        for_month = kwargs.get('for_month' , False)
+        first_month = kwargs.get('first_month' , False)
+        system_data = self.getter.get_system_data_by_month(for_year=entry.for_year , for_month=for_month)
+        employer_data = list(self.getter.get_relevant_employer_data_for_empty_month(for_year=entry.for_year, for_month=for_month, employee=entry.employee))[0]
+        unparsed_employee_data = self.getter.get_employee_data_by_month(for_year=entry.for_year, for_month=for_month, employee=entry.employee)
+        if unparsed_employee_data is None:
+            employee_data = {'gross_payment' : 0}
+        else:
+        	employee_data = vars(unparsed_employee_data)
+        if employer_data is None:
+            raise
+        vat_percentage = system_data.vat_percentage
+        if employer_data.is_required_to_pay_vat:
+            vat_due_this_month = employee_data['gross_payment'] * vat_percentage
+        else:
+        	vat_due_this_month = 0
+        if for_month == first_month:
+            accumulated_income_tax_not_including_this_month = 0
+        else:
+            new_kwargs = kwargs
+            new_kwargs['for_month'] = for_month - 1
+            accumulated_income_tax_not_including_this_month = self.internal_calculate_income_tax_recursion(*args , **new_kwargs)
+
+        accumulated_gross_including_this_month = self.internal_get_accumulated_gross_including_this_month(for_year=entry.for_year,for_month=for_month,employee_id=entry.employee_id)
+        return calculate_income_tax(overall_gross=employee_data['gross_payment'],income_tax_threshold=employer_data.income_tax_threshold,lower_tax_threshold=employer_data.lower_tax_threshold,upper_tax_threshold=employer_data.upper_tax_threshold,is_required_to_pay_income_tax=employer_data.is_required_to_pay_income_tax,exact_income_tax_percentage=employer_data.exact_income_tax_percentage,accumulated_gross_including_this_month=accumulated_gross_including_this_month,accumulated_income_tax_not_including_this_month=accumulated_income_tax_not_including_this_month,vat_due_this_month=vat_due_this_month)
+
+    def internal_get_accumulated_gross_including_this_month(self , for_year, for_month , employee_id):
+        total = Monthly_employee_data.objects.filter(employee=employee_id , for_year=for_year , for_month__lte=for_month , is_approved=True).aggregate(my_total = Sum('gross_payment'))
+        return total['my_total']
+
+    
 
 
 
@@ -109,10 +217,34 @@ class vat_calculations(object):
 
 
 
-class settings_data_getter(object):
-    """docstring for settings_data_getter"""
+class data_getter(object):
+    """docstring for data_getter"""
     def __init__(self):
-        super(settings_data_getter, self).__init__()
+        super(data_getter, self).__init__()
     
     def get_system_data_by_month(self , for_year , for_month):
         return Monthly_system_data.objects.filter(for_month=for_month , for_year=for_year).latest('created')
+
+    def get_employee_data_by_month(self , for_year , for_month , employee):
+        try:
+            return Monthly_employee_data.objects.get(for_month=for_month , for_year=for_year , employee=employee , is_approved=True)
+        except Exception as e:
+            return None
+
+    def get_employer_data_by_month(self , for_year , for_month , employee):
+        try:
+            return Monthly_employer_data.objects.get(for_month=for_month , for_year=for_year , employee=employee , is_approved=True)
+        except Exception as e:
+            return None
+    
+    def get_relevant_employer_data_for_empty_month(self, for_year, for_month, employee):    
+        return Monthly_employer_data.objects.filter(for_month__lte=for_month , for_year=for_year , employee=employee , is_approved=True).order_by('-for_month')[:1]
+    def get_relevant_employee_data_for_empty_month(self, for_year, for_month, employee):    
+        pass
+
+
+
+
+
+
+
