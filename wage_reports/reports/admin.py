@@ -17,16 +17,17 @@ from .models import Monthly_employer_data, Monthly_employee_data, Monthly_system
 
 # admin.site.register(Question, QuestionAdmin)
 
-# class EmployeeAdmin(admin.ModelAdmin):
-#     # fields = ('__all__',) 
+class EmployeeAdmin(admin.ModelAdmin):
+    # fields = ('__all__',) 
+    model = Employee
+    list_display = ('employee' , 'is_approved', 'for_month' , 'for_year' , 'created' , 'gross_payment')
 
-# admin.site.register(Employee, EmployeeAdmin)
+admin.site.register(Monthly_employee_data , EmployeeAdmin)
 
 admin.site.register(Employee)
 admin.site.register(Employer)
 
 
 admin.site.register(Monthly_employer_data)
-admin.site.register(Monthly_employee_data)
 admin.site.register(Locked_months)
 admin.site.register(Monthly_system_data)
