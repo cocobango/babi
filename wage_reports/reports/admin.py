@@ -1,6 +1,7 @@
 from django.contrib import admin
 
-from .models import Employee , Employer
+from .models import Monthly_employer_data, Monthly_employee_data, Monthly_system_data, Employee , Employer , Locked_months
+
 
 
 # class ChoiceInline(admin.StackedInline):
@@ -23,3 +24,9 @@ from .models import Employee , Employer
 
 admin.site.register(Employee)
 admin.site.register(Employer)
+
+
+admin.site.register(Monthly_employer_data)
+admin.site.register(Monthly_employee_data)
+admin.site.register(Locked_months)
+admin.site.register(Monthly_system_data)
