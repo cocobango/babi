@@ -286,26 +286,7 @@ def logout(request):
     logout(request)
     return render(request, 'reports/general/display_message.html' , { 'headline' : "successfully logged out" , 'body' : "" })
 
-def social_security_employer_test(request):
-    response = calculate_social_security_employer(overall_gross=7000,social_security_threshold=5500,lower_employer_social_security_percentage=0.035,upper_employer_social_security_percentage=0.069,is_required_to_pay_social_security=True)
-    expected_result = '296'
-    # response = Monthly_employee_data.objects.select_related('employee__employer__user').filter(employee__employer__user=request.user.id)
-    return render(request, 'reports/general/display_message.html' , { 'headline' : "test response:" , 'body' : response + expected_result })
-
-
-def social_security_employee_test(request):
-    response_1 = calculate_social_security_employee(overall_gross=7000,social_security_threshold=5500,lower_employee_social_security_percentage=0.033,upper_employee_social_security_percentage=0.12,is_required_to_pay_social_security=True, is_employer_the_main_employer=False, gross_payment_from_others=2000)
-    expected_result_1 = '535.5'
-
-    response_2 = calculate_social_security_employee(overall_gross=7000,social_security_threshold=5500,lower_employee_social_security_percentage=0.033,upper_employee_social_security_percentage=0.12,is_required_to_pay_social_security=True, is_employer_the_main_employer=True, gross_payment_from_others=2000)
-    expected_result_2 = '361.5'
-
-    # response = Monthly_employee_data.objects.select_related('employee__employer__user').filter(employee__employer__user=request.user.id)
-    return render(request, 'reports/general/display_message.html' , { 'headline' : "test response:" , 'body' : ' expected_result_1: ' + expected_result_1 + 'got result: ' + str(response_1)     + '<br>' +
-        ' expected_result_2: ' + expected_result_2 + 'got result: ' + str(response_2)
-        })
-
-
+#income_tax_test
 def income_tax_test(request):
     result_set=[
         # basic threshold calculation
@@ -440,7 +421,7 @@ def get_sum_of_gross_payment_and_vat_for_employees_that_got_paid_this_month(requ
     return render(request, 'reports/general/display_message.html' , { 'headline' : "test response:" , 'body' : str(response) + ' ' + str(expected_result) })
 
 # get_sum_of_income_tax
-def my_test(request):
+def get_sum_of_income_tax(request):
     calculator = income_tax_calculations(request.user)
     for_year = get_year_in_question_for_employer_locking()
     for_month = get_month_in_question_for_employer_locking()
