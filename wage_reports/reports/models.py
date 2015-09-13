@@ -78,6 +78,8 @@ class Monthly_employee_data(models.Model):
         An employee and an employer cannot add to a locked month
         """
         # return False
+        if self.entered_by == 'admin':
+            return True
         try:
             latest_entry = Monthly_employee_data.objects.select_related('employee__employer').filter(employee=self.employee_id).latest('created')
         except ObjectDoesNotExist:
@@ -139,6 +141,8 @@ class Monthly_employer_data(models.Model):
         return self
 
     def is_valid_month(self):
+        if self.entered_by == 'admin':
+            return True
         is_month_locked = Locked_months.objects.filter(for_month=self.for_month , for_year=self.for_year, employer=self.employee.employer)
         if is_month_locked:
             return False
