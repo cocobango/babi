@@ -68,7 +68,20 @@ class MonthlyEmployeeDataFactory(factory.django.DjangoModelFactory):
     for_year = 0
     for_month = 0
 
-
+class MonthlySystemDataFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Monthly_system_data 
+    created = timezone.now()
+    for_year = 0
+    for_month = 0
+    vat_percentage = Decimal(0.17)
+    social_security_threshold = 70000
+    lower_employee_social_security_percentage = Decimal(0.07)
+    lower_employer_social_security_percentage = Decimal(0.1)
+    upper_employee_social_security_percentage = Decimal(0.12)
+    upper_employer_social_security_percentage = Decimal(0.14)
+    maximal_sum_to_pay_social_security = 100000
+    income_tax_default = Decimal(0.3)
 
 
 class MyGenerators(object):

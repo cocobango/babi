@@ -3,7 +3,7 @@ from decimal import *
 from django.test import TestCase
 from django.utils import timezone
 
-from reports.models import Employer , Employee , Monthly_employee_data , Monthly_employer_data
+from reports.models import Employer , Employee , Monthly_employee_data , Monthly_employer_data , Monthly_system_data
 from django.contrib.auth.models import User
 from . import factories
 
@@ -133,6 +133,14 @@ class SetupTestCase(TestCase):
         #assert
         self.assertEqual(monthly_employee_data.salary , 2000)
 
+    def test_able_to_insert_monthly_system_data(self):
+        #arrange
+
+        #act
+        monthly_system_data = factories.MonthlySystemDataFactory()
+
+        #assert
+        self.assertIsInstance(monthly_system_data.id , int)
 
 
 class CalculationTestCase(TestCase):
@@ -141,6 +149,4 @@ class CalculationTestCase(TestCase):
         self.myGenerator = factories.MyGenerators()
     def setUp(self):
         print('doing some setup')
-    def test_tests_are_realy_running(self):
-        """test realy run"""
-        self.assertTrue(True)
+
