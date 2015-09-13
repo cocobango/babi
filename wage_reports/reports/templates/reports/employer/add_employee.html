@@ -12,4 +12,22 @@
     <input type="submit" value="Add a New Employee" />
 </form>
 
+<script type="text/javascript">
+
+function IDValidator(id)
+{
+	id += ""; //cast as string
+	if (id.length != 9 || isNaN(id)) {
+		return false;
+	}
+	var counter = 0, incNum;
+	for (i in id) {
+		incNum = Number(id[i]) * ((i % 2) + 1);//multiply digit by 1 or 2
+		counter += (incNum > 9) ? incNum - 9 : incNum;//sum the digits up and add to counter
+	}
+	return (counter % 10 == 0);
+}
+
+</script>
+
 {% endblock content %}

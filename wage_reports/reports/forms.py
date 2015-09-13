@@ -17,7 +17,7 @@ class EmployeeForm(ModelForm):
             'birthday': Html5DateInput()
         }
         model = Employee
-        fields = fields = ['birthday' , 'government_id']
+        fields = ['birthday' , 'government_id']
         labels = {
             # 'name': _('Writer'),
         }
