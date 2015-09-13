@@ -17,6 +17,10 @@ from .models import Monthly_employer_data, Monthly_employee_data, Employee , Emp
 from .helpers import get_month_in_question_for_employer_locking , get_year_in_question_for_employer_locking , get_month_in_question_for_employee_locking , get_year_in_question_for_employee_locking , calculate_social_security_employer , calculate_social_security_employee , calculate_income_tax , calculate_output_tax , calculate_monthly_net
 
 from .calculations import social_security_calculations , vat_calculations , income_tax_calculations
+
+def my_test(request):
+    pass
+
 @login_required
 def index(request):
     if Employer.is_employer(request.user):

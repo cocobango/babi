@@ -1,4 +1,5 @@
 from decimal import *
+getcontext().prec = 6
 import json
 
 from django.test import TestCase
@@ -185,7 +186,7 @@ class CalculationTestCase(TestCase):
             # fix income tax without vat
             [210, helpers.calculate_income_tax(overall_gross=7000,income_tax_threshold=15000,lower_tax_threshold=0.05,upper_tax_threshold=0.2,is_required_to_pay_income_tax=True,exact_income_tax_percentage=0.03,accumulated_gross_including_this_month=9000,accumulated_income_tax_not_including_this_month=1000,vat_due_this_month=0)],
             # fix income tax with vat
-            [248, helpers.calculate_income_tax(overall_gross=7000,income_tax_threshold=15000,lower_tax_threshold=0.05,upper_tax_threshold=0.2,is_required_to_pay_income_tax=True,exact_income_tax_percentage=0.03,accumulated_gross_including_this_month=9000,accumulated_income_tax_not_including_this_month=1000,vat_due_this_month=1260)],
+            [Decimal(247.8) * 1, helpers.calculate_income_tax(overall_gross=7000,income_tax_threshold=15000,lower_tax_threshold=0.05,upper_tax_threshold=0.2,is_required_to_pay_income_tax=True,exact_income_tax_percentage=0.03,accumulated_gross_including_this_month=9000,accumulated_income_tax_not_including_this_month=1000,vat_due_this_month=1260)],
         ]
         #act
         #assert
@@ -209,14 +210,24 @@ class CalculationTestCase(TestCase):
         #arrange
         overall_gross = 7000
         output_tax = helpers.calculate_output_tax(overall_gross=overall_gross,vat_percentage=0.18,is_required_to_pay_vat=True)
-        social_security_employee = helpers.calculate_social_security_employee(overall_gross=overall_gross,social_security_threshold=5500,lower_employee_social_security_percentage=0.033,upper_employee_social_security_percentage=0.12,is_required_to_pay_social_security=True, is_employer_the_main_employer=False, gross_payment_from_others=2000)
+        social_security_employee = helpers.calculate_social_security_employee(overall_gross=overall_gross,social_security_threshold=5500,lower_employee_social_security_percentage=0.035,upper_employee_social_security_percentage=0.12,is_required_to_pay_social_security=True, is_employer_the_main_employer=False, gross_payment_from_others=2000)
         income_tax = helpers.calculate_income_tax(overall_gross=overall_gross,income_tax_threshold=15000,lower_tax_threshold=0.05,upper_tax_threshold=0.2,is_required_to_pay_income_tax=True,exact_income_tax_percentage=0,accumulated_gross_including_this_month=9000,accumulated_income_tax_not_including_this_month=200,vat_due_this_month=output_tax)
         #act
         test_set=[
             # basic threshold calculation
-            [ 1260 , helpers.calculate_monthly_net(overall_gross,output_tax,social_security_employee['total'],income_tax)],
+            [ Decimal(7467.50)*1 , helpers.calculate_monthly_net(overall_gross,output_tax,social_security_employee['total'],income_tax)],
         ]
 
         #assert
         for single_test in test_set:
             self.assertEqual(single_test[0] , single_test[1])
+
+
+class ValidationTestCase(TestCase):
+    def __init__(self,*args, **kwargs):
+        super(ValidationTestCase, self).__init__(*args,**kwargs)
+        self.myGenerator = factories.MyGenerators()
+    def setUp(self):
+        pass
+
+    

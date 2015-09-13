@@ -61,8 +61,8 @@ def calculate_social_security_generic(overall_gross,social_security_threshold,lo
 def calculate_income_tax(overall_gross,income_tax_threshold,lower_tax_threshold,upper_tax_threshold,is_required_to_pay_income_tax,exact_income_tax_percentage,accumulated_gross_including_this_month,accumulated_income_tax_not_including_this_month,vat_due_this_month):
     if not is_required_to_pay_income_tax:
         return 0
-    if exact_income_tax_percentage > 0:
-        return Decimal(overall_gross) + Decimal(vat_due_this_month) * Decimal(exact_income_tax_percentage)
+    if exact_income_tax_percentage > 0: 
+        return (Decimal(overall_gross) + Decimal(vat_due_this_month)) * Decimal(exact_income_tax_percentage)
     if accumulated_gross_including_this_month <= income_tax_threshold:
         return Decimal(accumulated_gross_including_this_month) * Decimal(lower_tax_threshold) - Decimal(accumulated_income_tax_not_including_this_month)
     standard_sum = Decimal(accumulated_gross_including_this_month) - Decimal(income_tax_threshold) * Decimal(upper_tax_threshold)

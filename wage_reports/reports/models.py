@@ -1,3 +1,6 @@
+import re
+
+
 from django.db import models
 from datetime import datetime 
 from django.core.exceptions import ObjectDoesNotExist
@@ -36,6 +39,7 @@ class Employee(models.Model):
     government_id = models.IntegerField()
     def __str__(self):
         return self.user.username
+    
 
 
 class Monthly_employee_data(models.Model):
