@@ -111,7 +111,146 @@ class MyGenerators(object):
         
         return MonthlyEmployeeDataFactory(**employeeData)
 
+    def generateInitialControlledState(self):
+        employer = EmployerFactory()
+        employee_1 = EmployeeFactory(employer=employer)
+        employee_2 = EmployeeFactory(employer=employer)
+        employee_3 = EmployeeFactory(employer=employer)
+        employee_4 = EmployeeFactory(employer=employer)
+        employee_5 = EmployeeFactory(employer=employer)
+        monthly_system_data = MonthlySystemDataFactory(for_year = 2015,
+            for_month = 1,
+            vat_percentage = Decimal(0.18),
+            social_security_threshold = 5556,
+            lower_employee_social_security_percentage = Decimal(0.035),
+            lower_employer_social_security_percentage = Decimal(0.0345),
+            upper_employee_social_security_percentage = Decimal(0.12),
+            upper_employer_social_security_percentage = Decimal(0.0725),
+            maximal_sum_to_pay_social_security = 43240,
+            income_tax_default = Decimal(0.48)
+        )
+        #duplicates months until august
+        for x in range(2,9):
+            monthly_system_data.for_month = x
+            monthly_system_data.id = None
+            monthly_system_data.save()
+        MonthlyEmployerDataFactory(
+            employee=employee_1,
+            for_year = 2015,
+            for_month = 1,
+            is_required_to_pay_vat = True,
+            is_required_to_pay_income_tax = False,
+            lower_tax_threshold = Decimal(0.05),
+            upper_tax_threshold = Decimal(0.1),
+            income_tax_threshold = Decimal(60000),
+            exact_income_tax_percentage = Decimal(0.15)
+        )
+        MonthlyEmployeeDataFactory(
+            employee=employee_1,
+            for_year = 2015,
+            for_month = 1,
+            gross_payment = Decimal(5000),
+            salary = Decimal(4500),
+            general_expenses = Decimal(500),
+            is_required_to_pay_social_security = True,
+            is_employer_the_main_employer = True,
+            gross_payment_from_others = Decimal(1000)
+        )
 
+        MonthlyEmployerDataFactory(
+            employee=employee_2,
+            for_year = 2015,
+            for_month = 1,
+            is_required_to_pay_vat = True,
+            is_required_to_pay_income_tax = True,
+            lower_tax_threshold = Decimal(0.05),
+            upper_tax_threshold = Decimal(0.1),
+            income_tax_threshold = Decimal(60000),
+            exact_income_tax_percentage = Decimal(0.05)
+        )
+        MonthlyEmployeeDataFactory(
+            employee=employee_2,
+            for_year = 2015,
+            for_month = 1,
+            gross_payment = Decimal(7000),
+            salary = Decimal(6500),
+            general_expenses = Decimal(500),
+            is_required_to_pay_social_security = True,
+            is_employer_the_main_employer = False,
+            gross_payment_from_others = 0
+        )
+
+
+        MonthlyEmployerDataFactory(
+            employee=employee_3,
+            for_year = 2015,
+            for_month = 1,
+            is_required_to_pay_vat = False,
+            is_required_to_pay_income_tax = True,
+            lower_tax_threshold = Decimal(0.1),
+            upper_tax_threshold = Decimal(0.21),
+            income_tax_threshold = Decimal(10000),
+            exact_income_tax_percentage = 0
+        )
+        MonthlyEmployeeDataFactory(
+            employee=employee_3,
+            for_year = 2015,
+            for_month = 1,
+            gross_payment = Decimal(2500),
+            salary = Decimal(2000),
+            general_expenses = Decimal(500),
+            is_required_to_pay_social_security = False,
+            is_employer_the_main_employer = False,
+            gross_payment_from_others = 0
+        )
+
+
+        MonthlyEmployerDataFactory(
+            employee=employee_4,
+            for_year = 2015,
+            for_month = 1,
+            is_required_to_pay_vat = False,
+            is_required_to_pay_income_tax = True,
+            lower_tax_threshold = 0,
+            upper_tax_threshold = Decimal(0.14),
+            income_tax_threshold = Decimal(3000),
+            exact_income_tax_percentage = 0
+        )
+        MonthlyEmployeeDataFactory(
+            employee=employee_4,
+            for_year = 2015,
+            for_month = 1,
+            gross_payment = Decimal(4000),
+            salary = Decimal(3500),
+            general_expenses = Decimal(500),
+            is_required_to_pay_social_security = True,
+            is_employer_the_main_employer = False,
+            gross_payment_from_others = 3000
+        )
+
+
+        MonthlyEmployerDataFactory(
+            employee=employee_5,
+            for_year = 2015,
+            for_month = 1,
+            is_required_to_pay_vat = True,
+            is_required_to_pay_income_tax = True,
+            lower_tax_threshold = Decimal(0.1),
+            upper_tax_threshold = Decimal(0.21),
+            income_tax_threshold = Decimal(10000),
+            exact_income_tax_percentage = Decimal(0.03)
+        )
+        MonthlyEmployeeDataFactory(
+            employee=employee_5,
+            for_year = 2015,
+            for_month = 1,
+            gross_payment = Decimal(8000),
+            salary = Decimal(7500),
+            general_expenses = Decimal(500),
+            is_required_to_pay_social_security = True,
+            is_employer_the_main_employer = False,
+            gross_payment_from_others = 0
+        )
 
 
 
