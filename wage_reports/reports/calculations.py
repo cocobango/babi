@@ -142,7 +142,7 @@ class income_tax_calculations(object):
         employees_that_got_paid_this_month = self.internal_join_all_of_employees_that_got_paid_this_month(unparsed_employees_that_got_paid_this_month)
         sum_to_return = 0
         # return employees_that_got_paid_this_month[1].employee.id
-        return self.internal_calculate_income_tax(entry=employees_that_got_paid_this_month[1])
+        # return self.internal_calculate_income_tax(entry=employees_that_got_paid_this_month[1])
         for entry in employees_that_got_paid_this_month:
             sum_to_return += self.internal_calculate_income_tax(entry=entry)
         return sum_to_return
@@ -164,6 +164,11 @@ class income_tax_calculations(object):
         employees_that_are_required_to_pay_income_tax.extend(employees_that_are_not_required_to_pay_income_tax)
         return employees_that_are_required_to_pay_income_tax
 
+    def calculate_income_tax_for_single_employee_for_month(self, employee, for_year, for_month):
+        entry = self.getter.get_employee_data_by_month(employee=employee, for_year=for_year, for_month=for_month)
+        # print('entry')
+        # print(entry)
+        return self.internal_calculate_income_tax(entry=entry)
     def internal_calculate_income_tax(self , *args , **kwargs ):
         entry = kwargs.get('entry' , False)
         first_month = self.internal_get_first_month_for_user(entry)
@@ -229,6 +234,7 @@ class data_getter(object):
         try:
             return Monthly_employee_data.objects.get(for_month=for_month , for_year=for_year , employee=employee , is_approved=True)
         except Exception as e:
+            print('yayaya coco jambo')
             return None
 
     def get_employer_data_by_month(self , for_year , for_month , employee):

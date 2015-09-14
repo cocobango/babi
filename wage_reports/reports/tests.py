@@ -7,8 +7,7 @@ from django.utils import timezone
 
 from reports.models import Employer , Employee , Monthly_employee_data , Monthly_employer_data , Monthly_system_data
 from django.contrib.auth.models import User
-from . import factories
-from . import helpers
+from . import factories , helpers , reports_maker
 
 class SetupTestCase(TestCase):
     def __init__(self,*args, **kwargs):
@@ -146,9 +145,9 @@ class SetupTestCase(TestCase):
         self.assertIsInstance(monthly_system_data.id , int)
 
 
-class CalculationTestCase(TestCase):
+class HelpersTestCase(TestCase):
     def __init__(self,*args, **kwargs):
-        super(CalculationTestCase, self).__init__(*args,**kwargs)
+        super(HelpersTestCase, self).__init__(*args,**kwargs)
         self.myGenerator = factories.MyGenerators()
     def setUp(self):
         print('doing some setup')
@@ -222,6 +221,97 @@ class CalculationTestCase(TestCase):
         for single_test in test_set:
             self.assertEqual(single_test[0] , single_test[1])
 
+class CalculationTestCase(object):
+    def __init__(self,*args, **kwargs):
+        super(CalculationTestCase, self).__init__(*args,**kwargs)
+        self.myGenerator = factories.MyGenerators()
+    def setUp(self):
+        self.myGenerator.generateInitialControlledState()
+
+
+    def test_data_from_setup_is_present(self):
+        #arrange
+        monthly_employee_data = Monthly_employee_data.objects.get(employee=1,for_month=1, for_year=2015, is_approved=True)
+        #act
+        gross_payment = monthly_employee_data.gross_payment
+
+        #assert
+        self.assertEqual(5000, gross_payment)
+
+
+
+class ReportsTestCase(TestCase):
+    def __init__(self,*args, **kwargs):
+        super(ReportsTestCase, self).__init__(*args,**kwargs)
+        self.myGenerator = factories.MyGenerators()
+    def setUp(self):
+        self.myGenerator.generateInitialControlledState()
+        first_employer = Employer.objects.order_by('-id')[0]
+        self.reports_maker = reports_maker.ReportsMaker(employer=first_employer)
+
+    def test_reports_of_all_types_exists(self):
+        pass
+        # print(self.reports_maker.monthly_employee_report(employee=1,for_year=2015, for_month=1))
+        # print(self.reports_maker.monthly_employer_report(employer=1,for_year=2015, for_month=1))
+        # print(self.reports_maker.three_months_employer_report(employer=1,for_year=2015, for_month=1))
+        # print(self.reports_maker.yearly_employee_report(employee=1,for_year=2015))
+        # print(self.reports_maker.yearly_social_security_employer_report(employer=1, for_year=2015))
+
+        # #856 report
+        # print(self.reports_maker.yearly_income_tax_employer_report(employer=1, for_year=2015))
+
+    def test_data_from_setup_is_present(self):
+        #arrange
+        first_employee = Employee.objects.order_by('id')[0]
+        monthly_employee_data = Monthly_employee_data.objects.get(employee=first_employee,for_month=1, for_year=2015, is_approved=True)
+        #act
+        gross_payment = monthly_employee_data.gross_payment
+
+        #assert
+        self.assertEqual(5000, gross_payment)
+
+    def test_monthly_employee_report_has_all_fields(self):
+        #arrange
+        fields = [
+            'salary',
+            'general_expenses',
+            'income_tax_due_this_month',
+            'social_security_employee_due_this_month',
+            'vat_due_this_month',
+            'monthly_net'
+        ]
+        first_employee = Employee.objects.order_by('id')[0]
+        #act
+        monthly_employee_report = self.reports_maker.monthly_employee_report(employee=first_employee,for_year=2015, for_month=1)
+        #assert
+        for field in fields:
+            self.assertIn(field , monthly_employee_report)
+        # print(monthly_employee_report)
+
+    def test_correctly_caclutates_income_tax(self):
+        monthly_reports_for_january = self.generate_monthly_reports_bulk(for_month=1)
+
+        test_set=[
+            # does not have to pay tax
+            [ 0 , monthly_reports_for_january[0]['income_tax_due_this_month'] ],
+            [ Decimal(413)*1 , monthly_reports_for_january[1]['income_tax_due_this_month'] ],
+            [ Decimal(250)*1 , monthly_reports_for_january[2]['income_tax_due_this_month'] ],
+            [ Decimal(140)*1 , monthly_reports_for_january[3]['income_tax_due_this_month'] ],
+            [ Decimal(283.2)*1 , monthly_reports_for_january[4]['income_tax_due_this_month'] ],
+        ]
+
+        #assert
+        for single_test in test_set:
+            self.assertEqual(single_test[0] , single_test[1])
+
+    def generate_monthly_reports_bulk(self, for_month):
+        employees = Employee.objects.all()
+
+        monthly_employee_reports = []
+        for employee in employees:
+            monthly_employee_reports.append(self.reports_maker.monthly_employee_report(employee=employee,for_year=2015, for_month=for_month))
+        return monthly_employee_reports
+        
 
 class ValidationTestCase(TestCase):
     def __init__(self,*args, **kwargs):
