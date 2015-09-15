@@ -304,6 +304,89 @@ class ReportsTestCase(TestCase):
         for single_test in test_set:
             self.assertEqual(single_test[0] , single_test[1])
 
+    def test_correctly_caclutates_social_security(self):
+        monthly_reports_for_january = self.generate_monthly_reports_bulk(for_month=1)
+
+        test_set=[
+            [ Decimal(175)*1 , monthly_reports_for_january[0]['social_security_employee_due_this_month'] ],
+            [ Decimal(840)*1 , monthly_reports_for_january[1]['social_security_employee_due_this_month'] ],
+            [ Decimal(0)*1 , monthly_reports_for_january[2]['social_security_employee_due_this_month'] ],
+            [ Decimal(262.74)*1 , monthly_reports_for_january[3]['social_security_employee_due_this_month'] ],
+            [ Decimal(960)*1 , monthly_reports_for_january[4]['social_security_employee_due_this_month'] ],
+        ]
+
+        #assert
+        for single_test in test_set:
+            self.assertEqual(single_test[0] , single_test[1])
+
+    def test_correctly_caclutates_vat(self):
+        monthly_reports_for_january = self.generate_monthly_reports_bulk(for_month=1)
+
+        test_set=[
+            [ Decimal(900)*1 , monthly_reports_for_january[0]['vat_due_this_month'] ],
+            [ Decimal(1260)*1 , monthly_reports_for_january[1]['vat_due_this_month'] ],
+            [ Decimal(0)*1 , monthly_reports_for_january[2]['vat_due_this_month'] ],
+            [ Decimal(0)*1 , monthly_reports_for_january[3]['vat_due_this_month'] ],
+            [ Decimal(1440)*1 , monthly_reports_for_january[4]['vat_due_this_month'] ],
+        ]
+
+        #assert
+        for single_test in test_set:
+            self.assertEqual(single_test[0] , single_test[1])
+
+    def test_correctly_caclutates_monthly_net_january(self):
+        monthly_reports_for_january = self.generate_monthly_reports_bulk(for_month=1)
+
+        test_set=[
+            [ Decimal(5725)*1 , monthly_reports_for_january[0]['monthly_net'] ],
+            [ Decimal(7007)*1 , monthly_reports_for_january[1]['monthly_net'] ],
+            [ Decimal(2250)*1 , monthly_reports_for_january[2]['monthly_net'] ],
+            [ Decimal(3597.26)*1 , monthly_reports_for_january[3]['monthly_net'] ],
+            [ Decimal(8196.8)*1 , monthly_reports_for_january[4]['monthly_net'] ],
+        ]
+
+        #assert
+        for single_test in test_set:
+            self.assertEqual(single_test[0] , single_test[1])
+
+    def test_correctly_caclutates_monthly_net_february(self):
+        monthly_reports_for_february = self.generate_monthly_reports_bulk(for_month=2)
+
+        test_set=[
+            [ Decimal(5725)*1 , monthly_reports_for_february[0]['monthly_net'] ],
+            [ Decimal(6006)*1 , monthly_reports_for_february[1]['monthly_net'] ],
+            [ Decimal(5152.26)*1 , monthly_reports_for_february[2]['monthly_net'] ],
+            [ Decimal(0)*1 , monthly_reports_for_february[3]['monthly_net'] ],
+            [ Decimal(4098.40)*1 , monthly_reports_for_february[4]['monthly_net'] ],
+        ]
+
+        #assert
+        for single_test in test_set:
+            self.assertEqual(single_test[0] , single_test[1])
+
+    def test_correctly_caclutates_monthly_net_march(self):
+        # for month in Monthly_employer_data.objects.filter(for_year=2015,for_month=3, is_approved=True):
+        #     print(month.id)
+        #     print(month.employee)
+        #     print(month.is_required_to_pay_income_tax)
+
+        monthly_reports_for_march = self.generate_monthly_reports_bulk(for_month=3)
+        # print(monthly_reports_for_march[3])
+
+        test_set=[
+            [ Decimal(5725)*1 , monthly_reports_for_march[0]['monthly_net'] ],
+            [ Decimal(5830)*1 , monthly_reports_for_march[1]['monthly_net'] ],
+            [ Decimal(3325)*1 , monthly_reports_for_march[2]['monthly_net'] ],
+            [ Decimal(3330)*1 , monthly_reports_for_march[3]['monthly_net'] ],
+            [ Decimal(6147.6)*1 , monthly_reports_for_march[4]['monthly_net'] ],
+        ]
+
+        #assert
+        for single_test in test_set:
+            self.assertEqual(single_test[0] , single_test[1])
+
+
+
     def generate_monthly_reports_bulk(self, for_month):
         employees = Employee.objects.all()
 
