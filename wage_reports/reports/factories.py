@@ -63,7 +63,7 @@ class MonthlyEmployeeDataFactory(factory.django.DjangoModelFactory):
     general_expenses = Decimal(100)
     gross_or_cost = True
     is_required_to_pay_social_security = True
-    is_employer_the_main_employer = True
+    is_employer_the_main_employer = False
     gross_payment_from_others = Decimal(200)
     for_year = 0
     for_month = 0
@@ -105,19 +105,13 @@ class MyGenerators(object):
             employerData['employee'] = employeeData['employee']
         
         try:
-            employerDataFromDb = models.Monthly_employer_data.objects.filter(employee=employeeData['employee'])[0]
+            employerDataFromDb = models.Monthly_employer_data.objects.filter(employee=employeeData['employee'], is_approved=True)[0]
         except IndexError as e:
             MonthlyEmployerDataFactory(**employerData)
         
         return MonthlyEmployeeDataFactory(**employeeData)
 
-    def generateInitialControlledState(self):
-        employer = EmployerFactory()
-        employee_1 = EmployeeFactory(employer=employer)
-        employee_2 = EmployeeFactory(employer=employer)
-        employee_3 = EmployeeFactory(employer=employer)
-        employee_4 = EmployeeFactory(employer=employer)
-        employee_5 = EmployeeFactory(employer=employer)
+    def generate_monthly_system_data(self):
         monthly_system_data = MonthlySystemDataFactory(for_year = 2015,
             for_month = 1,
             vat_percentage = Decimal(0.18),
@@ -134,6 +128,20 @@ class MyGenerators(object):
             monthly_system_data.for_month = x
             monthly_system_data.id = None
             monthly_system_data.save()
+
+    def generateInitialControlledState(self):
+        employer = EmployerFactory()
+        employee_1 = EmployeeFactory(employer=employer)
+        employee_2 = EmployeeFactory(employer=employer)
+        employee_3 = EmployeeFactory(employer=employer)
+        employee_4 = EmployeeFactory(employer=employer)
+        employee_5 = EmployeeFactory(employer=employer)
+
+        # user that does not have data in january
+        # employee_6 = EmployeeFactory(employer=employer)
+        self.generate_monthly_system_data()
+
+        #january
         MonthlyEmployerDataFactory(
             employee=employee_1,
             for_year = 2015,
@@ -253,8 +261,184 @@ class MyGenerators(object):
         )
 
 
+        #february
+        MonthlyEmployeeDataFactory(
+            employee=employee_1,
+            for_year = 2015,
+            for_month = 2,
+            gross_payment = Decimal(5000),
+            salary = Decimal(4500),
+            general_expenses = Decimal(500),
+            is_required_to_pay_social_security = True,
+            is_employer_the_main_employer = True,
+            gross_payment_from_others = 1500
+        )
+
+        MonthlyEmployeeDataFactory(
+            employee=employee_2,
+            for_year = 2015,
+            for_month = 2,
+            gross_payment = Decimal(6000),
+            salary = Decimal(5500),
+            general_expenses = Decimal(500),
+            is_required_to_pay_social_security = True,
+            is_employer_the_main_employer = False,
+            gross_payment_from_others = 0
+        )
+
+        MonthlyEmployeeDataFactory(
+            employee=employee_3,
+            for_year = 2015,
+            for_month = 2,
+            gross_payment = Decimal(6000),
+            salary = Decimal(5500),
+            general_expenses = Decimal(500),
+            is_required_to_pay_social_security = True,
+            is_employer_the_main_employer = True,
+            gross_payment_from_others = 0
+        )
 
 
+        MonthlyEmployeeDataFactory(
+            employee=employee_4,
+            for_year = 2015,
+            for_month = 2,
+            gross_payment = Decimal(0),
+            salary = Decimal(0),
+            general_expenses = Decimal(0),
+            is_required_to_pay_social_security = True,
+            is_employer_the_main_employer = False,
+            gross_payment_from_others = 0
+        )
+
+
+        MonthlyEmployeeDataFactory(
+            employee=employee_5,
+            for_year = 2015,
+            for_month = 2,
+            gross_payment = Decimal(4000),
+            salary = Decimal(3500),
+            general_expenses = Decimal(500),
+            is_required_to_pay_social_security = True,
+            is_employer_the_main_employer = False,
+            gross_payment_from_others = 0
+        )
+
+
+        # MonthlyEmployerDataFactory(
+        #     employee=employee_6,
+        #     for_year = 2015,
+        #     for_month = 2,
+        #     is_required_to_pay_vat = False,
+        #     is_required_to_pay_income_tax = True,
+        #     lower_tax_threshold = 0,
+        #     upper_tax_threshold = Decimal(0.14),
+        #     income_tax_threshold = Decimal(7000),
+        #     exact_income_tax_percentage = 0
+        # )
+        # MonthlyEmployeeDataFactory(
+        #     employee=employee_6,
+        #     for_year = 2015,
+        #     for_month = 2,
+        #     gross_payment = Decimal(4500),
+        #     salary = Decimal(4000),
+        #     general_expenses = Decimal(500),
+        #     is_required_to_pay_social_security = True,
+        #     is_employer_the_main_employer = False,
+        #     gross_payment_from_others = Decimal(2000)
+        # )
+
+        #march
+        MonthlyEmployeeDataFactory(
+            employee=employee_1,
+            for_year = 2015,
+            for_month = 3,
+            gross_payment = Decimal(5000),
+            salary = Decimal(4500),
+            general_expenses = Decimal(500),
+            is_required_to_pay_social_security = True,
+            is_employer_the_main_employer = True,
+            gross_payment_from_others = 2000
+        )
+
+
+        
+
+        MonthlyEmployerDataFactory(
+            employee=employee_2,
+            for_year = 2015,
+            for_month = 3,
+            is_required_to_pay_vat = True,
+            is_required_to_pay_income_tax = False,
+            lower_tax_threshold = Decimal(0.05),
+            upper_tax_threshold = Decimal(0.1),
+            income_tax_threshold = Decimal(60000),
+            exact_income_tax_percentage = Decimal(0.05)
+        )
+
+
+        MonthlyEmployeeDataFactory(
+            employee=employee_2,
+            for_year = 2015,
+            for_month = 3,
+            gross_payment = Decimal(5500),
+            salary = Decimal(5000),
+            general_expenses = Decimal(500),
+            is_required_to_pay_social_security = True,
+            is_employer_the_main_employer = False,
+            gross_payment_from_others = 0
+        )
+
+
+        MonthlyEmployeeDataFactory(
+            employee=employee_3,
+            for_year = 2015,
+            for_month = 3,
+            gross_payment = Decimal(4000),
+            salary = Decimal(3500),
+            general_expenses = Decimal(500),
+            is_required_to_pay_social_security = False,
+            is_employer_the_main_employer = True,
+            gross_payment_from_others = 0
+        )
+
+
+        MonthlyEmployeeDataFactory(
+            employee=employee_4,
+            for_year = 2015,
+            for_month = 3,
+            gross_payment = Decimal(4500),
+            salary = Decimal(4000),
+            general_expenses = Decimal(500),
+            is_required_to_pay_social_security = True,
+            is_employer_the_main_employer = False,
+            gross_payment_from_others = 0
+        )
+
+
+        MonthlyEmployeeDataFactory(
+            employee=employee_5,
+            for_year = 2015,
+            for_month = 3,
+            gross_payment = Decimal(6000),
+            salary = Decimal(5500),
+            general_expenses = Decimal(500),
+            is_required_to_pay_social_security = True,
+            is_employer_the_main_employer = False,
+            gross_payment_from_others = 0
+        )
+
+        # MonthlyEmployeeDataFactory(
+        #     employee=employee_6,
+        #     for_year = 2015,
+        #     for_month = 3,
+        #     gross_payment = Decimal(5000),
+        #     salary = Decimal(4500),
+        #     general_expenses = Decimal(500),
+        #     is_required_to_pay_social_security = True,
+        #     is_employer_the_main_employer = False,
+        #     gross_payment_from_others = Decimal(1000)
+        # )
 
 
 
