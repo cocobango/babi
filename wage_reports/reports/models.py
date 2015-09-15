@@ -55,7 +55,7 @@ class Monthly_employee_data(models.Model):
     general_expenses = models.DecimalField(max_digits=11, decimal_places=2)
     gross_or_cost = models.BooleanField(default=True)
     is_required_to_pay_social_security = models.BooleanField(default=True)
-    is_employer_the_main_employer = models.BooleanField(default=True)
+    is_employer_the_main_employer = models.BooleanField(default=False)
     gross_payment_from_others = models.DecimalField(max_digits=11, decimal_places=2)
 
     def __str__(self):
@@ -109,8 +109,8 @@ class Monthly_employee_data(models.Model):
 
     def duplicate_employer_data(self):
         try:
-            latest_employer_data = Monthly_employer_data.objects.filter(employee=self.employee).latest('created')
-        except ObjectDoesNotExist:
+            latest_employer_data = Monthly_employer_data.objects.filter(employee=self.employee).order_by('-id')[0]
+        except IndexError:
             return False
         latest_employer_data.for_month = self.for_month
         latest_employer_data.for_year = self.for_year
