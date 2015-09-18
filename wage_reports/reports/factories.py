@@ -138,7 +138,7 @@ class MyGenerators(object):
         employee_5 = EmployeeFactory(employer=employer)
 
         # user that does not have data in january
-        # employee_6 = EmployeeFactory(employer=employer)
+        employee_6 = EmployeeFactory(employer=employer)
         self.generate_monthly_system_data()
 
         #january
@@ -299,18 +299,7 @@ class MyGenerators(object):
         )
 
 
-        MonthlyEmployeeDataFactory(
-            employee=employee_4,
-            for_year = 2015,
-            for_month = 2,
-            gross_payment = Decimal(0),
-            salary = Decimal(0),
-            general_expenses = Decimal(0),
-            is_required_to_pay_social_security = True,
-            is_employer_the_main_employer = False,
-            gross_payment_from_others = 0
-        )
-
+        
 
         MonthlyEmployeeDataFactory(
             employee=employee_5,
@@ -325,28 +314,28 @@ class MyGenerators(object):
         )
 
 
-        # MonthlyEmployerDataFactory(
-        #     employee=employee_6,
-        #     for_year = 2015,
-        #     for_month = 2,
-        #     is_required_to_pay_vat = False,
-        #     is_required_to_pay_income_tax = True,
-        #     lower_tax_threshold = 0,
-        #     upper_tax_threshold = Decimal(0.14),
-        #     income_tax_threshold = Decimal(7000),
-        #     exact_income_tax_percentage = 0
-        # )
-        # MonthlyEmployeeDataFactory(
-        #     employee=employee_6,
-        #     for_year = 2015,
-        #     for_month = 2,
-        #     gross_payment = Decimal(4500),
-        #     salary = Decimal(4000),
-        #     general_expenses = Decimal(500),
-        #     is_required_to_pay_social_security = True,
-        #     is_employer_the_main_employer = False,
-        #     gross_payment_from_others = Decimal(2000)
-        # )
+        MonthlyEmployerDataFactory(
+            employee=employee_6,
+            for_year = 2015,
+            for_month = 2,
+            is_required_to_pay_vat = False,
+            is_required_to_pay_income_tax = True,
+            lower_tax_threshold = 0,
+            upper_tax_threshold = Decimal(0.14),
+            income_tax_threshold = Decimal(7000),
+            exact_income_tax_percentage = 0
+        )
+        MonthlyEmployeeDataFactory(
+            employee=employee_6,
+            for_year = 2015,
+            for_month = 2,
+            gross_payment = Decimal(4500),
+            salary = Decimal(4000),
+            general_expenses = Decimal(500),
+            is_required_to_pay_social_security = True,
+            is_employer_the_main_employer = False,
+            gross_payment_from_others = Decimal(2000)
+        )
 
         #march
         MonthlyEmployeeDataFactory(
@@ -428,17 +417,17 @@ class MyGenerators(object):
             gross_payment_from_others = 0
         )
 
-        # MonthlyEmployeeDataFactory(
-        #     employee=employee_6,
-        #     for_year = 2015,
-        #     for_month = 3,
-        #     gross_payment = Decimal(5000),
-        #     salary = Decimal(4500),
-        #     general_expenses = Decimal(500),
-        #     is_required_to_pay_social_security = True,
-        #     is_employer_the_main_employer = False,
-        #     gross_payment_from_others = Decimal(1000)
-        # )
+        MonthlyEmployeeDataFactory(
+            employee=employee_6,
+            for_year = 2015,
+            for_month = 3,
+            gross_payment = Decimal(5000),
+            salary = Decimal(4500),
+            general_expenses = Decimal(500),
+            is_required_to_pay_social_security = True,
+            is_employer_the_main_employer = False,
+            gross_payment_from_others = Decimal(1000)
+        )
 
 
 

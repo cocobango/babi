@@ -108,6 +108,8 @@ class vat_calculations(object):
         employee_data = self.getter.get_employee_data_by_month(employee=employee,  for_year=for_year, for_month=for_month)
         employer_data = self.getter.get_employer_data_by_month(employee=employee,  for_year=for_year, for_month=for_month)
         system_data = self.getter.get_system_data_by_month(for_year=for_year, for_month=for_month)
+        if employee_data is None:
+            return 0
         return calculate_output_tax(overall_gross=employee_data.gross_payment, vat_percentage=system_data.vat_percentage,is_required_to_pay_vat=employer_data.is_required_to_pay_vat )
         
 
@@ -150,7 +152,7 @@ class income_tax_calculations(object):
         # return employees_that_got_paid_this_month[1].employee.id
         # return self.internal_calculate_income_tax(entry=employees_that_got_paid_this_month[1])
         for entry in employees_that_got_paid_this_month:
-            sum_to_return += self.internal_calculate_income_tax(entry=entry)
+            sum_to_return += self.internal_calculate_income_tax(employee=entry.employee , for_year=for_year , for_month=for_month)
         return sum_to_return
    
     def internal_get_entries_for_month(self , for_year, for_month , is_required_to_pay_income_tax=True):
@@ -170,52 +172,49 @@ class income_tax_calculations(object):
         employees_that_are_required_to_pay_income_tax.extend(employees_that_are_not_required_to_pay_income_tax)
         return employees_that_are_required_to_pay_income_tax
 
-    def calculate_income_tax_for_single_employee_for_month(self, employee, for_year, for_month):
-        entry = self.getter.get_employee_data_by_month(employee=employee, for_year=for_year, for_month=for_month)
-        # print('entry')
-        # print(entry)
-        return self.internal_calculate_income_tax(entry=entry)
-    def internal_calculate_income_tax(self , *args , **kwargs ):
-        entry = kwargs.get('entry' , False)
-        first_month = self.internal_get_first_month_for_user(entry)
-        # return first_month
-        return self.internal_calculate_income_tax_recursion(*args , for_month=entry.for_month , first_month = first_month , **kwargs)['income_tax_for_this_month']
+    def calculate_income_tax_for_single_employee_for_month(self, employee, for_month , for_year):
+        return self.internal_calculate_income_tax(employee=employee ,for_year=for_year , for_month=for_month )
+    def internal_calculate_income_tax(self , employee , for_year , for_month , **kwargs ):
+        return self.internal_calculate_income_tax_recursion(employee=employee, for_year=for_year, for_month=for_month , **kwargs)['income_tax_for_this_month']
 
-    def internal_get_first_month_for_user(self, entry):
+    # def internal_get_first_month_for_user(self, entry , for_month):
+    #     try:
+    #         first_entry_in_year = Monthly_employee_data.objects.filter(employee=entry.employee , for_year=entry.for_year , is_approved=True).order_by('-for_month')[0]
+    #     except AttributeError as e:
+    #         return for_month
+    #     return first_entry_in_year.for_month
+
+    def internal_calculate_income_tax_recursion(self , employee , for_year , for_month , **kwargs ):
+        entry = self.getter.get_employee_data_by_month(employee=employee, for_year=for_year, for_month=for_month )
+        no_tax_dict = False
         try:
-            first_entry_in_year = Monthly_employee_data.objects.filter(employee=entry.employee , for_year=entry.for_year , is_approved=True).order_by('for_month')[:1][0]
-        except Exception as e:
-            return entry.for_month
-        return first_entry_in_year.for_month
-
-    def internal_calculate_income_tax_recursion(self , *args , **kwargs ):
-        entry = kwargs.get('entry' , False)
-        for_month = kwargs.get('for_month' , False)
-        first_month = kwargs.get('first_month' , False)
-        system_data = self.getter.get_system_data_by_month(for_year=entry.for_year , for_month=for_month)
-        employer_data = list(self.getter.get_relevant_employer_data_for_empty_month(for_year=entry.for_year, for_month=for_month, employee=entry.employee))[0]
-        unparsed_employee_data = self.getter.get_employee_data_by_month(for_year=entry.for_year, for_month=for_month, employee=entry.employee)
-        if unparsed_employee_data is None:
-            employee_data = {'gross_payment' : 0}
-        else:
-        	employee_data = vars(unparsed_employee_data)
-        if employer_data is None:
-            raise
-        vat_percentage = system_data.vat_percentage
-        if employer_data.is_required_to_pay_vat:
-            vat_due_this_month = employee_data['gross_payment'] * vat_percentage
-        else:
-        	vat_due_this_month = 0
-        if for_month == first_month:
+            if entry.gross_payment is None:
+                no_tax_dict = True
+        except AttributeError:
+            no_tax_dict = True
+        
+        if for_month == 1:
             accumulated_income_tax_not_including_this_month = 0
         else:
-            new_kwargs = kwargs
-            new_kwargs['for_month'] = for_month - 1
-            accumulated_income_tax_not_including_this_month = self.internal_calculate_income_tax_recursion(*args , **new_kwargs)['accumulated_income_tax_not_including_this_month']
+            accumulated_income_tax_not_including_this_month = self.internal_calculate_income_tax_recursion(employee , for_year , for_month -1 , **kwargs)['accumulated_income_tax_not_including_this_month']
             # print('-------------------- accumulated_income_tax_not_including_this_month: {0}\n'.format(accumulated_income_tax_not_including_this_month))
-
-        accumulated_gross_including_this_month = self.internal_get_accumulated_gross_including_this_month(for_year=entry.for_year,for_month=for_month,employee_id=entry.employee_id)
-        income_tax_for_this_month = calculate_income_tax(overall_gross=employee_data['gross_payment'],income_tax_threshold=employer_data.income_tax_threshold,lower_tax_threshold=employer_data.lower_tax_threshold,upper_tax_threshold=employer_data.upper_tax_threshold,is_required_to_pay_income_tax=employer_data.is_required_to_pay_income_tax,exact_income_tax_percentage=employer_data.exact_income_tax_percentage,accumulated_gross_including_this_month=accumulated_gross_including_this_month,accumulated_income_tax_not_including_this_month=accumulated_income_tax_not_including_this_month,vat_due_this_month=vat_due_this_month)
+        if no_tax_dict:
+            income_tax_for_this_month = 0
+        else:
+            system_data = self.getter.get_system_data_by_month(for_year=for_year , for_month=for_month)
+            employer_data = self.getter.get_relevant_employer_data_for_empty_month(for_year=for_year, for_month=for_month, employee=employee)
+            if employer_data is None:
+                raise
+        
+            employee_data = vars(entry)
+            vat_percentage = system_data.vat_percentage
+            if employer_data.is_required_to_pay_vat:
+                vat_due_this_month = employee_data['gross_payment'] * vat_percentage
+            else:
+                vat_due_this_month = 0
+        
+            accumulated_gross_including_this_month = self.internal_get_accumulated_gross_including_this_month(for_year=entry.for_year,for_month=for_month,employee_id=entry.employee_id)
+            income_tax_for_this_month = calculate_income_tax(overall_gross=employee_data['gross_payment'],income_tax_threshold=employer_data.income_tax_threshold,lower_tax_threshold=employer_data.lower_tax_threshold,upper_tax_threshold=employer_data.upper_tax_threshold,is_required_to_pay_income_tax=employer_data.is_required_to_pay_income_tax,exact_income_tax_percentage=employer_data.exact_income_tax_percentage,accumulated_gross_including_this_month=accumulated_gross_including_this_month,accumulated_income_tax_not_including_this_month=accumulated_income_tax_not_including_this_month,vat_due_this_month=vat_due_this_month)
         return { 'accumulated_income_tax_not_including_this_month' : income_tax_for_this_month + accumulated_income_tax_not_including_this_month, 'income_tax_for_this_month' : income_tax_for_this_month } 
 
     def internal_get_accumulated_gross_including_this_month(self , for_year, for_month , employee_id):
@@ -236,13 +235,14 @@ class data_getter(object):
         super(data_getter, self).__init__()
     
     def get_system_data_by_month(self , for_year , for_month):
+        # print('for_year: {0} , for_month: {1}'.format(for_year , for_month))
         return Monthly_system_data.objects.filter(for_month=for_month , for_year=for_year).latest('created')
 
-    def get_employee_data_by_month(self , for_year , for_month , employee):
+    def get_employee_data_by_month(self , for_year , for_month , employee ):
         try:
             return Monthly_employee_data.objects.get(for_month=for_month , for_year=for_year , employee=employee , is_approved=True)
         except Exception as e:
-            print('yayaya coco jambo')
+            # print('cannot find data for employee: {0} in month: {1} and year {2}'.format(employee , for_month , for_year))
             return None
 
     def get_employer_data_by_month(self , for_year , for_month , employee):
@@ -252,7 +252,13 @@ class data_getter(object):
             return None
     
     def get_relevant_employer_data_for_empty_month(self, for_year, for_month, employee):    
-        return Monthly_employer_data.objects.filter(for_month__lte=for_month , for_year=for_year , employee=employee , is_approved=True).order_by('-for_month')[:1]
+        try:
+            return Monthly_employer_data.objects.filter(for_month__lte=for_month , for_year=for_year , employee=employee , is_approved=True).order_by('-for_month')[0]
+        except IndexError:
+            try:
+                return Monthly_employer_data.objects.filter( for_year=for_year-1 , employee=employee , is_approved=True).order_by('-for_month')[0]
+            except IndexError:
+                return None
     def get_relevant_employee_data_for_empty_month(self, for_year, for_month, employee):    
         pass
 
