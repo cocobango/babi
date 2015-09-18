@@ -270,6 +270,7 @@ class ReportsTestCase(TestCase):
         #assert
         self.assertEqual(5000, gross_payment)
 
+    #monthly_employee_report suite
     def test_monthly_employee_report_has_all_fields(self):
         #arrange
         fields = [
@@ -289,7 +290,7 @@ class ReportsTestCase(TestCase):
         # print(monthly_employee_report)
 
     def test_correctly_caclutates_income_tax(self):
-        monthly_reports_for_january = self.generate_monthly_reports_bulk(for_month=1)
+        monthly_reports_for_january = self.generate_monthly_employee_report_bulk(for_month=1)
 
         test_set=[
             # does not have to pay tax
@@ -305,7 +306,7 @@ class ReportsTestCase(TestCase):
             self.assertEqual(single_test[0] , single_test[1])
 
     def test_correctly_caclutates_social_security(self):
-        monthly_reports_for_january = self.generate_monthly_reports_bulk(for_month=1)
+        monthly_reports_for_january = self.generate_monthly_employee_report_bulk(for_month=1)
 
         test_set=[
             [ Decimal(175)*1 , monthly_reports_for_january[0]['social_security_employee_due_this_month'] ],
@@ -320,7 +321,7 @@ class ReportsTestCase(TestCase):
             self.assertEqual(single_test[0] , single_test[1])
 
     def test_correctly_caclutates_vat(self):
-        monthly_reports_for_january = self.generate_monthly_reports_bulk(for_month=1)
+        monthly_reports_for_january = self.generate_monthly_employee_report_bulk(for_month=1)
 
         test_set=[
             [ Decimal(900)*1 , monthly_reports_for_january[0]['vat_due_this_month'] ],
@@ -335,7 +336,7 @@ class ReportsTestCase(TestCase):
             self.assertEqual(single_test[0] , single_test[1])
 
     def test_correctly_caclutates_monthly_net_january(self):
-        monthly_reports_for_january = self.generate_monthly_reports_bulk(for_month=1)
+        monthly_reports_for_january = self.generate_monthly_employee_report_bulk(for_month=1)
 
         test_set=[
             [ Decimal(5725)*1 , monthly_reports_for_january[0]['monthly_net'] ],
@@ -350,7 +351,7 @@ class ReportsTestCase(TestCase):
             self.assertEqual(single_test[0] , single_test[1])
 
     def test_correctly_caclutates_monthly_net_february(self):
-        monthly_reports_for_february = self.generate_monthly_reports_bulk(for_month=2)
+        monthly_reports_for_february = self.generate_monthly_employee_report_bulk(for_month=2)
 
         test_set=[
             [ Decimal(5725)*1 , monthly_reports_for_february[0]['monthly_net'] ],
@@ -370,7 +371,7 @@ class ReportsTestCase(TestCase):
         #     print(month.employee)
         #     print(month.is_required_to_pay_income_tax)
 
-        monthly_reports_for_march = self.generate_monthly_reports_bulk(for_month=3)
+        monthly_reports_for_march = self.generate_monthly_employee_report_bulk(for_month=3)
         # print(monthly_reports_for_march[3])
 
         test_set=[
@@ -379,6 +380,7 @@ class ReportsTestCase(TestCase):
             [ Decimal(3325)*1 , monthly_reports_for_march[2]['monthly_net'] ],
             [ Decimal(3330)*1 , monthly_reports_for_march[3]['monthly_net'] ],
             [ Decimal(6147.6)*1 , monthly_reports_for_march[4]['monthly_net'] ],
+            [ Decimal(4437.26)*1 , monthly_reports_for_march[5]['monthly_net'] ],
         ]
 
         #assert
@@ -387,15 +389,206 @@ class ReportsTestCase(TestCase):
 
 
 
-    def generate_monthly_reports_bulk(self, for_month):
+    def generate_monthly_employee_report_bulk(self, for_month):
         employees = Employee.objects.all()
 
         monthly_employee_reports = []
         for employee in employees:
             monthly_employee_reports.append(self.reports_maker.monthly_employee_report(employee=employee,for_year=2015, for_month=for_month))
         return monthly_employee_reports
-        
+    
 
+    #monthly_employer_report suite
+    def test_monthly_employer_report_has_all_social_security_fields(self):
+        """ calculate social security for employer monthly report """
+        #arrange
+        social_security_fields = [
+            'count_of_employees_that_are_required_to_pay_social_security',
+            'sum_of_gross_payment_of_employees_that_are_required_to_pay_social_security',
+            'sum_of_gross_payment_to_be_paid_at_lower_employer_rate_social_security',
+            'sum_of_gross_payment_to_be_paid_at_lower_employee_rate_social_security',
+            'total_of_social_security_due',
+            'count_of_employees_that_do_not_exceed_the_social_security_threshold'
+        ]
+        #act
+        monthly_employer_report = self.reports_maker.monthly_employer_report(for_year=2015, for_month=1)
+        #assert
+        for field in social_security_fields:
+            self.assertIn(field , monthly_employer_report['social_security'])
+        # print(monthly_employee_report)
+
+
+    def test_correctly_caclutates_social_security_in_monthly_employer_report_january(self):
+        #arrange
+        monthly_employer_report = self.reports_maker.monthly_employer_report(for_year=2015, for_month=1)
+        #arrange + act
+        test_set=[
+            [ 4 , monthly_employer_report['social_security']['count_of_employees_that_are_required_to_pay_social_security'] ],
+            [ 24000 , monthly_employer_report['social_security']['sum_of_gross_payment_of_employees_that_are_required_to_pay_social_security'] ],
+            [ 20112 , monthly_employer_report['social_security']['sum_of_gross_payment_to_be_paid_at_lower_employer_rate_social_security'] ],
+            [ 7556 , monthly_employer_report['social_security']['sum_of_gross_payment_to_be_paid_at_lower_employee_rate_social_security'] ],
+            [ Decimal(3213.48)*1 , monthly_employer_report['social_security']['total_of_social_security_due'] ],
+            [ 1 , monthly_employer_report['social_security']['count_of_employees_that_do_not_exceed_the_social_security_threshold'] ],
+        ]
+
+        #assert
+        for single_test in test_set:
+            self.assertEqual(single_test[0] , single_test[1])
+
+    def test_correctly_caclutates_social_security_in_monthly_employer_report_february(self):
+        #arrange
+        monthly_employer_report = self.reports_maker.monthly_employer_report(for_year=2015, for_month=2)
+        #arrange + act
+        test_set=[
+            [ 5 , monthly_employer_report['social_security']['count_of_employees_that_are_required_to_pay_social_security'] ],
+            [ 25500 , monthly_employer_report['social_security']['sum_of_gross_payment_of_employees_that_are_required_to_pay_social_security'] ],
+            [ 24612 , monthly_employer_report['social_security']['sum_of_gross_payment_to_be_paid_at_lower_employer_rate_social_security'] ],
+            [ 14112 , monthly_employer_report['social_security']['sum_of_gross_payment_to_be_paid_at_lower_employee_rate_social_security'] ],
+            [ Decimal(2773.97)*1 , monthly_employer_report['social_security']['total_of_social_security_due'] ],
+            [ 1 , monthly_employer_report['social_security']['count_of_employees_that_do_not_exceed_the_social_security_threshold'] ],
+        ]
+
+        #assert
+        for single_test in test_set:
+            self.assertEqual(single_test[0] , single_test[1])
+    def test_correctly_caclutates_social_security_in_monthly_employer_report_march(self):
+        #arrange
+        monthly_employer_report = self.reports_maker.monthly_employer_report(for_year=2015, for_month=3)
+        #arrange + act
+        test_set=[
+            [ 5 , monthly_employer_report['social_security']['count_of_employees_that_are_required_to_pay_social_security'] ],
+            [ 26000 , monthly_employer_report['social_security']['sum_of_gross_payment_of_employees_that_are_required_to_pay_social_security'] ],
+            [ 25556 , monthly_employer_report['social_security']['sum_of_gross_payment_to_be_paid_at_lower_employer_rate_social_security'] ],
+            [ 9556 , monthly_employer_report['social_security']['sum_of_gross_payment_to_be_paid_at_lower_employee_rate_social_security'] ],
+            [ Decimal(3221.61)*1 , monthly_employer_report['social_security']['total_of_social_security_due'] ],
+            [ 1 , monthly_employer_report['social_security']['count_of_employees_that_do_not_exceed_the_social_security_threshold'] ],
+        ]
+
+        #assert
+        for single_test in test_set:
+            self.assertEqual(single_test[0] , single_test[1])
+
+
+    def test_monthly_employer_report_has_all_vat_fields(self):
+        """ calculate vat for employer monthly report """
+        #arrange
+        vat_fields = [
+            'sum_of_gross_payment_where_no_vat_is_required',
+            'count_of_employees_where_no_vat_is_required',
+            'sum_of_vat_due_where_no_vat_is_required',
+        ]
+        #act
+        monthly_employer_report = self.reports_maker.monthly_employer_report(for_year=2015, for_month=1)
+        #assert
+        for field in vat_fields:
+            self.assertIn(field , monthly_employer_report['vat'])
+        # print(monthly_employee_report)
+
+
+    def test_correctly_caclutates_vat_in_monthly_employer_report_january(self):
+        #arrange
+        monthly_employer_report = self.reports_maker.monthly_employer_report(for_year=2015, for_month=1)
+        #arrange + act
+        test_set=[
+            [ Decimal(6500) * 1 , monthly_employer_report['vat']['sum_of_gross_payment_where_no_vat_is_required'] ],
+            [ 2 , monthly_employer_report['vat']['count_of_employees_where_no_vat_is_required'] ],
+            [ Decimal(1170) * 1 , monthly_employer_report['vat']['sum_of_vat_due_where_no_vat_is_required'] ],
+        ]
+
+        #assert
+        for single_test in test_set:
+            self.assertEqual(single_test[0] , single_test[1])
+
+    def test_correctly_caclutates_vat_in_monthly_employer_report_february(self):
+        #arrange
+        monthly_employer_report = self.reports_maker.monthly_employer_report(for_year=2015, for_month=2)
+        #arrange + act
+        test_set=[
+            [ Decimal(10500) * 1 , monthly_employer_report['vat']['sum_of_gross_payment_where_no_vat_is_required'] ],
+            [ 2 , monthly_employer_report['vat']['count_of_employees_where_no_vat_is_required'] ],
+            [ Decimal(1890) * 1 , monthly_employer_report['vat']['sum_of_vat_due_where_no_vat_is_required'] ],
+        ]
+
+        #assert
+        for single_test in test_set:
+            self.assertEqual(single_test[0] , single_test[1])
+    def test_correctly_caclutates_vat_in_monthly_employer_report_march(self):
+        #arrange
+        monthly_employer_report = self.reports_maker.monthly_employer_report(for_year=2015, for_month=3)
+        #arrange + act
+        test_set=[
+            [ Decimal(13500) * 1 , monthly_employer_report['vat']['sum_of_gross_payment_where_no_vat_is_required'] ],
+            [ 3 , monthly_employer_report['vat']['count_of_employees_where_no_vat_is_required'] ],
+            [ Decimal(2430) * 1 , monthly_employer_report['vat']['sum_of_vat_due_where_no_vat_is_required'] ],
+        ]
+
+        #assert
+        for single_test in test_set:
+            self.assertEqual(single_test[0] , single_test[1])
+
+
+
+
+    def test_monthly_employer_report_has_all_income_tax_fields(self):
+        """ calculate income tax for employer monthly report """
+        #arrange
+        income_tax_fields = [
+            'count_of_employees_that_got_paid_this_month',
+            'sum_of_gross_payment_and_vat_for_employees_that_got_paid_this_month',
+            'sum_of_income_tax'
+        ]
+        #act
+        monthly_employer_report = self.reports_maker.monthly_employer_report(for_year=2015, for_month=1)
+        #assert
+        for field in income_tax_fields:
+            self.assertIn(field , monthly_employer_report['income_tax'])
+        # print(monthly_employee_report)
+
+
+    def test_correctly_caclutates_income_tax_in_monthly_employer_report_january(self):
+        #arrange
+        monthly_employer_report = self.reports_maker.monthly_employer_report(for_year=2015, for_month=1)
+        #arrange + act
+        test_set=[
+            [ 5 , monthly_employer_report['income_tax']['count_of_employees_that_got_paid_this_month'] ],
+            [ Decimal(30100) * 1 , monthly_employer_report['income_tax']['sum_of_gross_payment_and_vat_for_employees_that_got_paid_this_month'] ],
+            [ Decimal(1086.20) * 1 , monthly_employer_report['income_tax']['sum_of_income_tax'] ],
+        ]
+
+        #assert
+        for single_test in test_set:
+            self.assertEqual(single_test[0] , single_test[1])
+
+    def test_correctly_caclutates_income_tax_in_monthly_employer_report_february(self):
+        #arrange
+        monthly_employer_report = self.reports_maker.monthly_employer_report(for_year=2015, for_month=2)
+        #arrange + act
+        test_set=[
+            [ 5 , monthly_employer_report['income_tax']['count_of_employees_that_got_paid_this_month'] ],
+            [ Decimal(28200) * 1 , monthly_employer_report['income_tax']['sum_of_gross_payment_and_vat_for_employees_that_got_paid_this_month'] ],
+            [ Decimal(1095.6) * 1 , monthly_employer_report['income_tax']['sum_of_income_tax'] ],
+        ]
+
+        #assert
+        for single_test in test_set:
+            self.assertEqual(single_test[0] , single_test[1])
+    def test_correctly_caclutates_income_tax_in_monthly_employer_report_march(self):
+        #arrange
+        monthly_employer_report = self.reports_maker.monthly_employer_report(for_year=2015, for_month=3)
+        #arrange + act
+        test_set=[
+            [ 6 , monthly_employer_report['income_tax']['count_of_employees_that_got_paid_this_month'] ],
+            [ Decimal(32970) * 1 , monthly_employer_report['income_tax']['sum_of_gross_payment_and_vat_for_employees_that_got_paid_this_month'] ],
+            [ Decimal(1867.40) * 1 , monthly_employer_report['income_tax']['sum_of_income_tax'] ],
+        ]
+
+        #assert
+        for single_test in test_set:
+            self.assertEqual(single_test[0] , single_test[1])
+
+
+
+    
 class ValidationTestCase(TestCase):
     def __init__(self,*args, **kwargs):
         super(ValidationTestCase, self).__init__(*args,**kwargs)
