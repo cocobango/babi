@@ -116,7 +116,8 @@ class vat_calculations(object):
     def internal_get_entries_for_month(self , for_year, for_month , is_required_to_pay_vat=True):
         employer_entries = Monthly_employer_data.objects.select_related('employee').filter(is_required_to_pay_vat=is_required_to_pay_vat, employee__employer=self.employer, is_approved=True, for_year=for_year, for_month=for_month)
         for employer_entry in employer_entries:
-            employer_entry.Monthly_employee_data = vars(Monthly_employee_data.objects.get(employee=employer_entry.employee, is_approved=True, for_year=for_year, for_month=for_month))
+            employer_entry.Monthly_employee_data_as_object = Monthly_employee_data.objects.get(employee=employer_entry.employee, is_approved=True, for_year=for_year, for_month=for_month)
+            employer_entry.Monthly_employee_data = vars(employer_entry.Monthly_employee_data_as_object)
         return employer_entries
 
 
@@ -222,8 +223,66 @@ class income_tax_calculations(object):
         return total['my_total']
 
     
+class cross_calculations(object):
+    """docstring for cross_calculations"""
+    def __init__(self, user_id):
+        super(cross_calculations, self).__init__()
+        self.user_id = user_id
+        if Employer.is_employer(user_id):
+            self.employer = Employer.get_employer_from_user(user_id)
+        self.getter = data_getter()
+        self.income_tax = income_tax_calculations(user_id=user_id)
+        self.social_security = social_security_calculations(user_id=user_id)
+        self.vat = vat_calculations(user_id=user_id)
 
 
+    def monthly_employee_report(self, employee, for_year, for_month):
+        monthly_employee_data = self.getter.get_employee_data_by_month(employee=employee,for_year=for_year,for_month=for_month)
+        if monthly_employee_data is None:
+            salary = 0
+            general_expenses = 0
+            social_security_employee_due_this_month = 0
+            gross_payment = 0
+        else:
+            salary = monthly_employee_data.salary
+            general_expenses = monthly_employee_data.general_expenses
+            social_security_employee_due_this_month = self.social_security.calculate_social_security_employee_by_employee_monthly_entry(monthly_employee_data)['total']
+            gross_payment = monthly_employee_data.gross_payment
+        
+        report_data = {
+            'salary': salary,
+            'general_expenses': general_expenses,
+            'income_tax_due_this_month': self.income_tax.calculate_income_tax_for_single_employee_for_month(employee=employee, for_year=for_year, for_month=for_month),
+            'social_security_employee_due_this_month': social_security_employee_due_this_month,
+            'vat_due_this_month': self.vat.calculate_vat_for_employee_for_month(employee=employee, for_year=for_year, for_month=for_month),
+        }
+        report_data['monthly_net'] = calculate_monthly_net(overall_gross=gross_payment , output_tax=report_data['vat_due_this_month'] , social_security_employee=report_data['social_security_employee_due_this_month'] , income_tax=report_data['income_tax_due_this_month'])
+        return report_data
+
+
+    def get_sum_of_employer_social_security_where_no_vat_is_required(self, for_year , for_month):
+        entries = self.vat.internal_get_entries_for_month(for_year=for_year , for_month=for_month , is_required_to_pay_vat=False)
+        sum_to_return = 0
+        return_arr = []
+        for entry in entries:
+            social_security_dict = self.social_security.internal_calculate_social_security_employer(entry.Monthly_employee_data_as_object)
+            sum_to_return += social_security_dict['total']
+        return sum_to_return
+
+    def get_sum_of_net_payment_where_no_vat_is_required(self, for_year , for_month):
+        entries = self.vat.internal_get_entries_for_month(for_year=for_year , for_month=for_month , is_required_to_pay_vat=False)
+        sum_to_return = 0
+        for entry in entries:
+            monthly_employee_report = self.monthly_employee_report(employee=entry.employee, for_year=for_year , for_month=for_month)
+            sum_to_return += monthly_employee_report['monthly_net']
+        return sum_to_return
+
+    def get_sum_of_income_tax_where_no_vat_is_required(self , for_year , for_month):
+        entries = self.vat.internal_get_entries_for_month(for_year=for_year , for_month=for_month , is_required_to_pay_vat=False)
+        sum_to_return = 0
+        for entry in entries:
+            sum_to_return += self.income_tax.calculate_income_tax_for_single_employee_for_month(employee=entry.employee, for_year=for_year , for_month=for_month)
+        return sum_to_return
 
 
 
