@@ -584,17 +584,6 @@ class ReportsTestCase(TestCase):
             self.assertEqual(single_test[0] , single_test[1])
 
 
-
-
-
-
-
-
-
-
-
-
-
     def test_monthly_employer_report_has_all_book_keeping_where_no_vat_is_required_fields(self):
         """ calculate book keeping where no vat is required for employer monthly report """
         #arrange
@@ -614,7 +603,7 @@ class ReportsTestCase(TestCase):
         # print(monthly_employee_report)
 
 
-    def test_correctly_caclutates_income_tax_in_monthly_employer_report_january(self):
+    def test_correctly_caclutates_book_keeping_in_monthly_employer_report_january(self):
         #arrange
         monthly_employer_report = self.reports_maker.monthly_employer_report(for_year=2015, for_month=1)
         #arrange + act
@@ -632,7 +621,7 @@ class ReportsTestCase(TestCase):
         for single_test in test_set:
             self.assertEqual(single_test[0] , single_test[1])
 
-    def test_correctly_caclutates_income_tax_in_monthly_employer_report_february(self):
+    def test_correctly_caclutates_book_keeping_in_monthly_employer_report_february(self):
         #arrange
         monthly_employer_report = self.reports_maker.monthly_employer_report(for_year=2015, for_month=2)
         #arrange + act
@@ -647,7 +636,7 @@ class ReportsTestCase(TestCase):
         #assert
         for single_test in test_set:
             self.assertEqual(single_test[0] , single_test[1])
-    def test_correctly_caclutates_income_tax_in_monthly_employer_report_march(self):
+    def test_correctly_caclutates_book_keeping_in_monthly_employer_report_march(self):
         #arrange
         monthly_employer_report = self.reports_maker.monthly_employer_report(for_year=2015, for_month=3)
         #arrange + act
@@ -664,6 +653,80 @@ class ReportsTestCase(TestCase):
         for single_test in test_set:
             self.assertEqual(single_test[0] , single_test[1])
 
+
+
+
+
+
+
+
+
+
+
+    def test_monthly_employer_report_has_all_book_keeping_where_vat_is_required_fields(self):
+        """ calculate book keeping where vat is required for employer monthly report """
+        #arrange
+        book_keeping_fields = [
+            'list_of_names_and_income_tax_where_vat_is_required',
+            'sum_of_income_tax_where_vat_is_required',
+            'list_of_names_and_social_security_employee_where_vat_is_required',
+            'sum_of_social_security_employer_where_vat_is_required',
+            'sum_of_social_security_where_vat_is_required'
+        ]
+        #act
+        monthly_employer_report = self.reports_maker.monthly_employer_report(for_year=2015, for_month=1)
+        #assert
+        for field in book_keeping_fields:
+            self.assertIn(field , monthly_employer_report['book_keeping_where_vat_is_required'])
+        # print(monthly_employer_report['book_keeping_where_vat_is_required']['list_of_names_and_income_tax_where_vat_is_required'])
+
+
+    def test_correctly_caclutates_book_keeping_where_vat_is_required_in_monthly_employer_report_january(self):
+        #arrange
+        monthly_employer_report = self.reports_maker.monthly_employer_report(for_year=2015, for_month=1)
+        #arrange + act
+        test_set=[
+            [ Decimal(0) *1 , monthly_employer_report['book_keeping_where_vat_is_required']['list_of_names_and_income_tax_where_vat_is_required'][0]['income_tax'] ],
+            [ Decimal(696.2) *1 , monthly_employer_report['book_keeping_where_vat_is_required']['sum_of_income_tax_where_vat_is_required'] ],
+            [ Decimal(175) *1 , monthly_employer_report['book_keeping_where_vat_is_required']['list_of_names_and_social_security_employee_where_vat_is_required'][0]['social_security_employer'] ],
+            [ Decimal(837.744) *1 , monthly_employer_report['book_keeping_where_vat_is_required']['sum_of_social_security_employer_where_vat_is_required'] ],
+            [ Decimal(2812.74) *1 , monthly_employer_report['book_keeping_where_vat_is_required']['sum_of_social_security_where_vat_is_required'] ],
+            
+        ]
+
+        #assert
+        for single_test in test_set:
+            self.assertEqual(single_test[0] , single_test[1])
+
+    def test_correctly_caclutates_book_keeping_where_vat_is_required_in_monthly_employer_report_february(self):
+        #arrange
+        monthly_employer_report = self.reports_maker.monthly_employer_report(for_year=2015, for_month=2)
+        #arrange + act
+        test_set=[
+            [ Decimal(354) *1 , monthly_employer_report['book_keeping_where_vat_is_required']['list_of_names_and_income_tax_where_vat_is_required'][1]['income_tax'] ],
+            [ Decimal(495.6) *1 , monthly_employer_report['book_keeping_where_vat_is_required']['sum_of_income_tax_where_vat_is_required'] ],
+            [ Decimal(720) *1 , monthly_employer_report['book_keeping_where_vat_is_required']['list_of_names_and_social_security_employee_where_vat_is_required'][1]['social_security_employer'] ],
+            [ Decimal(534.372) *1 , monthly_employer_report['book_keeping_where_vat_is_required']['sum_of_social_security_employer_where_vat_is_required'] ],
+            [ Decimal(1909.37) *1 , monthly_employer_report['book_keeping_where_vat_is_required']['sum_of_social_security_where_vat_is_required'] ],
+        ]
+        #assert
+        for single_test in test_set:
+            self.assertEqual(single_test[0] , single_test[1])
+    def test_correctly_caclutates_book_keeping_where_vat_is_required_in_monthly_employer_report_march(self):
+        #arrange
+        monthly_employer_report = self.reports_maker.monthly_employer_report(for_year=2015, for_month=3)
+        #arrange + act
+        test_set=[
+            [ Decimal(0) *1 , monthly_employer_report['book_keeping_where_vat_is_required']['list_of_names_and_income_tax_where_vat_is_required'][0]['income_tax'] ],
+            [ Decimal(212.4) *1 , monthly_employer_report['book_keeping_where_vat_is_required']['sum_of_income_tax_where_vat_is_required'] ],
+            [ Decimal(175) *1 , monthly_employer_report['book_keeping_where_vat_is_required']['list_of_names_and_social_security_employee_where_vat_is_required'][0]['social_security_employer'] ],
+            [ Decimal(586.122) *1 , monthly_employer_report['book_keeping_where_vat_is_required']['sum_of_social_security_employer_where_vat_is_required'] ],
+            [ Decimal(2141.12) *1 , monthly_employer_report['book_keeping_where_vat_is_required']['sum_of_social_security_where_vat_is_required'] ],
+        ]
+
+        #assert
+        for single_test in test_set:
+            self.assertEqual(single_test[0] , single_test[1])
 
     
 class ValidationTestCase(TestCase):
