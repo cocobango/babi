@@ -52,6 +52,7 @@ class MonthlyEmployerDataFactory(factory.django.DjangoModelFactory):
     upper_tax_threshold = Decimal(0.1)
     income_tax_threshold = Decimal(60000)
     exact_income_tax_percentage = Decimal(0.15)
+    gross_or_cost = True
 
 class MonthlyEmployeeDataFactory(factory.django.DjangoModelFactory):
     class Meta:
@@ -63,7 +64,6 @@ class MonthlyEmployeeDataFactory(factory.django.DjangoModelFactory):
     gross_payment = Decimal(1000)
     salary = Decimal(900)
     general_expenses = Decimal(100)
-    gross_or_cost = True
     is_required_to_pay_social_security = True
     is_employer_the_main_employer = False
     gross_payment_from_others = Decimal(200)

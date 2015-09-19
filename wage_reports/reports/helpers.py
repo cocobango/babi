@@ -81,3 +81,9 @@ def calculate_output_tax(overall_gross,vat_percentage,is_required_to_pay_vat):
 def calculate_monthly_net(overall_gross, output_tax, social_security_employee, income_tax ):
     return Decimal(overall_gross) + Decimal(output_tax) - Decimal(social_security_employee) - Decimal(income_tax)
 
+def calculate_gross_when_cost_or_or_gross_is_set_to_cost(cost , lower_employer_social_security_percentage , upper_employer_social_security_percentage , social_security_threshold):
+    if cost <= Decimal(social_security_threshold) * ( 1 + Decimal(lower_employer_social_security_percentage) ):
+        return Decimal(cost) / ( 1 + Decimal(lower_employer_social_security_percentage) )
+    a = Decimal(cost) - ( Decimal(social_security_threshold) * ( 1 + Decimal(lower_employer_social_security_percentage) ) )
+    b = Decimal(upper_employer_social_security_percentage) + 1
+    return ( Decimal(a / b) ) + Decimal(social_security_threshold)

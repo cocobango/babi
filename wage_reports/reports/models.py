@@ -7,7 +7,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User
 
 
-from .helpers import get_month_in_question_for_employer_locking , get_year_in_question_for_employer_locking , get_month_in_question_for_employee_locking , get_year_in_question_for_employee_locking
+from .helpers import get_month_in_question_for_employer_locking , get_year_in_question_for_employer_locking , get_month_in_question_for_employee_locking , get_year_in_question_for_employee_locking , calculate_gross_when_cost_or_or_gross_is_set_to_cost
 class Employer(models.Model):
     user = models.OneToOneField(User)
     business_id = models.IntegerField()
@@ -53,7 +53,6 @@ class Monthly_employee_data(models.Model):
     gross_payment = models.DecimalField(max_digits=11, decimal_places=2)
     salary = models.DecimalField(max_digits=11, decimal_places=2)
     general_expenses = models.DecimalField(max_digits=11, decimal_places=2)
-    gross_or_cost = models.BooleanField(default=True)
     is_required_to_pay_social_security = models.BooleanField(default=True)
     is_employer_the_main_employer = models.BooleanField(default=False)
     gross_payment_from_others = models.DecimalField(max_digits=11, decimal_places=2)
@@ -65,7 +64,7 @@ class Monthly_employee_data(models.Model):
         if commit:
             if self.is_valid_month():
                 if self.duplicate_employer_data():
-                    self.gross_payment = self.salary + self.general_expenses
+                    self.gross_payment = self.set_gross_payment()
                     super(Monthly_employee_data, self).save(*args, **kwargs)
                     return self
                 else:
@@ -119,6 +118,14 @@ class Monthly_employee_data(models.Model):
         latest_employer_data.save()
         return True
 
+    def set_gross_payment(self):
+        initial_gross = self.salary + self.general_expenses
+        latest_employer_data = Monthly_employer_data.objects.filter(employee=self.employee).order_by('-id')[0]
+        if latest_employer_data.gross_or_cost:
+            return initial_gross
+        monthly_system_data = Monthly_system_data.objects.order_by('-id').filter(for_year=self.for_year , for_month=self.for_month)[0]
+        return calculate_gross_when_cost_or_or_gross_is_set_to_cost(cost=initial_gross , lower_employer_social_security_percentage=monthly_system_data.lower_employer_social_security_percentage , upper_employer_social_security_percentage=monthly_system_data.upper_employer_social_security_percentage , social_security_threshold=monthly_system_data.social_security_threshold)
+
 class Monthly_employer_data(models.Model):
     """The information an employer enters each month is called Monthly_employee_data"""
     employee = models.ForeignKey(Employee)
@@ -133,6 +140,7 @@ class Monthly_employer_data(models.Model):
     upper_tax_threshold = models.DecimalField(max_digits=11, decimal_places=2)
     income_tax_threshold = models.DecimalField(max_digits=11, decimal_places=2)
     exact_income_tax_percentage = models.DecimalField(max_digits=16, decimal_places=8)
+    gross_or_cost = models.BooleanField(default=True) #gross is true
 
     def save(self, commit=True, *args, **kwargs):
         if commit:

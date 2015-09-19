@@ -729,11 +729,170 @@ class ReportsTestCase(TestCase):
             self.assertEqual(single_test[0] , single_test[1])
 
     
-class ValidationTestCase(TestCase):
+class ModelsTestCase(TestCase):
     def __init__(self,*args, **kwargs):
-        super(ValidationTestCase, self).__init__(*args,**kwargs)
+        super(ModelsTestCase, self).__init__(*args,**kwargs)
         self.myGenerator = factories.MyGenerators()
     def setUp(self):
         pass
+
+    def test_insert_monthly_employee_data_with_cost_or_gross_set_to_gross_is_uninfluenced(self):
+        employer = factories.EmployerFactory()
+        employee = factories.EmployeeFactory(employer=employer)
+        self.myGenerator.generate_monthly_system_data()
+
+        #january
+        factories.MonthlyEmployerDataFactory(
+            employee=employee,
+            for_year = 2015,
+            for_month = 1,
+            is_required_to_pay_vat = True,
+            is_required_to_pay_income_tax = False,
+        )
+        factories.MonthlyEmployeeDataFactory(
+            employee=employee,
+            for_year = 2015,
+            for_month = 1,
+            gross_payment = Decimal(5000),
+            salary = Decimal(4500),
+            general_expenses = Decimal(500),
+            is_required_to_pay_social_security = True,
+            is_employer_the_main_employer = True,
+            gross_payment_from_others = Decimal(1000)
+        )
+
+        #act
+        monthly_employee_data = Monthly_employee_data.objects.all()[0]
+
+        #assert
+        self.assertIsInstance(monthly_employee_data.id , int)
+        self.assertEqual(monthly_employee_data.employee.id , employee.id)
+        self.assertEqual(monthly_employee_data.gross_payment , 5000)
+
+    def test_insert_monthly_employee_data_with_cost_or_gross_set_to_cost_is_influenced_when_gross_is_lower_than_threshold(self):
+        employer = factories.EmployerFactory()
+        employee = factories.EmployeeFactory(employer=employer)
+        self.myGenerator.generate_monthly_system_data()
+
+        #january
+        factories.MonthlyEmployerDataFactory(
+            employee=employee,
+            for_year = 2015,
+            for_month = 1,
+            is_required_to_pay_vat = False,
+            is_required_to_pay_income_tax = True,
+            lower_tax_threshold = 0,
+            upper_tax_threshold = Decimal(0.14),
+            income_tax_threshold = Decimal(3000),
+            exact_income_tax_percentage = 0,
+            gross_or_cost = False
+        )
+        factories.MonthlyEmployeeDataFactory(
+            employee=employee,
+            for_year = 2015,
+            for_month = 1,
+            gross_payment = Decimal(4000),
+            salary = Decimal(3500),
+            general_expenses = Decimal(500),
+            is_required_to_pay_social_security = True,
+            is_employer_the_main_employer = False,
+            gross_payment_from_others = Decimal(3000)
+        )
+
+        #act
+        monthly_employee_data = Monthly_employee_data.objects.all()[0]
+
+        #assert
+        self.assertIsInstance(monthly_employee_data.id , int)
+        self.assertEqual(monthly_employee_data.employee.id , employee.id)
+        self.assertEqual(monthly_employee_data.gross_payment , Decimal(3866.6) * 1 )
+
+    def test_insert_monthly_employee_data_with_cost_or_gross_set_to_cost_is_influenced_when_gross_is_higher_than_threshold(self):
+        employer = factories.EmployerFactory()
+        employee = factories.EmployeeFactory(employer=employer)
+        self.myGenerator.generate_monthly_system_data()
+
+        #january
+        factories.MonthlyEmployerDataFactory(
+            employee=employee,
+            for_year = 2015,
+            for_month = 1,
+            is_required_to_pay_vat = True,
+            is_required_to_pay_income_tax = True,
+            lower_tax_threshold = 0,
+            upper_tax_threshold = Decimal(0.14),
+            income_tax_threshold = Decimal(3000),
+            exact_income_tax_percentage = Decimal(0.03),
+            gross_or_cost = False
+        )
+        factories.MonthlyEmployeeDataFactory(
+            employee=employee,
+            for_year = 2015,
+            for_month = 1,
+            gross_payment = Decimal(8000),
+            salary = Decimal(7500),
+            general_expenses = Decimal(500),
+            is_required_to_pay_social_security = True,
+            is_employer_the_main_employer = False,
+            gross_payment_from_others = 0
+        )
+
+        #act
+        monthly_employee_data = Monthly_employee_data.objects.all()[0]
+
+        #assert
+        self.assertIsInstance(monthly_employee_data.id , int)
+        self.assertEqual(monthly_employee_data.employee.id , employee.id)
+        self.assertEqual(monthly_employee_data.gross_payment , Decimal(7656.07) * 1 )
+
+
+    def test_insert_monthly_employee_data_with_cost_or_gross_set_to_cost_generates_updated_results(self):
+        employer = factories.EmployerFactory()
+        employee = factories.EmployeeFactory(employer=employer)
+        self.myGenerator.generate_monthly_system_data()
+        self.reports_maker = reports_maker.ReportsMaker(employer=employer)
+
+        #january
+        factories.MonthlyEmployerDataFactory(
+            employee=employee,
+            for_year = 2015,
+            for_month = 1,
+            is_required_to_pay_vat = True,
+            is_required_to_pay_income_tax = True,
+            lower_tax_threshold = 0,
+            upper_tax_threshold = Decimal(0.14),
+            income_tax_threshold = Decimal(3000),
+            exact_income_tax_percentage = Decimal(0.03),
+            gross_or_cost = False
+        )
+        factories.MonthlyEmployeeDataFactory(
+            employee=employee,
+            for_year = 2015,
+            for_month = 1,
+            gross_payment = Decimal(8000),
+            salary = Decimal(7500),
+            general_expenses = Decimal(500),
+            is_required_to_pay_social_security = True,
+            is_employer_the_main_employer = False,
+            gross_payment_from_others = 0
+        )
+
+        #act
+        monthly_employee_data = Monthly_employee_data.objects.all()[0]
+        monthly_employee_report = self.reports_maker.monthly_employee_report(employee=employee , for_year=2015 , for_month=1)
+        print(monthly_employee_report)
+        
+        #assert
+        self.assertIsInstance(monthly_employee_data.id , int)
+        self.assertEqual(monthly_employee_data.employee.id , employee.id)
+        self.assertEqual(monthly_employee_data.gross_payment , Decimal(7656.07) * 1 )
+        self.assertEqual(monthly_employee_report['monthly_net'] , Decimal(8317) * 1 )
+        
+
+        
+
+
+
+
 
     
