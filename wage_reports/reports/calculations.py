@@ -270,12 +270,20 @@ class cross_calculations(object):
         return sum_to_return
 
     def get_sum_of_net_payment_where_no_vat_is_required(self, for_year , for_month):
-        entries = self.vat.internal_get_entries_for_month(for_year=for_year , for_month=for_month , is_required_to_pay_vat=False)
         sum_to_return = 0
+        for row in self.get_list_of_names_and_monthly_net_where_no_vat_is_required(for_year=for_year , for_month=for_month):
+            sum_to_return += row['monthly_net']
+        return sum_to_return
+
+
+    def get_list_of_names_and_monthly_net_where_no_vat_is_required(self, for_year , for_month):
+        entries = self.vat.internal_get_entries_for_month(for_year=for_year , for_month=for_month , is_required_to_pay_vat=False)
+        list_of_employees = []
         for entry in entries:
             monthly_employee_report = self.monthly_employee_report(employee=entry.employee, for_year=for_year , for_month=for_month)
-            sum_to_return += monthly_employee_report['monthly_net']
-        return sum_to_return
+            list_of_employees.append(
+            	{ 'monthly_net' : monthly_employee_report['monthly_net'] , 'name' : '{0} {1}'.format(entry.employee.user.first_name ,entry.employee.user.last_name) })
+        return list_of_employees
 
     def get_sum_of_income_tax_where_no_vat_is_required(self , for_year , for_month):
         entries = self.vat.internal_get_entries_for_month(for_year=for_year , for_month=for_month , is_required_to_pay_vat=False)
@@ -284,6 +292,16 @@ class cross_calculations(object):
             sum_to_return += self.income_tax.calculate_income_tax_for_single_employee_for_month(employee=entry.employee, for_year=for_year , for_month=for_month)
         return sum_to_return
 
+    def get_sum_of_social_security_where_no_vat_is_required(self, for_year , for_month):
+        entries = self.vat.internal_get_entries_for_month(for_year=for_year , for_month=for_month , is_required_to_pay_vat=False)
+        sum_to_return = 0
+        return_arr = []
+        for entry in entries:
+            social_security_dict = self.social_security.calculate_social_security_employee_by_employee_monthly_entry(entry.Monthly_employee_data_as_object)
+            sum_to_return += social_security_dict['total']
+            social_security_dict = self.social_security.internal_calculate_social_security_employer(entry.Monthly_employee_data_as_object)
+            sum_to_return += social_security_dict['total']        
+        return sum_to_return    
 
 
 

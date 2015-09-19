@@ -41,9 +41,9 @@ class ReportsMaker(object):
 				'sum_of_gross_payment_where_no_vat_is_required': self.vat.get_sum_of_gross_payment_where_no_vat_is_required(for_year=for_year , for_month=for_month),
 	            'sum_of_employer_social_security_where_no_vat_is_required': self.cross.get_sum_of_employer_social_security_where_no_vat_is_required(for_year=for_year , for_month=for_month),
 	            'sum_of_net_payment_where_no_vat_is_required': self.cross.get_sum_of_net_payment_where_no_vat_is_required(for_year=for_year , for_month=for_month),
-	            'sum_of_income_tax_where_no_vat_is_required': 0,
-	            'sum_of_social_security_where_no_vat_is_required': 0,
-	            'list_of_names_and_net_payment_where_no_vat_is_required': 0,
+	            'sum_of_income_tax_where_no_vat_is_required': self.cross.get_sum_of_income_tax_where_no_vat_is_required(for_year=for_year , for_month=for_month),
+	            'sum_of_social_security_where_no_vat_is_required': self.cross.get_sum_of_social_security_where_no_vat_is_required(for_year=for_year , for_month=for_month),
+	            'list_of_names_and_monthly_net_where_no_vat_is_required': self.cross.get_list_of_names_and_monthly_net_where_no_vat_is_required(for_year=for_year , for_month=for_month),
 			}
 			
 		}
