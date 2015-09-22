@@ -27,7 +27,7 @@ function IDValidator(id)
 	}
 	return (counter % 10 == 0);
 }
-
+$('#id_government_id').change(function(e){ if( ! IDValidator($('#id_government_id').val())){ alert('bad id') }   });
 </script>
 
 {% endblock content %}
