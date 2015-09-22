@@ -2,7 +2,7 @@ from decimal import *
 getcontext().prec = 6
 import json
 
-from django.test import TestCase
+from django.test import TestCase , Client
 from django.utils import timezone
 
 from reports.models import Employer , Employee , Monthly_employee_data , Monthly_employer_data , Monthly_system_data
@@ -890,9 +890,47 @@ class ModelsTestCase(TestCase):
         
 
         
+class PermissionsTestCase(TestCase):
+    def __init__(self,*args, **kwargs):
+        super(PermissionsTestCase, self).__init__(*args,**kwargs)
+        self.myGenerator = factories.MyGenerators()
+        self.c = Client()
+
+    def setUp(self):
+        self.myGenerator.generateInitialControlledState()
+
+
+    def test_will_not_allow_access_to_a_secure_page_to_a_user_not_logged_in(self):
+        #arrange
+        
+        #act
+        response = self.c.get('/reports/')
+        #assert
+        self.assertTrue(response.status_code != 200)
+        # self.assertTrue(False)
+
+    def test_will_allow_access_to_a_user_not_logged_in_to_login_page(self):
+        #arrange
+        
+        #act
+        response = self.c.get('/')
+        #assert
+        self.assertTrue(response.status_code == 200)
+        # self.assertTrue(False)
+
+    def test_will_allow_access_to_a_secure_page_to_a_user_that_is_logged_in(self):
+        #arrange
+        password = 12345678
+        username = 'coco'
+        user = factories.UserFactory(password=password , username=username)
+        employer = factories.EmployerFactory(user=user)
+        print(self.c.login(password=password , username=username))
+        #act
+        response = self.c.get('/reports/')
+        #assert
+        self.assertTrue(response.status_code == 200)
+        # self.assertTrue(False)
 
 
 
 
-
-    
