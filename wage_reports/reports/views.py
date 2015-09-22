@@ -1,6 +1,7 @@
 from datetime import datetime
 
-from django.contrib.auth import logout
+
+from django.contrib.auth import logout as logout_function
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import redirect_to_login
 from django.shortcuts import get_object_or_404, render
@@ -33,6 +34,7 @@ def index(request):
 def user_management(request):
     return render(request, 'reports/employer/user_management.html' , { })
 
+@login_required
 def add_employee(request):
     if request.method == 'POST':
         form_registration = UserCreateForm(request.POST)
@@ -63,6 +65,7 @@ def view_all_employees(request):
     employees = Employee.objects.filter(employer=Employer_obj)
     return render(request, 'reports/employer/view_all_employees.html' , { 'json' : serializers.serialize('json' , employees) , 'employees' : employees })
 
+@login_required
 def toggle_employee_status(request):
     if request.method == 'POST':
         employer = get_object_or_404(Employer , user=request.user)
@@ -78,18 +81,22 @@ def toggle_employee_status(request):
     else:
         return HttpResponseRedirect(reverse('my_login:messages' , args=('Error, this is a POST gateway, not GET',)))
 
+@login_required
 def view_history(request):
     pass
 
 
+@login_required
 def view_all_months(request):
     pass
 
 
+@login_required
 def view_a_single_month(request):
     pass
 
 
+@login_required
 def view_report_of_type(request , report_type):
     # calculator = social_security_calculations(request.user)
     # for_year = get_year_in_question_for_employer_locking()
@@ -100,6 +107,7 @@ def view_report_of_type(request , report_type):
     # expected_result = 1
     return render(request, 'reports/general/display_message.html' , { 'headline' : "test response:" , 'body' : str(response) + ' ' + str(expected_result) })
 
+@login_required
 def show_entries(request , past_or_current_month):
     if past_or_current_month == 'past':
         month_in_question = get_month_in_question_for_employer_locking()
@@ -135,6 +143,7 @@ def show_entries(request , past_or_current_month):
                     entries.append( empty_entry )
     return render(request, 'reports/employer/show_entries.html' , { 'employees' : employees , 'entries' : entries , 'employees_that_do_not_have_employer_data' : employees_that_do_not_have_employer_data , 'past_or_current_month' : past_or_current_month , 'year_in_question' : year_in_question , 'month_in_question' : month_in_question })
 
+@login_required
 def pre_approve_month(request):
     Employer_obj = Employer.objects.get(user=request.user)
     employees = Employee.objects.filter(employer=Employer_obj)
@@ -160,6 +169,7 @@ def pre_approve_month(request):
             empty_entries.append( empty_entry )
     return render(request, 'reports/employer/pre_approve_month.html' , { 'month_in_question': month_in_question , 'year_in_question': year_in_question , 'approved_entries' : approved_entries , 'disapproved_entries' : disapproved_entries , 'no_recent_entries' : no_recent_entries , 'empty_entries' : empty_entries })
 
+@login_required
 def approve_this_month(request):
     if request.method == 'POST':
         try:
@@ -176,6 +186,7 @@ def approve_this_month(request):
     else:
         return HttpResponseRedirect(reverse('my_login:messages' , args=('Error, this is a POST gateway, not GET',)))
 
+@login_required
 def set_as_valid(request , past_or_current_month):
     if request.method == 'POST':
         try:
@@ -201,6 +212,7 @@ def set_as_valid(request , past_or_current_month):
     else:
         return HttpResponseRedirect(reverse('my_login:messages' , args=('Error, this is a POST gateway, not GET',)))
     
+@login_required
 def withdraw_approval_of_single_entry(request):
     if request.method == 'POST':
         try:
@@ -213,6 +225,7 @@ def withdraw_approval_of_single_entry(request):
     else:
         return render(request, 'reports/general/display_message.html' , { 'headline' : "Error" , 'body' : "This is a POST gateway, not GET" })   
 
+@login_required
 def edit_specific_entry(request , employee_user_id):
     if request.method == 'POST':
         form_entry = EmployeeMonthlyEntryForm(request.POST)
@@ -245,6 +258,7 @@ def edit_specific_entry(request , employee_user_id):
             form = EmployeeMonthlyEntryForm()
         return render(request, 'reports/employee/monthly_entry.html' , { 'form' : form , 'employee_user_id' : employee_user_id })
     
+@login_required
 def edit_specific_monthly_employer_data(request, employee_user_id):
     if request.method == 'POST':
         form_entry = EmployerMonthlyEntryForm(request.POST)
@@ -272,163 +286,9 @@ def edit_specific_monthly_employer_data(request, employee_user_id):
 def redirect_to_real_login(request):
     return redirect_to_login('accounts/profile')
 
-def login_destination(request):
-    username = request.POST['username']
-    password = request.POST['password']
-    user = authenticate(username=username, password=password)
-    if user is not None:
-        if user.is_active:
-            login(request, user)
-            # Redirect to a success page.
-        else:
-        	pass
-            # Return a 'disabled account' error message
-    else:
-        return HttpResponseRedirect(reverse('my_login:messages' , args=('invalid login',)))
-
 def logout(request):
-    logout(request)
+    logout_function(request)
     return render(request, 'reports/general/display_message.html' , { 'headline' : "successfully logged out" , 'body' : "" })
-
-#income_tax_test
-def income_tax_test(request):
-    result_set=[
-        # basic threshold calculation
-        [ 250 , calculate_income_tax(overall_gross=7000,income_tax_threshold=15000,lower_tax_threshold=0.05,upper_tax_threshold=0.2,is_required_to_pay_income_tax=True,exact_income_tax_percentage=0,accumulated_gross_including_this_month=9000,accumulated_income_tax_not_including_this_month=200,vat_due_this_month=0)],
-        # expecting tax refund
-        [-550, calculate_income_tax(overall_gross=7000,income_tax_threshold=15000,lower_tax_threshold=0.05,upper_tax_threshold=0.2,is_required_to_pay_income_tax=True,exact_income_tax_percentage=0,accumulated_gross_including_this_month=9000,accumulated_income_tax_not_including_this_month=1000,vat_due_this_month=0)],
-        # fix income tax without vat
-        [210, calculate_income_tax(overall_gross=7000,income_tax_threshold=15000,lower_tax_threshold=0.05,upper_tax_threshold=0.2,is_required_to_pay_income_tax=True,exact_income_tax_percentage=0.03,accumulated_gross_including_this_month=9000,accumulated_income_tax_not_including_this_month=1000,vat_due_this_month=0)],
-        # fix income tax with vat
-        [248, calculate_income_tax(overall_gross=7000,income_tax_threshold=15000,lower_tax_threshold=0.05,upper_tax_threshold=0.2,is_required_to_pay_income_tax=True,exact_income_tax_percentage=0.03,accumulated_gross_including_this_month=9000,accumulated_income_tax_not_including_this_month=1000,vat_due_this_month=1260)],
-    ]
-    # response = Monthly_employee_data.objects.select_related('employee__employer__user').filter(employee__employer__user=request.user.id)
-    return render(request, 'reports/general/test_results.html' , { 'headline' : "test response:" , 'result_set' : result_set})
-
-def output_tax_test(request):
-    result_set=[
-        # basic threshold calculation
-        [ 1260 , calculate_output_tax(overall_gross=7000,vat_percentage=0.18,is_required_to_pay_vat=True)],
-    ]
-    return render(request, 'reports/general/test_results.html' , { 'headline' : "test response:" , 'result_set' : result_set})
-
-def employee_monthly_report_test(request):
-    overall_gross = 7000
-    output_tax = calculate_output_tax(overall_gross=overall_gross,vat_percentage=0.18,is_required_to_pay_vat=True)
-    social_security_employee = calculate_social_security_employee(overall_gross=overall_gross,social_security_threshold=5500,lower_employee_social_security_percentage=0.033,upper_employee_social_security_percentage=0.12,is_required_to_pay_social_security=True, is_employer_the_main_employer=False, gross_payment_from_others=2000)
-    income_tax = calculate_income_tax(overall_gross=overall_gross,income_tax_threshold=15000,lower_tax_threshold=0.05,upper_tax_threshold=0.2,is_required_to_pay_income_tax=True,exact_income_tax_percentage=0,accumulated_gross_including_this_month=9000,accumulated_income_tax_not_including_this_month=200,vat_due_this_month=output_tax)
-    result_set=[
-        # basic threshold calculation
-        [ 1260 , calculate_monthly_net(overall_gross,output_tax,social_security_employee,income_tax)],
-    ]
-
-    return render(request, 'reports/general/test_results.html' , { 'headline' : "test response:" , 'result_set' : result_set})
-#@todo: use for real calculation
-#get_count_of_employees_that_are_required_to_pay_social_security_by_employer_test
-def get_count_of_employees_that_are_required_to_pay_social_security_by_employer_test(request):
-    calculator = social_security_calculations(request.user)
-    for_year = get_year_in_question_for_employer_locking()
-    for_month = get_month_in_question_for_employer_locking()
-    response = calculator.get_count_of_employees_that_are_required_to_pay_social_security_by_employer(for_year, for_month) 
-    expected_result = 1234324
-    return render(request, 'reports/general/display_message.html' , { 'headline' : "test response:" , 'body' : str(response) + ' ' + str(expected_result) })
-#get_sum_of_gross_payment_of_employees_that_are_required_to_pay_social_security_by_employer_test
-def get_sum_of_gross_payment_of_employees_that_are_required_to_pay_social_security_by_employer_test(request):
-    calculator = social_security_calculations(request.user)
-    for_year = get_year_in_question_for_employer_locking()
-    for_month = get_month_in_question_for_employer_locking()
-    response = calculator.get_sum_of_gross_payment_of_employees_that_are_required_to_pay_social_security_by_employer(for_year, for_month) 
-    expected_result = 1
-    return render(request, 'reports/general/display_message.html' , { 'headline' : "test response:" , 'body' : str(response) + ' ' + str(expected_result) })
-# get_sum_of_lower_employee_social_security_by_employer
-def get_sum_of_lower_employee_social_security_by_employer(request):
-    calculator = social_security_calculations(request.user)
-    for_year = get_year_in_question_for_employer_locking()
-    for_month = get_month_in_question_for_employer_locking()
-    response = calculator.get_sum_of_lower_employee_social_security_by_employer(for_year, for_month) 
-    expected_result = 1
-    return render(request, 'reports/general/display_message.html' , { 'headline' : "test response:" , 'body' : str(response) + ' ' + str(expected_result) })
-
-# get_sum_of_lower_employer_social_security_by_employer_test
-def get_sum_of_lower_employer_social_security_by_employer_test(request):
-    calculator = social_security_calculations(request.user)
-    for_year = get_year_in_question_for_employer_locking()
-    for_month = get_month_in_question_for_employer_locking()
-    response = calculator.get_sum_of_lower_employer_social_security_by_employer(for_year, for_month) 
-    expected_result = 1
-    return render(request, 'reports/general/display_message.html' , { 'headline' : "test response:" , 'body' : str(response) + ' ' + str(expected_result) })
-
-# get_total_of_social_security_due_by_employer
-def get_total_of_social_security_due_by_employer(request):
-    calculator = social_security_calculations(request.user)
-    for_year = get_year_in_question_for_employer_locking()
-    for_month = get_month_in_question_for_employer_locking()
-    response = calculator.get_total_of_social_security_due_by_employer(for_year, for_month) 
-    expected_result = 1
-    return render(request, 'reports/general/display_message.html' , { 'headline' : "test response:" , 'body' : str(response) + ' ' + str(expected_result) })
-
-# get_count_of_employees_that_do_not_exceed_the_social_security_threshold_by_employer
-def get_count_of_employees_that_do_not_exceed_the_social_security_threshold_by_employer(request):
-    calculator = social_security_calculations(request.user)
-    for_year = get_year_in_question_for_employer_locking()
-    for_month = get_month_in_question_for_employer_locking()
-    response = calculator.get_count_of_employees_that_do_not_exceed_the_social_security_threshold_by_employer(for_year, for_month) 
-    expected_result = 1
-    return render(request, 'reports/general/display_message.html' , { 'headline' : "test response:" , 'body' : str(response) + ' ' + str(expected_result) })
-
-# get_sum_of_gross_payment_where_no_vat_is_required
-def get_sum_of_gross_payment_where_no_vat_is_required(request):
-    calculator = vat_calculations(request.user)
-    for_year = get_year_in_question_for_employer_locking()
-    for_month = get_month_in_question_for_employer_locking()
-    response = calculator.get_sum_of_gross_payment_where_no_vat_is_required(for_year, for_month) 
-    expected_result = 1
-    return render(request, 'reports/general/display_message.html' , { 'headline' : "test response:" , 'body' : str(response) + ' ' + str(expected_result) })
-
-# get_count_of_employees_where_no_vat_is_required
-def get_count_of_employees_where_no_vat_is_required(request):
-    calculator = vat_calculations(request.user)
-    for_year = get_year_in_question_for_employer_locking()
-    for_month = get_month_in_question_for_employer_locking()
-    response = calculator.get_count_of_employees_where_no_vat_is_required(for_year, for_month) 
-    expected_result = 1
-    return render(request, 'reports/general/display_message.html' , { 'headline' : "test response:" , 'body' : str(response) + ' ' + str(expected_result) })
+    
 
 
-# get_sum_of_vat_due_where_no_vat_is_required
-def get_sum_of_vat_due_where_no_vat_is_required(request):
-    calculator = vat_calculations(request.user)
-    for_year = get_year_in_question_for_employer_locking()
-    for_month = get_month_in_question_for_employer_locking()
-    response = calculator.get_sum_of_vat_due_where_no_vat_is_required(for_year, for_month) 
-    expected_result = 1
-    return render(request, 'reports/general/display_message.html' , { 'headline' : "test response:" , 'body' : str(response) + ' ' + str(expected_result) })
-
-
-# get_count_of_employees_that_got_paid_this_month
-def get_count_of_employees_that_got_paid_this_month(request):
-    calculator = income_tax_calculations(request.user)
-    for_year = get_year_in_question_for_employer_locking()
-    for_month = get_month_in_question_for_employer_locking()
-    response = calculator.get_count_of_employees_that_got_paid_this_month(for_year, for_month) 
-    expected_result = 1
-    return render(request, 'reports/general/display_message.html' , { 'headline' : "test response:" , 'body' : str(response) + ' ' + str(expected_result) })
-
-
-# get_sum_of_gross_payment_and_vat_for_employees_that_got_paid_this_month
-def get_sum_of_gross_payment_and_vat_for_employees_that_got_paid_this_month(request):
-    calculator = income_tax_calculations(request.user)
-    for_year = get_year_in_question_for_employer_locking()
-    for_month = get_month_in_question_for_employer_locking()
-    response = calculator.get_sum_of_gross_payment_and_vat_for_employees_that_got_paid_this_month(for_year, for_month) 
-    expected_result = 1
-    return render(request, 'reports/general/display_message.html' , { 'headline' : "test response:" , 'body' : str(response) + ' ' + str(expected_result) })
-
-# get_sum_of_income_tax
-def get_sum_of_income_tax(request):
-    calculator = income_tax_calculations(request.user)
-    for_year = get_year_in_question_for_employer_locking()
-    for_month = get_month_in_question_for_employer_locking()
-    response = calculator.get_sum_of_income_tax(for_year, for_month) 
-    expected_result = 1
-    return render(request, 'reports/general/display_message.html' , { 'headline' : "test response:" , 'body' : str(response) + ' ' + str(expected_result) })
