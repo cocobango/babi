@@ -127,7 +127,7 @@ class MyGenerators(object):
             income_tax_default = Decimal(0.48)
         )
         #duplicates months until august
-        for x in range(2,9):
+        for x in range(2,13):
             monthly_system_data.for_month = x
             monthly_system_data.id = None
             monthly_system_data.save()
