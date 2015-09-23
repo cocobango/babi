@@ -55,8 +55,17 @@ class ReportsMaker(object):
 			
 		}
 		return report_data
-	def three_months_employer_report(self, employer, for_year, for_month):
-		pass
+	def quarterly_social_security_report(self, for_year, for_month):
+		return self.social_security.generate_quarterly_social_security_report(for_year, for_month)
+		return [
+			{
+				'first_name': 'coco',
+	            'last_name': 'coco',
+	            'government_id': 'coco',
+	            'birthday': 'coco',
+	            'months_data': 'coco',
+			}
+		]
 	def yearly_employee_report(self, employee, for_year):
 		pass
 	

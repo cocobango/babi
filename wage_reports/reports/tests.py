@@ -654,15 +654,6 @@ class ReportsTestCase(TestCase):
             self.assertEqual(single_test[0] , single_test[1])
 
 
-
-
-
-
-
-
-
-
-
     def test_monthly_employer_report_has_all_book_keeping_where_vat_is_required_fields(self):
         """ calculate book keeping where vat is required for employer monthly report """
         #arrange
@@ -727,6 +718,101 @@ class ReportsTestCase(TestCase):
         #assert
         for single_test in test_set:
             self.assertEqual(single_test[0] , single_test[1])
+
+
+
+
+
+
+
+
+
+
+
+
+	#quarterly_social_security_report suite
+    def test_monthly_employee_report_has_all_fields(self):
+        #arrange 
+        fields = [
+            'first_name',
+            'last_name',
+            'government_id',
+            'birthday',
+            'months_data',
+        ]
+        #act
+        quarterly_social_security_report = self.reports_maker.quarterly_social_security_report(for_year=2015, for_month=1)
+        #assert
+        for field in fields:
+            self.assertIn(field , quarterly_social_security_report[0])
+        # print(monthly_employee_report)
+
+    def test_correctly_caclutates_quarterly_social_security_report_january(self):
+        quarterly_social_security_report = self.reports_maker.quarterly_social_security_report(for_year=2015, for_month=1)
+        test_set=[
+            # does not have to pay tax
+            [ Decimal(175)*1 , quarterly_social_security_report[0]['months_data'][0]['social_security_employee'] ],
+
+            [ Decimal(840)*1 , quarterly_social_security_report[1]['months_data'][0]['social_security_employee'] ],
+
+            [ Decimal(0)*1 , quarterly_social_security_report[2]['months_data'][0]['social_security_employee'] ],
+
+            [ Decimal(262.74)*1 , quarterly_social_security_report[3]['months_data'][0]['social_security_employee'] ],
+
+            [ Decimal(960)*1 , quarterly_social_security_report[4]['months_data'][0]['social_security_employee'] ],
+
+            [ Decimal(0)*1 , quarterly_social_security_report[5]['months_data'][0]['social_security_employee'] ],
+        ]
+
+
+        #assert
+        for single_test in test_set:
+            self.assertEqual(single_test[0] , single_test[1])
+
+    def test_correctly_caclutates_quarterly_social_security_report_february(self):
+        quarterly_social_security_report = self.reports_maker.quarterly_social_security_report(for_year=2015, for_month=1)
+        test_set=[
+            # does not have to pay tax
+            [ Decimal(175)*1 , quarterly_social_security_report[0]['months_data'][1]['social_security_employee'] ],
+
+            [ Decimal(720)*1 , quarterly_social_security_report[1]['months_data'][1]['social_security_employee'] ],
+
+            [ Decimal(247.74)*1 , quarterly_social_security_report[2]['months_data'][1]['social_security_employee'] ],
+
+            [ Decimal(0)*1 , quarterly_social_security_report[3]['months_data'][1]['social_security_employee'] ],
+
+            [ Decimal(480)*1 , quarterly_social_security_report[4]['months_data'][1]['social_security_employee'] ],
+
+            [ Decimal(237.74)*1 , quarterly_social_security_report[5]['months_data'][1]['social_security_employee'] ],
+        ]
+
+
+        #assert
+        for single_test in test_set:
+            self.assertEqual(single_test[0] , single_test[1])
+
+    def test_correctly_caclutates_quarterly_social_security_report_march(self):
+        quarterly_social_security_report = self.reports_maker.quarterly_social_security_report(for_year=2015, for_month=1)
+        test_set=[
+            # does not have to pay tax
+            [ Decimal(175)*1 , quarterly_social_security_report[0]['months_data'][2]['social_security_employee'] ],
+
+            [ Decimal(660)*1 , quarterly_social_security_report[1]['months_data'][2]['social_security_employee'] ],
+
+            [ Decimal(0)*1 , quarterly_social_security_report[2]['months_data'][2]['social_security_employee'] ],
+
+            [ Decimal(540)*1 , quarterly_social_security_report[3]['months_data'][2]['social_security_employee'] ],
+
+            [ Decimal(720)*1 , quarterly_social_security_report[4]['months_data'][2]['social_security_employee'] ],
+
+            [ Decimal(212.74)*1 , quarterly_social_security_report[5]['months_data'][2]['social_security_employee'] ],
+        ]
+
+
+        #assert
+        for single_test in test_set:
+            self.assertEqual(single_test[0] , single_test[1])
+
 
     
 class ModelsTestCase(TestCase):
@@ -880,13 +966,13 @@ class ModelsTestCase(TestCase):
         #act
         monthly_employee_data = Monthly_employee_data.objects.all()[0]
         monthly_employee_report = self.reports_maker.monthly_employee_report(employee=employee , for_year=2015 , for_month=1)
-        print(monthly_employee_report)
+        # print(monthly_employee_report)
         
         #assert
         self.assertIsInstance(monthly_employee_data.id , int)
         self.assertEqual(monthly_employee_data.employee.id , employee.id)
         self.assertEqual(monthly_employee_data.gross_payment , Decimal(7656.07) * 1 )
-        self.assertEqual(monthly_employee_report['monthly_net'] , Decimal(8317) * 1 )
+        self.assertEqual(monthly_employee_report['monthly_net'] , Decimal(7844.4) * 1 )
         
 
         
@@ -924,12 +1010,27 @@ class PermissionsTestCase(TestCase):
         username = 'coco'
         user = factories.UserFactory(password=password , username=username)
         employer = factories.EmployerFactory(user=user)
-        print(self.c.login(password=password , username=username))
+        self.c.login(password=password , username=username)
         #act
         response = self.c.get('/reports/')
         #assert
         self.assertTrue(response.status_code == 200)
         # self.assertTrue(False)
+
+    def test_will_allow_access_to_a_edit_specific_entry_to_the_said_employee(self):
+        #arrange
+        return
+        password = 12345678
+        username = 'coco'
+        user = factories.UserFactory(password=password , username=username)
+        employer = factories.EmployerFactory(user=user)
+        #act
+        response = self.c.get('/reports/')
+        #assert
+        self.assertTrue(response.status_code == 200)
+        # self.assertTrue(False)
+
+
 
 
 
