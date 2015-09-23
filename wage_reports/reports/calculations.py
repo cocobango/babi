@@ -400,6 +400,33 @@ class cross_calculations(object):
             sum_to_return += row['social_security_employer']
         return sum_to_return
 
+    def get_yearly_employee_report_data(self, employee , for_year):
+        income_tax = 0
+        social_security = 0
+        vat = 0
+        sum_of_gross_payment = 0
+        months_in_which_got_paid = []
+        for x in range(1,13):
+            monthly_employee_report = self.monthly_employee_report(employee=employee, for_year=for_year, for_month=x)
+            monthly_employee_data = self.getter.get_employee_data_by_month(employee=employee,  for_year=for_year, for_month=x)
+
+            income_tax += monthly_employee_report['income_tax_due_this_month']
+            social_security += monthly_employee_report['social_security_employee_due_this_month']
+            vat += monthly_employee_report['vat_due_this_month']
+            if monthly_employee_data:
+                sum_of_gross_payment += monthly_employee_data.gross_payment
+                months_in_which_got_paid.append(x)
+        
+        return {
+            'sum_of_income_tax': income_tax,
+            'sum_of_social_security': social_security,
+            'sum_of_vat': vat,
+            'sum_of_gross_payment': sum_of_gross_payment,
+            'months_in_which_got_paid': months_in_which_got_paid,
+        }
+
+            
+
 
 
 class data_getter(object):

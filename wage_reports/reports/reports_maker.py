@@ -57,17 +57,19 @@ class ReportsMaker(object):
 		return report_data
 	def quarterly_social_security_report(self, for_year, for_month):
 		return self.social_security.generate_quarterly_social_security_report(for_year, for_month)
-		return [
-			{
-				'first_name': 'coco',
-	            'last_name': 'coco',
-	            'government_id': 'coco',
-	            'birthday': 'coco',
-	            'months_data': 'coco',
-			}
-		]
+
 	def yearly_employee_report(self, employee, for_year):
-		pass
+		yearly_employee_report_data = self.cross.get_yearly_employee_report_data(employee=employee , for_year=for_year)
+		return {
+            'first_name':employee.user.first_name,
+            'last_name':employee.user.last_name,
+            'government_id':employee.government_id,
+            'months_in_which_got_paid':yearly_employee_report_data['months_in_which_got_paid'],
+            'sum_of_income_tax':yearly_employee_report_data['sum_of_income_tax'],
+            'sum_of_social_security':yearly_employee_report_data['sum_of_social_security'],
+            'sum_of_vat':yearly_employee_report_data['sum_of_vat'],
+            'sum_of_gross_payment':yearly_employee_report_data['sum_of_gross_payment'],
+        }
 	
 	def yearly_social_security_employer_report(self, employer, for_year):
 		pass
