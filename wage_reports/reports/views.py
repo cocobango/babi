@@ -117,18 +117,20 @@ def show_entries(request , past_or_current_month):
         year_in_question = get_year_in_question_for_employee_locking()
 
     Employer_obj = Employer.objects.get(user=request.user)
-    employees = Employee.objects.filter(employer=Employer_obj)
+    try:
+        locked_month = Locked_months.objects.select_related('employer').filter(employer__user=request.user , for_year=year_in_question , for_month=month_in_question)[0]
+        if locked_month.for_month == month_in_question and locked_month.for_year == year_in_question:
+            return render(request, 'reports/general/display_message.html' , { 'headline' : "Month locked" , 'body' : "This month is locked for editing. you can view reports on it in the appropriate section" })
+    except IndexError:
+        pass
+    employees = Employee.objects.select_related('user').filter(employer=Employer_obj , employer__user__is_active=True) 
     # return render(request, 'reports/general/display_message.html' , { 'headline' : "Month locked" , 'body' : employer_data })
     entries = []
-    locked_month = Locked_months.objects.select_related('employer').filter(employer__user=request.user).latest('lock_time')
-    if locked_month.for_month == month_in_question and locked_month.for_year == year_in_question:
-        return render(request, 'reports/general/display_message.html' , { 'headline' : "Month locked" , 'body' : "This month is locked for editing. you can view reports on it in the appropriate section" })
+    
     # employees[:] = [employee for employee in employees if not Monthly_employer_data.objects.filter(employee=employee)]
     employees_that_do_not_have_employer_data = []
     for employee in employees:
-        if not Monthly_employer_data.objects.filter(employee=employee):
-            employees_that_do_not_have_employer_data.append(employee)
-        else:
+        if Monthly_employer_data.objects.filter(employee=employee):
             try:
                 single_entry = Monthly_employee_data.objects.filter(employee=employee, for_year=year_in_question, for_month=month_in_question).latest('created')
                 single_entry.has_data = True
@@ -141,6 +143,9 @@ def show_entries(request , past_or_current_month):
                 except Monthly_employee_data.DoesNotExist:
                     empty_entry = { 'employee' : Employee(user = employee.user) , 'has_data' : False }
                     entries.append( empty_entry )
+        else:
+        	employees_that_do_not_have_employer_data.append(employee)
+            
     return render(request, 'reports/employer/show_entries.html' , { 'employees' : employees , 'entries' : entries , 'employees_that_do_not_have_employer_data' : employees_that_do_not_have_employer_data , 'past_or_current_month' : past_or_current_month , 'year_in_question' : year_in_question , 'month_in_question' : month_in_question })
 
 @login_required
@@ -241,7 +246,12 @@ def edit_specific_entry(request , employee_user_id):
             partial_monthly_entree.entered_by = 'employer'
             if partial_monthly_entree.save():
                 if Employer.is_employer(request.user):
-                    return HttpResponseRedirect(reverse('reports:show_entries' ))
+                    
+                    if get_month_in_question_for_employee_locking() == partial_monthly_entree.for_month:
+                        past_or_current_month = 'current'
+                    else:
+                        past_or_current_month = 'past'
+                    return HttpResponseRedirect(reverse('reports:show_entries' , args=(past_or_current_month,) ))
                 else:
                     return render(request, 'reports/general/display_message.html' , { 'headline' : "Success" , 'body' : "Your input was received successfully" })
             else:
