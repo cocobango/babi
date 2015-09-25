@@ -14,7 +14,7 @@ class Employer(models.Model):
     income_tax_id = models.IntegerField()
     phone_number = models.BigIntegerField()
     name_of_contact = models.CharField(max_length=200)
-    is_required_to_pay_vat = models.BooleanField(default=True)
+    is_required_to_pay_vat = models.BooleanField(default=True) #is osek murshe
     def __str__(self):
         return self.user.username
 
@@ -130,7 +130,7 @@ class Monthly_employer_data(models.Model):
     """The information an employer enters each month is called Monthly_employee_data"""
     employee = models.ForeignKey(Employee)
     created = models.DateTimeField(auto_now_add=True , blank=True)
-    entered_by = models.CharField(max_length=30 , default='employee')
+    entered_by = models.CharField(max_length=30 , default='employer')
     is_approved = models.BooleanField(default=False)
     for_month = models.IntegerField(default=0) 
     for_year = models.IntegerField(default=0) 
