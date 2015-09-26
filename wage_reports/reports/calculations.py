@@ -243,35 +243,31 @@ class income_tax_calculations(object):
 
     def internal_calculate_income_tax_recursion(self , employee , for_year , for_month , **kwargs ):
         entry = self.getter.get_employee_data_by_month(employee=employee, for_year=for_year, for_month=for_month )
-        no_tax_dict = False
+        is_there_tax_due_for_this_month = True
         try:
             if entry.gross_payment is None:
-                no_tax_dict = True
+                is_there_tax_due_for_this_month = False
         except AttributeError:
-            no_tax_dict = True
+            is_there_tax_due_for_this_month = False
         
         if for_month == 1:
             accumulated_income_tax_not_including_this_month = 0
         else:
             accumulated_income_tax_not_including_this_month = self.internal_calculate_income_tax_recursion(employee , for_year , for_month -1 , **kwargs)['accumulated_income_tax_not_including_this_month']
             # print('-------------------- accumulated_income_tax_not_including_this_month: {0}\n'.format(accumulated_income_tax_not_including_this_month))
-        if no_tax_dict:
-            income_tax_for_this_month = 0
-        else:
+        if is_there_tax_due_for_this_month:
             system_data = self.getter.get_system_data_by_month(for_year=for_year , for_month=for_month)
             employer_data = self.getter.get_relevant_employer_data_for_empty_month(for_year=for_year, for_month=for_month, employee=employee)
             if employer_data is None:
                 raise
         
             employee_data = vars(entry)
-            vat_percentage = system_data.vat_percentage
-            if employer_data.is_required_to_pay_vat:
-                vat_due_this_month = employee_data['gross_payment'] * vat_percentage
-            else:
-                vat_due_this_month = 0
+            vat_due_this_month = calculate_output_tax(overall_gross=employee_data['gross_payment'],vat_percentage=system_data.vat_percentage,is_required_to_pay_vat=employer_data.is_required_to_pay_vat)
         
             accumulated_gross_including_this_month = self.internal_get_accumulated_gross_including_this_month(for_year=entry.for_year,for_month=for_month,employee_id=entry.employee_id)
             income_tax_for_this_month = calculate_income_tax(overall_gross=employee_data['gross_payment'],income_tax_threshold=employer_data.income_tax_threshold,lower_tax_threshold=employer_data.lower_tax_threshold,upper_tax_threshold=employer_data.upper_tax_threshold,is_required_to_pay_income_tax=employer_data.is_required_to_pay_income_tax,exact_income_tax_percentage=employer_data.exact_income_tax_percentage,accumulated_gross_including_this_month=accumulated_gross_including_this_month,accumulated_income_tax_not_including_this_month=accumulated_income_tax_not_including_this_month,vat_due_this_month=vat_due_this_month)
+        else:
+            income_tax_for_this_month = 0
         return { 'accumulated_income_tax_not_including_this_month' : income_tax_for_this_month + accumulated_income_tax_not_including_this_month, 'income_tax_for_this_month' : income_tax_for_this_month } 
 
     def internal_get_accumulated_gross_including_this_month(self , for_year, for_month , employee_id):
