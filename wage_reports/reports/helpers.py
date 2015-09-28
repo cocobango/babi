@@ -6,27 +6,27 @@ from django.utils import timezone
 def get_month_in_question_for_employee_locking():
     this_month = timezone.now()
     month_in_question = this_month.month
-    return month_in_question
+    return int(month_in_question)
 
 def get_year_in_question_for_employee_locking():
     this_month = timezone.now()
     year_in_question = this_month.year
-    return year_in_question
+    return int(year_in_question)
 
 def get_month_in_question_for_employer_locking():
     this_month = timezone.now()
     month_in_question = this_month.month - 1
     if month_in_question == 0:
-        return 12
-    return month_in_question
+        return int(12)
+    return int(month_in_question)
 
 def get_year_in_question_for_employer_locking():
     this_month = timezone.now()
     year_in_question = this_month.year
     month_in_question = get_month_in_question_for_employer_locking()
     if month_in_question == 12:
-        return year_in_question - 1
-    return year_in_question
+        return int(year_in_question - 1)
+    return int(year_in_question)
 
 def calculate_social_security_employer(overall_gross,social_security_threshold,lower_employer_social_security_percentage,upper_employer_social_security_percentage,is_required_to_pay_social_security):
     return calculate_social_security_generic(overall_gross,social_security_threshold,lower_employer_social_security_percentage,upper_employer_social_security_percentage,is_required_to_pay_social_security)
