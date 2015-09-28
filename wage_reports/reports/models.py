@@ -32,7 +32,6 @@ class Employer(models.Model):
         except Exception as e:
             return False
 
-
 class Employee(models.Model):
     user = models.OneToOneField(User)
     employer = models.ForeignKey(Employer)
@@ -40,8 +39,6 @@ class Employee(models.Model):
     government_id = models.IntegerField()
     def __str__(self):
         return self.user.username
-    
-
 
 class Monthly_employee_data(models.Model):
     """The information an employee enters each month is called Monthly_employee_data"""
@@ -162,6 +159,38 @@ class Monthly_employer_data(models.Model):
         if is_month_locked:
             return False
         return True
+
+class Monthly_employee_report_data(models.Model):
+    """The information an employee enters each month is called Monthly_employee_data"""
+    employee = models.ForeignKey(Employee)
+    created = models.DateTimeField(auto_now_add=True , blank=True)
+    entered_by = models.CharField(max_length=30 , default='automatic')
+    for_month = models.IntegerField(default=0) 
+    for_year = models.IntegerField(default=0) 
+    income_tax = models.DecimalField(max_digits=11, decimal_places=2) 
+    vat = models.DecimalField(max_digits=11, decimal_places=2)
+    input_tax_vat = models.DecimalField(max_digits=11, decimal_places=2)
+    net = models.DecimalField(max_digits=11, decimal_places=2)
+
+    def __str__(self):
+        return str(self.created)
+
+    class Meta:
+        unique_together = ("employee", "for_year", "for_month")
+
+class Monthly_employee_social_security_report_data(models.Model):
+    """The information an employee enters each month is called Monthly_employee_data"""
+    monthly_employee_report_data = models.OneToOneField(Monthly_employee_report_data)
+    sum_to_calculate_as_lower_social_security_percentage = models.DecimalField(max_digits=11, decimal_places=2)
+    sum_to_calculate_as_upper_social_security_percentage = models.DecimalField(max_digits=11, decimal_places=2)
+    diminished_sum = models.DecimalField(max_digits=11, decimal_places=2)
+    standard_sum = models.DecimalField(max_digits=11, decimal_places=2)
+    total = models.DecimalField(max_digits=11, decimal_places=2)
+
+    def __str__(self):
+        return str(self.monthly_employee_report_data)
+
+
     
 class Monthly_system_data(models.Model):
     """The parameters that are used for each month's calculations is called Monthly_system_data"""
@@ -176,7 +205,6 @@ class Monthly_system_data(models.Model):
     upper_employer_social_security_percentage = models.DecimalField(max_digits=16, decimal_places=8)
     maximal_sum_to_pay_social_security = models.DecimalField(max_digits=11, decimal_places=2)
     income_tax_default = models.DecimalField(max_digits=16, decimal_places=8)
-
 
 class Locked_months(models.Model):
     """A table of keys specifying which employer has locked which month"""
