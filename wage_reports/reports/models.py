@@ -15,6 +15,7 @@ class Employer(models.Model):
     phone_number = models.BigIntegerField()
     name_of_contact = models.CharField(max_length=200)
     is_required_to_pay_vat = models.BooleanField(default=True) #is osek murshe
+    is_an_npo = models.BooleanField(default=False) #is malkar (non profit organization)
     def __str__(self):
         return self.user.username
 
@@ -68,9 +69,9 @@ class Monthly_employee_data(models.Model):
                     super(Monthly_employee_data, self).save(*args, **kwargs)
                     return self
                 else:
-                    return False
+                    return False #'message':'no employer data exist'
             else:
-                return False
+                return False # 'message':is_valid_month_response['message']
         return self
     # @todo check locked months for first entry of users
     def is_valid_month(self ):
@@ -84,22 +85,24 @@ class Monthly_employee_data(models.Model):
         if self.entered_by == 'admin':
             return True
         try:
-            latest_entry = Monthly_employee_data.objects.select_related('employee__employer').filter(employee=self.employee_id).latest('created')
+            latest_entry = Monthly_employee_data.objects.select_related('employee__employer').filter(employee=self.employee_id , for_year=self.for_year , for_month=self.for_month).latest('created')
         except ObjectDoesNotExist:
-            latest_entry = {}
+            latest_entry = False
         month_for_employee = get_month_in_question_for_employee_locking()
         year_for_employee = get_year_in_question_for_employee_locking()
         if self.entered_by == 'employee':
             if latest_entry:
                 if latest_entry.entered_by == 'employer':
+                    # return {'is_okay': False , 'message':'Data already entered by employer for this month. Cannot add data from employee'}
                     return False
             if not (self.for_month == month_for_employee and self.for_year == year_for_employee):
                 return False
         else:
             month_for_employer = get_month_in_question_for_employer_locking()
             year_for_employer = get_year_in_question_for_employer_locking()
-            if not (self.for_month == month_for_employer and self.for_year == year_for_employer):
-                if not (self.for_month == month_for_employee and self.for_year == year_for_employee):
+            if not (int(self.for_month) == month_for_employer and int(self.for_year) == year_for_employer):
+                if not (int(self.for_month) == month_for_employee and int(self.for_year) == year_for_employee):
+                    # return {'is_okay': False , 'message':'month is not of employer and not of employee. month is: {0}. year is: {1}. for employee month is: {2}'.format(self.for_month , self.for_year , 'month_for_employee')}
                     return False
         is_month_locked = Locked_months.objects.select_related('employer').filter(for_month=self.for_month , for_year=self.for_year, employer=self.employee.employer)
         if is_month_locked:

@@ -26,6 +26,7 @@ class EmployerFactory(factory.django.DjangoModelFactory):
         model = models.Employer
     user = factory.SubFactory(UserFactory)
     is_required_to_pay_vat = True
+    is_an_npo = False
     business_id = random.randint(1000000,10000000)
     income_tax_id = random.randint(1000000,10000000)
     phone_number = random.randint(10000000,100000000)
