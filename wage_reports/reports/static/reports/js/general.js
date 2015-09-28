@@ -3,10 +3,12 @@ toggle_user_status = function(user_id){
 	$('#toggle_employee_status').submit();
 }
 
-toggle_employee_monthly_entry_approval = function(url , entry_id , employee_user_id , csrf_token){
+toggle_employee_monthly_entry_approval = function(url , entry_id , employee_user_id , for_year , for_month , csrf_token){
 	formData = {
 		entry_id : entry_id,
-		employee_user_id : employee_user_id
+		employee_user_id : employee_user_id,
+		for_year : for_year,
+		for_month : for_month,
 	};
 	generic_ajax_call(url , formData , csrf_token);
 }

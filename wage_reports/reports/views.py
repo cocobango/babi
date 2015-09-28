@@ -15,19 +15,51 @@ from .forms import EmployeeForm , EmployeeMonthlyEntryForm , EmployerMonthlyEntr
 from .models import Monthly_employer_data, Monthly_employee_data, Employee , Employer , Locked_months
 
 
-from .helpers import get_month_in_question_for_employer_locking , get_year_in_question_for_employer_locking , get_month_in_question_for_employee_locking , get_year_in_question_for_employee_locking , calculate_social_security_employer , calculate_social_security_employee , calculate_income_tax , calculate_output_tax , calculate_monthly_net
+from .helpers import get_month_in_question_for_employer_locking , get_year_in_question_for_employer_locking , get_month_in_question_for_employee_locking , get_year_in_question_for_employee_locking
 
 from .calculations import social_security_calculations , vat_calculations , income_tax_calculations
+from .decorators import user_is_an_employer
 
+from .view_helpers import *
+
+@user_is_an_employer
 def my_test(request):
-    pass
+    return render(request, 'reports/general/display_message.html' , { 'headline' : "test response:" , 'body' : get_month_in_question_for_employee_locking() })
 
 @login_required
 def index(request):
+    past_month_dict = {
+        'for_year': get_year_in_question_for_employer_locking(),
+        'for_month': get_month_in_question_for_employer_locking()
+    }
+    current_month_dict = {
+        'for_year': get_year_in_question_for_employee_locking(),
+        'for_month': get_month_in_question_for_employee_locking()
+    }
+    urls_list = [
+            {
+                'link': reverse('reports:view_history'),
+                'display_text':'View data for past months'
+            }
+        ]
     if Employer.is_employer(request.user):
-        return render(request, 'reports/employer/index.html' , {})
+        urls_list.extend([
+            {
+                'link': reverse('reports:user_management'),
+                'display_text':'Manage users'
+            },
+            {
+                'link': reverse('reports:show_entries' , kwargs={'for_year':past_month_dict['for_year'],'for_month':past_month_dict['for_month']}),
+                'display_text':'Manage past month'
+            },
+            {
+                'link': reverse('reports:show_entries' , kwargs={'for_year':current_month_dict['for_year'],'for_month':current_month_dict['for_month']}),
+                'display_text':'Manage current month'
+            }
+        ])
+        return render(request, 'reports/employer/index.html' , {'urls_list':urls_list})
     else:
-        return render(request, 'reports/employee/index.html' , {})
+        return render(request, 'reports/employee/index.html' , {'urls_list':urls_list})
 
 
 @login_required
@@ -108,14 +140,13 @@ def view_report_of_type(request , report_type):
     return render(request, 'reports/general/display_message.html' , { 'headline' : "test response:" , 'body' : str(response) + ' ' + str(expected_result) })
 
 @login_required
-def show_entries(request , past_or_current_month):
-    if past_or_current_month == 'past':
-        month_in_question = get_month_in_question_for_employer_locking()
-        year_in_question = get_year_in_question_for_employer_locking()
-    else:
-        month_in_question = get_month_in_question_for_employee_locking()
-        year_in_question = get_year_in_question_for_employee_locking()
-
+def show_entries(request , for_year , for_month):
+    year_in_question = for_year
+    month_in_question = for_month
+    past_or_current_month = 'past'
+    lala = 'testing var'
+    if int(month_in_question) == int(get_month_in_question_for_employee_locking()):
+        past_or_current_month = 'current'
     Employer_obj = Employer.objects.get(user=request.user)
     try:
         locked_month = Locked_months.objects.select_related('employer').filter(employer__user=request.user , for_year=year_in_question , for_month=month_in_question)[0]
@@ -124,29 +155,16 @@ def show_entries(request , past_or_current_month):
     except IndexError:
         pass
     employees = Employee.objects.select_related('user').filter(employer=Employer_obj , employer__user__is_active=True) 
-    # return render(request, 'reports/general/display_message.html' , { 'headline' : "Month locked" , 'body' : employer_data })
     entries = []
-    
-    # employees[:] = [employee for employee in employees if not Monthly_employer_data.objects.filter(employee=employee)]
     employees_that_do_not_have_employer_data = []
+
     for employee in employees:
         if Monthly_employer_data.objects.filter(employee=employee):
-            try:
-                single_entry = Monthly_employee_data.objects.filter(employee=employee, for_year=year_in_question, for_month=month_in_question).latest('created')
-                single_entry.has_data = True
-                entries.append(single_entry) 
-            except Monthly_employee_data.DoesNotExist:
-                try:
-                    single_entry = Monthly_employee_data.objects.filter(employee=employee, for_year=year_in_question, for_month=month_in_question).latest('created')
-                    single_entry.has_data = True
-                    entries.append(single_entry) 
-                except Monthly_employee_data.DoesNotExist:
-                    empty_entry = { 'employee' : Employee(user = employee.user) , 'has_data' : False }
-                    entries.append( empty_entry )
+            entries.append(get_single_entry_for_a_given_employee_and_month(employee=employee, for_year=for_year, for_month=for_month) )
         else:
-        	employees_that_do_not_have_employer_data.append(employee)
+            employees_that_do_not_have_employer_data.append(employee)
             
-    return render(request, 'reports/employer/show_entries.html' , { 'employees' : employees , 'entries' : entries , 'employees_that_do_not_have_employer_data' : employees_that_do_not_have_employer_data , 'past_or_current_month' : past_or_current_month , 'year_in_question' : year_in_question , 'month_in_question' : month_in_question })
+    return render(request, 'reports/employer/show_entries.html' , { 'employees' : employees , 'entries' : entries , 'employees_that_do_not_have_employer_data' : employees_that_do_not_have_employer_data , 'year_in_question' : year_in_question , 'month_in_question' : month_in_question , 'past_or_current_month':past_or_current_month , 'lala':lala })
 
 @login_required
 def pre_approve_month(request):
@@ -192,26 +210,27 @@ def approve_this_month(request):
         return HttpResponseRedirect(reverse('my_login:messages' , args=('Error, this is a POST gateway, not GET',)))
 
 @login_required
-def set_as_valid(request , past_or_current_month):
+def set_as_valid(request):
     if request.method == 'POST':
         try:
             single_entry = Monthly_employee_data.objects.select_related('employee__user').get(pk=request.POST['entry_id'] , employee__user_id=request.POST['employee_user_id'] , employee__employer__user=request.user )
+
+            year_in_question = request.POST['for_year']
+            month_in_question = request.POST['for_month']
+
             single_entry.is_approved = True
             single_entry.pk = None
-
-            if past_or_current_month == 'past':
-                month_in_question = get_month_in_question_for_employer_locking()
-                year_in_question = get_year_in_question_for_employer_locking()
-            else:
-                month_in_question = get_month_in_question_for_employee_locking()
-                year_in_question = get_year_in_question_for_employee_locking()
+            single_entry.for_year = year_in_question
+            single_entry.for_month = month_in_question
+            single_entry.entered_by = 'employer'
 
             # Monthly_employee_data.objects.filter( employee__user_id=11 , created__gte=timezone.now().replace(day=1,hour=0, minute=0) ).update(is_approved=False)
             Monthly_employee_data.objects.select_related('employee__user').filter( employee__user_id=request.POST['employee_user_id'] , for_year=year_in_question, for_month=month_in_question).update(is_approved=False)
             single_entry.created = None
+
             if single_entry.save():
                 return JsonResponse({'is_okay':True , 'message' : 'successfully approved entry' , 'data' : single_entry.id})
-            return JsonResponse({'is_okay':False , 'message' : 'Error: Failed to approve entry, code 4534' , 'data' : 'entry was not added'})
+            return JsonResponse({'is_okay':False , 'message' : 'Error: Failed to approve entry, code 4534' , 'data' : 'check permissions of month'})
         except Monthly_employee_data.DoesNotExist:
             return JsonResponse({'is_okay':True , 'message' : 'Error: Failed to approve entry' , 'data' : 'entry was not added, entry %s ,employee_user %s , employer %s' % { request.POST['entry_id'] , request.POST['employee_user_id'] , request.user}})
     else:
@@ -231,43 +250,39 @@ def withdraw_approval_of_single_entry(request):
         return render(request, 'reports/general/display_message.html' , { 'headline' : "Error" , 'body' : "This is a POST gateway, not GET" })   
 
 @login_required
-def edit_specific_entry(request , employee_user_id):
+def edit_specific_entry_by_employer(request , employee_user_id , error_message=''):
+    employee = get_object_or_404(Employee , user_id=employee_user_id)
     if request.method == 'POST':
-        form_entry = EmployeeMonthlyEntryForm(request.POST)
-        if form_entry.is_valid():
-            if Employer.is_employer(request.user):
-                employer = get_object_or_404(Employer , user=request.user)
-                employee = get_object_or_404(Employee , employer=employer , user_id=request.POST['employee_user_id'])
-            else:
-                employee = get_object_or_404(Employee , user=request.user) 
-                employer = employee.employer
-            partial_monthly_entree = form_entry.save(commit=False)
-            partial_monthly_entree.employee = employee
-            partial_monthly_entree.entered_by = 'employer'
-            if partial_monthly_entree.save():
-                if Employer.is_employer(request.user):
-                    
-                    if get_month_in_question_for_employee_locking() == partial_monthly_entree.for_month:
-                        past_or_current_month = 'current'
-                    else:
-                        past_or_current_month = 'past'
-                    return HttpResponseRedirect(reverse('reports:show_entries' , args=(past_or_current_month,) ))
-                else:
-                    return render(request, 'reports/general/display_message.html' , { 'headline' : "Success" , 'body' : "Your input was received successfully" })
-            else:
-                return render(request, 'reports/general/display_message.html' , { 'headline' : "Error" , 'body' : "Your input was not registerred. Make sure you have the permissions to enter this data at this time." })
+        response = edit_specific_entry_post(request, employee , 'employer')
+        if response['is_okay']:
+            return HttpResponseRedirect(reverse('reports:show_entries' , kwargs={'for_year':request.POST['for_year'], 'for_month':request.POST['for_month'] } ) )
         else:
-            return HttpResponseRedirect(reverse('my_login:messages' , args=('entry was not added, data was not valid',)))
-            
+            return HttpResponseRedirect(reverse('reports:edit_specific_entry_by_employer' , kwargs={'employee_user_id':employee_user_id} ) )
     else:
-        employee = get_object_or_404(Employee , user_id=employee_user_id)
-        try:
-            single_entry = Monthly_employee_data.objects.filter(employee=employee).latest('created')
-            form = EmployeeMonthlyEntryForm(instance=single_entry)
-        except Monthly_employee_data.DoesNotExist:
-            form = EmployeeMonthlyEntryForm()
-        return render(request, 'reports/employee/monthly_entry.html' , { 'form' : form , 'employee_user_id' : employee_user_id })
+        return edit_specific_entry_get(request=request, employee=employee , error_message=error_message , action=reverse('reports:edit_specific_entry_by_employer' , kwargs={'employee_user_id':employee_user_id} ))
+        
+
+@login_required
+def edit_specific_entry_by_employee(request):
+    employee = get_object_or_404(Employee , user_id=request.user.id)
+    if request.method == 'POST':
+        response = edit_specific_entry_post(request, employee , 'employee')
+        if response['is_okay']:
+            raise NotImplemented
+        else:
+            return HttpResponseRedirect(reverse('reports:edit_specific_entry_by_employee' ) )
+    else:
+        return edit_specific_entry_get(request=request, employee=employee , error_message='' , action=reverse('reports:edit_specific_entry_by_employee' ))
+#post
+
+# return render(request, 'reports/general/display_message.html' , { 'headline' : "Success" , 'body' : "Your input was received successfully" })
+
+
+
     
+        
+        return edit_specific_entry_get(request, employee)
+
 @login_required
 def edit_specific_monthly_employer_data(request, employee_user_id):
     if request.method == 'POST':

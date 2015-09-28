@@ -2,13 +2,8 @@
 {% block content %}
 <h1>Welcome</h1>
 
-{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
-
-<a href="{% url 'reports:user_management' %}">Manage users</a>
+{% for a in urls_list %}
+<a href="{{ a.link }}">{{ a.display_text }}</a>
 <br>
-<a href="{% url 'reports:show_entries' 'current' %}">Manage current month</a>
-<br>
-<a href="{% url 'reports:show_entries' 'past' %}">Manage past month</a>
-<br>
-<a href="{% url 'reports:view_history' %}">View data for past months</a>
+{% endfor %}
 {% endblock content %}
