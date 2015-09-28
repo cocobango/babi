@@ -1,9 +1,11 @@
 from decimal import *
 getcontext().prec = 6
 import json
+import unittest
 
 from django.test import TestCase , Client
 from django.utils import timezone
+from django.db.models import F
 
 from reports.models import Employer , Employee , Monthly_employee_data , Monthly_employer_data , Monthly_system_data
 from django.contrib.auth.models import User
@@ -1021,6 +1023,7 @@ class YearlyReportsTestCase(TestCase):
         for i in range(0,6):
             self.assertEqual(gross_payment_plus_vat_arr[i] , yearly_income_tax_employer_report['employees_list'][i]['sum_of_vat_and_gross_payment'])
 
+    @unittest.skip("not implemented")
     def test_correctly_caclutates_yearly_employee_sum_input_tax_vat(self):
         #arange
         sum_input_tax_vat_arr = [Decimal(0)*1, Decimal(0)*1, Decimal(2250)*1, Decimal(1530)*1,  Decimal(0)*1, Decimal(1710)*1]
@@ -1032,6 +1035,7 @@ class YearlyReportsTestCase(TestCase):
         for i in range(0,6):
             self.assertEqual(sum_input_tax_vat_arr[i] , yearly_income_tax_employer_report['employees_list'][i]['sum_input_tax_vat'])
     
+
 
 
 
@@ -1198,6 +1202,21 @@ class ModelsTestCase(TestCase):
         self.assertEqual(monthly_employee_data.employee.id , employee.id)
         self.assertEqual(monthly_employee_data.gross_payment , Decimal(7656.07) * 1 )
         self.assertEqual(monthly_employee_report['monthly_net'] , Decimal(7844.4) * 1 )
+
+    # def test_create_custom_filter(self):
+    #     self.myGenerator.generateInitialControlledState()
+    #     factories.MonthlyEmployeeDataFactory(for_year=1999)
+    #     for_year = 2015
+    #     for_month = 1
+    #     coco = (for_year * 12) + for_month
+    #     ordered_list = Monthly_employee_data.objects.raw('SELECT * FROM reports_monthly_employee_data WHERE (for_year * 12) + for_month <= {0} ORDER BY (for_year * 12) + for_month DESC '.format(coco))
+    #     print(ordered_list[0].id)
+
+    #     for single in ordered_list:
+    #         print(single.id)
+    #         print('year , month {0} , {1}'.format(single.for_year , single.for_month))
+
+
         
 
         
@@ -1254,6 +1273,7 @@ class PermissionsTestCase(TestCase):
             response = self.c.get(current_view)
             self.assertTrue( response.status_code == 200 , msg='current_view: {0}'.format(current_view))
 
+    @unittest.skip("not implemented")
     def test_validate_is_relevant_employer_to_employee(self):
         #arrange
         current_view = '/my_test/'
