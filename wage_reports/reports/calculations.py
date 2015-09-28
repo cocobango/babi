@@ -346,8 +346,10 @@ class cross_calculations(object):
 
     def get_sum_of_social_security_where_no_vat_is_required(self, for_year , for_month):
         return self.internal_get_sum_of_social_security_by_is_vat_required(for_year=for_year , for_month=for_month , is_required_to_pay_vat=False)
+   
     def get_sum_of_social_security_where_vat_is_required(self, for_year , for_month):
         return self.internal_get_sum_of_social_security_by_is_vat_required(for_year=for_year , for_month=for_month , is_required_to_pay_vat=True)
+   
     def internal_get_sum_of_social_security_by_is_vat_required(self, for_year , for_month , is_required_to_pay_vat):
         entries = self.vat.internal_get_entries_for_month(for_year=for_year , for_month=for_month , is_required_to_pay_vat=is_required_to_pay_vat)
         sum_to_return = 0
@@ -381,6 +383,7 @@ class cross_calculations(object):
             list_of_employees.append(
                 { 'social_security_employer' : social_security_dict['total'] , 'name' : '{0} {1}'.format(entry.employee.user.first_name ,entry.employee.user.last_name) })
         return list_of_employees
+   
     def get_list_of_names_and_social_security_employee_where_vat_is_required(self, for_year , for_month):
         entries = self.vat.internal_get_entries_for_month(for_year=for_year , for_month=for_month , is_required_to_pay_vat=True)
         list_of_employees = []
@@ -421,7 +424,36 @@ class cross_calculations(object):
             'months_in_which_got_paid': months_in_which_got_paid,
         }
 
-            
+    def get_yearly_income_tax_employer_report(self, for_year):
+        #get all employees
+        all_employees = self.social_security.internal_get_all_employees()
+
+        #iterate emlolyees
+        employees_list = []
+        for employee in all_employees:
+            yearly_employee_report = self.get_yearly_employee_report_data(employee=employee , for_year=2015)
+
+            entry = {}
+            entry['first_name'] = employee.user.first_name
+            entry['last_name'] = employee.user.last_name
+            entry['government_id'] = employee.government_id            
+            entry['sum_of_income_tax'] = yearly_employee_report['sum_of_income_tax']
+            entry['sum_input_tax_vat'] = 'sum_input_tax_vat' #sum vat where is_required_to_pay_vat = False
+            entry['sum_of_vat_and_gross_payment'] = yearly_employee_report['sum_of_vat'] + yearly_employee_report['sum_of_gross_payment']
+            employees_list.append(entry)
+             
+        #calculate  sum_of_income_tax, sum_input_tax_vat, sum_of_vat_and_gross_payment
+        # add to summery
+        #
+
+        response_dict = {
+            'employees_list': employees_list,
+            'income_tax_id':0,
+            'sum_of_income_tax_from_all_employees':0,
+            'sum_input_tax_vat_from_all_employees':0,
+            'sum_of_vat_and_gross_payment_from_all_employees':0,
+        }        
+        return response_dict
 
 
 
