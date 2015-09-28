@@ -71,9 +71,7 @@ class ReportsMaker(object):
             'sum_of_gross_payment':yearly_employee_report_data['sum_of_gross_payment'],
         }
 	
-	def yearly_social_security_employer_report(self, employer, for_year):
-		pass
 
 	#856 report
-	def yearly_income_tax_employer_report(self, employer, for_year):
-		pass
+	def yearly_income_tax_employer_report(self, for_year):
+		return self.cross.get_yearly_income_tax_employer_report(for_year)
