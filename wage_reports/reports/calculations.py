@@ -1,7 +1,7 @@
 from decimal import *
 
 from django.db.models import Count, Min, Sum, Avg
-from .models import Monthly_employer_data, Monthly_employee_data, Monthly_system_data, Employee , Employer , Locked_months
+from .models import Monthly_employer_data, Monthly_employee_data, Monthly_system_data, Employee , Employer , Locked_months , Monthly_employee_report_data , Monthly_employee_social_security_report_data
 
 from .helpers import get_month_in_question_for_employer_locking , get_year_in_question_for_employer_locking , get_month_in_question_for_employee_locking , get_year_in_question_for_employee_locking , calculate_social_security_employer , calculate_social_security_employee , calculate_income_tax , calculate_output_tax , calculate_monthly_net
 
@@ -72,6 +72,8 @@ class social_security_calculations(object):
         return Employee.objects.filter(employer = self.employer)
 
     def calculate_social_security_employee_by_employee_monthly_entry(self, entry):
+        if entry is None:
+            return { 'sum_to_calculate_as_lower_social_security_percentage' : 0 , 'sum_to_calculate_as_upper_social_security_percentage' : 0 ,'diminished_sum' : 0 , 'standard_sum' : 0 , 'total' : 0}
         system_data = self.getter.get_system_data_by_month(for_year=entry.for_year , for_month=entry.for_month)
         return calculate_social_security_employee(overall_gross=entry.gross_payment,social_security_threshold=system_data.social_security_threshold,lower_employee_social_security_percentage=system_data.lower_employee_social_security_percentage,upper_employee_social_security_percentage=system_data.upper_employee_social_security_percentage,is_required_to_pay_social_security=entry.is_required_to_pay_social_security, is_employer_the_main_employer=entry.is_employer_the_main_employer, gross_payment_from_others=entry.gross_payment_from_others)
 
@@ -232,7 +234,7 @@ class income_tax_calculations(object):
     def calculate_income_tax_for_single_employee_for_month(self, employee, for_month , for_year):
         return self.internal_calculate_income_tax(employee=employee ,for_year=for_year , for_month=for_month )
     def internal_calculate_income_tax(self , employee , for_year , for_month , **kwargs ):
-        return self.internal_calculate_income_tax_recursion(employee=employee, for_year=for_year, for_month=for_month , **kwargs)['income_tax_for_this_month']
+        return self.internal_calculate_income_tax_recursion(employee=employee, for_year=for_year, for_month=for_month , **kwargs)
 
     # def internal_get_first_month_for_user(self, entry , for_month):
     #     try:
@@ -240,7 +242,9 @@ class income_tax_calculations(object):
     #     except AttributeError as e:
     #         return for_month
     #     return first_entry_in_year.for_month
-
+    def get_accumulated_sum_of_income_tax_until_month_for_user(self, employee, for_year, for_month):
+        
+        return Monthly_employee_report_data.objects.filter(employee=employee, for_year=for_year, for_month__lt=for_month).aggregate(my_total = Sum('income_tax'))['my_total'] or 0
     def internal_calculate_income_tax_recursion(self , employee , for_year , for_month , **kwargs ):
         entry = self.getter.get_employee_data_by_month(employee=employee, for_year=for_year, for_month=for_month )
         is_there_tax_due_for_this_month = True
@@ -250,10 +254,8 @@ class income_tax_calculations(object):
         except AttributeError:
             is_there_tax_due_for_this_month = False
         
-        if for_month == 1:
-            accumulated_income_tax_not_including_this_month = 0
-        else:
-            accumulated_income_tax_not_including_this_month = self.internal_calculate_income_tax_recursion(employee , for_year , for_month -1 , **kwargs)['accumulated_income_tax_not_including_this_month']
+        accumulated_income_tax_not_including_this_month = self.get_accumulated_sum_of_income_tax_until_month_for_user(employee=employee, for_year=for_year, for_month=for_month)
+        
             # print('-------------------- accumulated_income_tax_not_including_this_month: {0}\n'.format(accumulated_income_tax_not_including_this_month))
         if is_there_tax_due_for_this_month:
             system_data = self.getter.get_system_data_by_month(for_year=for_year , for_month=for_month)
@@ -266,9 +268,8 @@ class income_tax_calculations(object):
         
             accumulated_gross_including_this_month = self.internal_get_accumulated_gross_including_this_month(for_year=entry.for_year,for_month=for_month,employee_id=entry.employee_id)
             income_tax_for_this_month = calculate_income_tax(overall_gross=employee_data['gross_payment'],income_tax_threshold=employer_data.income_tax_threshold,lower_tax_threshold=employer_data.lower_tax_threshold,upper_tax_threshold=employer_data.upper_tax_threshold,is_required_to_pay_income_tax=employer_data.is_required_to_pay_income_tax,exact_income_tax_percentage=employer_data.exact_income_tax_percentage,accumulated_gross_including_this_month=accumulated_gross_including_this_month,accumulated_income_tax_not_including_this_month=accumulated_income_tax_not_including_this_month,vat_due_this_month=vat_due_this_month)
-        else:
-            income_tax_for_this_month = 0
-        return { 'accumulated_income_tax_not_including_this_month' : income_tax_for_this_month + accumulated_income_tax_not_including_this_month, 'income_tax_for_this_month' : income_tax_for_this_month } 
+            return income_tax_for_this_month
+        return 0 
 
     def internal_get_accumulated_gross_including_this_month(self , for_year, for_month , employee_id):
         total = Monthly_employee_data.objects.filter(employee=employee_id , for_year=for_year , for_month__lte=for_month , is_approved=True).aggregate(my_total = Sum('gross_payment'))
@@ -287,28 +288,66 @@ class cross_calculations(object):
         self.social_security = social_security_calculations(user_id=user_id)
         self.vat = vat_calculations(user_id=user_id)
 
-
     def monthly_employee_report(self, employee, for_year, for_month):
         monthly_employee_data = self.getter.get_employee_data_by_month(employee=employee,for_year=for_year,for_month=for_month)
+        monthly_employee_report_data = self.getter.get_employee_report_data_by_month(employee=employee, for_year=for_year, for_month=for_month)
+        if monthly_employee_data is None or monthly_employee_report_data is None: 
+            report_data = {
+                'salary': 0,
+                'general_expenses': 0,
+                'income_tax_due_this_month': 0,
+                'social_security_employee_due_this_month': 0,
+                'vat_due_this_month': 0,
+                'monthly_net': 0,
+            }
+            return report_data
+
+
+        report_data = {
+            'salary': monthly_employee_data.salary,
+            'general_expenses': monthly_employee_data.general_expenses,
+            'income_tax_due_this_month': monthly_employee_report_data.income_tax,
+            'social_security_employee_due_this_month': monthly_employee_report_data.monthly_employee_social_security_report_data.total,
+            'vat_due_this_month': monthly_employee_report_data.vat,
+            'monthly_net': monthly_employee_report_data.net,
+        }   
+        return report_data
+        
+
+    def monthly_employee_report_to_db(self, employee, for_year, for_month):
+        monthly_employee_data = self.getter.get_employee_data_by_month(employee=employee,for_year=for_year,for_month=for_month)
         if monthly_employee_data is None:
-            salary = 0
-            general_expenses = 0
-            social_security_employee_due_this_month = 0
             gross_payment = 0
         else:
-            salary = monthly_employee_data.salary
-            general_expenses = monthly_employee_data.general_expenses
-            social_security_employee_due_this_month = self.social_security.calculate_social_security_employee_by_employee_monthly_entry(monthly_employee_data)['total']
             gross_payment = monthly_employee_data.gross_payment
-        
+        social_security_response_dict = self.social_security.calculate_social_security_employee_by_employee_monthly_entry(monthly_employee_data)
         report_data = {
-            'salary': salary,
-            'general_expenses': general_expenses,
             'income_tax_due_this_month': self.income_tax.calculate_income_tax_for_single_employee_for_month(employee=employee, for_year=for_year, for_month=for_month),
-            'social_security_employee_due_this_month': social_security_employee_due_this_month,
+            'social_security_employee_due_this_month': social_security_response_dict['total'],
             'vat_due_this_month': self.vat.calculate_vat_for_employee_for_month(employee=employee, for_year=for_year, for_month=for_month),
         }
         report_data['monthly_net'] = calculate_monthly_net(overall_gross=gross_payment , output_tax=report_data['vat_due_this_month'] , social_security_employee=report_data['social_security_employee_due_this_month'] , income_tax=report_data['income_tax_due_this_month'])
+
+        monthly_employee_report_data = Monthly_employee_report_data(
+            employee = employee ,
+            entered_by = 'automatic',
+            for_year = for_year ,
+            for_month = for_month ,
+            income_tax = report_data['income_tax_due_this_month'] ,
+            vat = report_data['vat_due_this_month'] ,
+            input_tax_vat = 0,
+            net = report_data['monthly_net']
+        )#FIXME: input tax vat needs to be calculated not stubbed as 0
+        monthly_employee_report_data.save()
+        monthly_employee_social_security_report_data = Monthly_employee_social_security_report_data(
+            monthly_employee_report_data = monthly_employee_report_data,
+            sum_to_calculate_as_lower_social_security_percentage = social_security_response_dict['sum_to_calculate_as_lower_social_security_percentage'],
+            sum_to_calculate_as_upper_social_security_percentage = social_security_response_dict['sum_to_calculate_as_upper_social_security_percentage'],
+            diminished_sum = social_security_response_dict['diminished_sum'],
+            standard_sum = social_security_response_dict['standard_sum'],
+            total = social_security_response_dict['total']
+        )
+        monthly_employee_social_security_report_data.save()
         return report_data
 
 
@@ -483,7 +522,13 @@ class data_getter(object):
             return Monthly_employer_data.objects.get(for_month=for_month , for_year=for_year , employee=employee , is_approved=True)
         except Exception as e:
             return None
+    def get_employee_report_data_by_month(self , for_year , for_month , employee):
+        try:
+            return Monthly_employee_report_data.objects.get(employee=employee, for_year=for_year, for_month=for_month)
+        except Exception as e:
+            return None
     
+
     def get_relevant_employer_data_for_empty_month(self, for_year, for_month, employee):    
         try:
             return Monthly_employer_data.objects.filter(for_month__lte=for_month , for_year=for_year , employee=employee , is_approved=True).order_by('-for_month')[0]
