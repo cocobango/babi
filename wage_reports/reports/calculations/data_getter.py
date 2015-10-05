@@ -36,6 +36,11 @@ class data_getter(object):
         except Exception as e:
             return None
     
+    def get_employee_social_security_report_data_by_month(self , for_year , for_month , employee):
+        try:
+            return Monthly_employee_social_security_report_data.objects.get(employee=employee, for_year=for_year, for_month=for_month)
+        except Exception as e:
+            return None
 
     def get_relevant_employer_data_for_empty_month(self, for_year, for_month, employee):    
         try:
