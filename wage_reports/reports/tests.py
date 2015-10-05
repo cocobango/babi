@@ -7,9 +7,18 @@ from django.test import TestCase , Client
 from django.utils import timezone
 from django.db.models import F
 
-from reports.models import Employer , Employee , Monthly_employee_data , Monthly_employer_data , Monthly_system_data
+from reports.models import Employer , Employee , Monthly_employee_data , Monthly_employer_data , Monthly_system_data , Monthly_employee_report_data
 from django.contrib.auth.models import User
 from . import factories , helpers , reports_maker
+from .calculations import *
+
+
+def populate_db_with_the_results_of_calculations_for_all_months():
+    first_employer = Employer.objects.order_by('-id')[0]
+    cross = cross_calculations(user_id=first_employer.user.id)
+    for employee in first_employer.employee_set.all():
+        for for_month in range(1 , 4):
+            cross.monthly_employee_report_to_db(employee=employee,for_year=2015,for_month=for_month)
 
 class SetupTestCase(TestCase):
     def __init__(self,*args, **kwargs):
@@ -226,19 +235,55 @@ class HelpersTestCase(TestCase):
 class CalculationTestCase(TestCase):
     def __init__(self,*args, **kwargs):
         super(CalculationTestCase, self).__init__(*args,**kwargs)
+        employer = Employer.objects.order_by('-id')[0]
         self.myGenerator = factories.MyGenerators()
+        self.data_getter = data_getter()
+        self.income_tax = income_tax_calculations(user_id=employer.user.id)
+        self.social_security = social_security_calculations(user_id=employer.user.id)
+        self.vat = vat_calculations(user_id=employer.user.id)
+        self.cross = cross_calculations(user_id=employer.user.id)
+
     def setUp(self):
         self.myGenerator.generateInitialControlledState()
+        first_employer = Employer.objects.order_by('-id')[0]
+        self.reports_maker = reports_maker.ReportsMaker(employer=first_employer)
 
 
     def test_data_from_setup_is_present(self):
         #arrange
-        monthly_employee_data = Monthly_employee_data.objects.get(employee=1,for_month=1, for_year=2015, is_approved=True)
+        employee = Employee.objects.order_by('id')[0]
+        monthly_employee_data = Monthly_employee_data.objects.get(employee=employee,for_month=1, for_year=2015, is_approved=True)
         #act
         gross_payment = monthly_employee_data.gross_payment
 
         #assert
         self.assertEqual(5000, gross_payment)
+
+
+    def test_correctly_inserts_monthly_report_data_income_tax(self): 
+        #arrange
+        employee = Employee.objects.order_by('id')[1]
+        monthly_employee_report_to_db = self.cross.monthly_employee_report_to_db(employee=employee, for_year=2015, for_month=1)
+        #act
+        monthly_employee_report_data = Monthly_employee_report_data.objects.get(employee=employee,for_month=1, for_year=2015)
+        
+        #assert
+        self.assertEqual(413, monthly_employee_report_data.income_tax)
+
+    def test_correctly_inserts_monthly_social_security_report_data(self):  
+        #arrange
+        employee = Employee.objects.order_by('id')[1]
+        self.cross.monthly_employee_report_to_db(employee=employee, for_year=2015, for_month=1)
+        
+        #act
+        monthly_employee_social_security_report_data = Monthly_employee_social_security_report_data.objects.select_related('monthly_employee_report_data').get(monthly_employee_report_data__employee=employee,monthly_employee_report_data__for_month=1, monthly_employee_report_data__for_year=2015) 
+        
+        #assert
+        self.assertEqual(840, monthly_employee_social_security_report_data.total)
+
+
+
+
 
 class ReportsTestCase(TestCase):
     def __init__(self,*args, **kwargs):
@@ -246,6 +291,7 @@ class ReportsTestCase(TestCase):
         self.myGenerator = factories.MyGenerators()
     def setUp(self):
         self.myGenerator.generateInitialControlledState()
+        populate_db_with_the_results_of_calculations_for_all_months()
         first_employer = Employer.objects.order_by('-id')[0]
         self.reports_maker = reports_maker.ReportsMaker(employer=first_employer)
 
@@ -397,6 +443,8 @@ class ReportsTestCase(TestCase):
             monthly_employee_reports.append(self.reports_maker.monthly_employee_report(employee=employee,for_year=2015, for_month=for_month))
         return monthly_employee_reports
     
+    
+                
 
     #monthly_employer_report suite
     def test_monthly_employer_report_has_all_social_security_fields(self):
@@ -811,6 +859,7 @@ class YearlyReportsTestCase(TestCase):
         self.myGenerator.generateInitialControlledState()
         first_employer = Employer.objects.order_by('-id')[0]
         self.reports_maker = reports_maker.ReportsMaker(employer=first_employer)
+        populate_db_with_the_results_of_calculations_for_all_months()
 
 
 
@@ -1036,20 +1085,32 @@ class YearlyReportsTestCase(TestCase):
             self.assertEqual(sum_input_tax_vat_arr[i] , yearly_income_tax_employer_report['employees_list'][i]['sum_input_tax_vat'])
     
 
-
-
-
-
-
-
-
-
 class ModelsTestCase(TestCase):
     def __init__(self,*args, **kwargs):
         super(ModelsTestCase, self).__init__(*args,**kwargs)
         self.myGenerator = factories.MyGenerators()
     def setUp(self):
         pass
+    # def test_orm(self): 
+        # self.myGenerator.generateInitialControlledState()
+        # first_employer = Employer.objects.order_by('-id')[0]
+        # self.reports_maker = reports_maker.ReportsMaker(employer=first_employer)
+
+        # employer = Employer.objects.order_by('-id')[0]
+        # self.myGenerator = factories.MyGenerators()
+        # self.data_getter = data_getter()
+        # self.income_tax = income_tax_calculations(user_id=employer.user.id)
+        # self.social_security = social_security_calculations(user_id=employer.user.id)
+        # self.vat = vat_calculations(user_id=employer.user.id)
+        # self.cross = cross_calculations(user_id=employer.user.id)
+
+        
+        # employee = Employee.objects.order_by('id')[1]
+        # self.cross.monthly_employee_report_to_db(employee=employee, for_year=2015, for_month=1)
+        # monthly_employee_report_to_db = Monthly_employee_report_data.objects.get(employee=employee,for_month=1, for_year=2015)
+        # print(monthly_employee_report_to_db.monthly_employee_social_security_report_data.total)
+
+
 
     def test_insert_monthly_employee_data_with_cost_or_gross_set_to_gross_is_uninfluenced(self):
         employer = factories.EmployerFactory()
@@ -1192,6 +1253,8 @@ class ModelsTestCase(TestCase):
             gross_payment_from_others = 0
         )
 
+        populate_db_with_the_results_of_calculations_for_all_months() 
+
         #act
         monthly_employee_data = Monthly_employee_data.objects.all()[0]
         monthly_employee_report = self.reports_maker.monthly_employee_report(employee=employee , for_year=2015 , for_month=1)
@@ -1216,8 +1279,24 @@ class ModelsTestCase(TestCase):
     #         print(single.id)
     #         print('year , month {0} , {1}'.format(single.for_year , single.for_month))
 
+    def test_can_add_a_monthly_employee_report_data_object_to_db(self):
+        #arrange
+        employee = factories.EmployeeFactory()
+        monthly_employee_report_data = Monthly_employee_report_data(
+            employee = employee ,
+            entered_by = 'admin',
+            for_month = 1 ,
+            for_year = 2015 ,
+            income_tax = 100.5 ,
+            vat = 565.55 ,
+            input_tax_vat = 300,
+            net = 5
+        )
+        #act
+        monthly_employee_report_data.save()
 
-        
+        #assert
+        self.assertTrue(Monthly_employee_report_data.objects.get(id=monthly_employee_report_data.id))
 
         
 class PermissionsTestCase(TestCase):
