@@ -7,7 +7,7 @@ from django.test import TestCase , Client
 from django.utils import timezone
 from django.db.models import F
 
-from reports.models import Employer , Employee , Monthly_employee_data , Monthly_employer_data , Monthly_system_data , Monthly_employee_report_data
+from reports.models import Employer , Employee , Monthly_employee_data , Monthly_employer_data , Monthly_system_data , Monthly_employee_report_data , Monthly_employee_social_security_report_data
 from django.contrib.auth.models import User
 from . import factories , helpers , reports_maker
 from .calculations import *
