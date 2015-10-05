@@ -38,7 +38,7 @@ class data_getter(object):
     
     def get_employee_social_security_report_data_by_month(self , for_year , for_month , employee):
         try:
-            return Monthly_employee_social_security_report_data.objects.get(employee=employee, for_year=for_year, for_month=for_month)
+            return Monthly_employee_social_security_report_data.objects.select_related('monthly_employee_report_data').get(monthly_employee_report_data__employee=employee, monthly_employee_report_data__for_year=for_year, monthly_employee_report_data__for_month=for_month)
         except Exception as e:
             return None
 

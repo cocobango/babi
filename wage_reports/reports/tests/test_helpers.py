@@ -12,21 +12,21 @@ class HelpersTestCase(TestCase):
         #act
         response = helpers.calculate_social_security_employer(overall_gross=7000,social_security_threshold=5500,lower_employer_social_security_percentage=Decimal(0.035),upper_employer_social_security_percentage=Decimal(0.069),is_required_to_pay_social_security=True)
         #assert
-        self.assertEqual(296 , response['total'])
+        self.assertEqual(296 , response['total_employer'])
 
     def test_social_security_employee_with_upper_percentage(self):
         #arrange
         #act
         response = helpers.calculate_social_security_employee(overall_gross=7000,social_security_threshold=5500,lower_employee_social_security_percentage=0.033,upper_employee_social_security_percentage=0.12,is_required_to_pay_social_security=True, is_employer_the_main_employer=False, gross_payment_from_others=2000)
         #assert
-        self.assertEqual(535.5 , response['total'])
+        self.assertEqual(535.5 , response['total_employee'])
 
     def test_social_security_employee_without_upper_percentage(self):
         #arrange
         #act
         response = helpers.calculate_social_security_employee(overall_gross=7000,social_security_threshold=5500,lower_employee_social_security_percentage=0.033,upper_employee_social_security_percentage=0.12,is_required_to_pay_social_security=True, is_employer_the_main_employer=True, gross_payment_from_others=2000)
         #assert
-        self.assertEqual(361.5 , response['total'])
+        self.assertEqual(361.5 , response['total_employee'])
 
 
     #@todo third and second assertions are wrong.
@@ -69,7 +69,7 @@ class HelpersTestCase(TestCase):
         #act
         test_set=[
             # basic threshold calculation
-            [ Decimal(7467.50)*1 , helpers.calculate_monthly_net(overall_gross,output_tax,social_security_employee['total'],income_tax)],
+            [ Decimal(7467.50)*1 , helpers.calculate_monthly_net(overall_gross,output_tax,social_security_employee['total_employee'],income_tax)],
         ]
 
         #assert

@@ -47,4 +47,4 @@ class CalculationTestCase(TestCase):
         monthly_employee_social_security_report_data = Monthly_employee_social_security_report_data.objects.select_related('monthly_employee_report_data').get(monthly_employee_report_data__employee=employee,monthly_employee_report_data__for_month=1, monthly_employee_report_data__for_year=2015) 
         
         #assert
-        self.assertEqual(840, monthly_employee_social_security_report_data.total)
+        self.assertEqual(840, monthly_employee_social_security_report_data.total_employee)

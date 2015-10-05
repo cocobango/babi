@@ -14,6 +14,9 @@ from ..calculations import *
 def populate_db_with_the_results_of_calculations_for_all_months():
     first_employer = Employer.objects.order_by('-id')[0]
     cross = cross_calculations(user_id=first_employer.user.id)
+    getter = data_getter()
     for employee in first_employer.employee_set.all():
         for for_month in range(1 , 4):
-            cross.monthly_employee_report_to_db(employee=employee,for_year=2015,for_month=for_month)
+            entry = getter.get_employee_data_by_month(employee=employee,for_year=2015,for_month=for_month)
+            if entry is not None:
+                cross.monthly_employee_report_to_db(employee=employee,for_year=2015,for_month=for_month)
