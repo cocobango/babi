@@ -11,133 +11,18 @@ from django.contrib.auth import authenticate, login
 from django.core import serializers
 from django.utils import timezone
 
-from .forms import EmployeeForm , EmployeeMonthlyEntryForm , EmployerMonthlyEntryForm , UserCreateForm 
-from .models import Monthly_employer_data, Monthly_employee_data, Employee , Employer , Locked_months
+from ..forms import EmployeeForm , EmployeeMonthlyEntryForm , EmployerMonthlyEntryForm , UserCreateForm 
+from ..models import Monthly_employer_data, Monthly_employee_data, Employee , Employer , Locked_months
 
 
-from .helpers import get_month_in_question_for_employer_locking , get_year_in_question_for_employer_locking , get_month_in_question_for_employee_locking , get_year_in_question_for_employee_locking
+from ..helpers import get_month_in_question_for_employer_locking , get_year_in_question_for_employer_locking , get_month_in_question_for_employee_locking , get_year_in_question_for_employee_locking
 
-from .calculations import social_security_calculations , vat_calculations , income_tax_calculations
-from .decorators import user_is_an_employer
+from ..calculations import social_security_calculations , vat_calculations , income_tax_calculations
+from ..decorators import user_is_an_employer
 
-from .view_helpers import *
-
-@user_is_an_employer
-def my_test(request):
-    return render(request, 'reports/general/display_message.html' , { 'headline' : "test response:" , 'body' : get_month_in_question_for_employee_locking() })
-
-@login_required
-def index(request):
-    past_month_dict = {
-        'for_year': get_year_in_question_for_employer_locking(),
-        'for_month': get_month_in_question_for_employer_locking()
-    }
-    current_month_dict = {
-        'for_year': get_year_in_question_for_employee_locking(),
-        'for_month': get_month_in_question_for_employee_locking()
-    }
-    urls_list = [
-            {
-                'link': reverse('reports:view_history'),
-                'display_text':'View data for past months'
-            }
-        ]
-    if Employer.is_employer(request.user):
-        urls_list.extend([
-            {
-                'link': reverse('reports:user_management'),
-                'display_text':'Manage users'
-            },
-            {
-                'link': reverse('reports:show_entries' , kwargs={'for_year':past_month_dict['for_year'],'for_month':past_month_dict['for_month']}),
-                'display_text':'Manage past month'
-            },
-            {
-                'link': reverse('reports:show_entries' , kwargs={'for_year':current_month_dict['for_year'],'for_month':current_month_dict['for_month']}),
-                'display_text':'Manage current month'
-            }
-        ])
-        return render(request, 'reports/employer/index.html' , {'urls_list':urls_list})
-    else:
-        return render(request, 'reports/employee/index.html' , {'urls_list':urls_list})
+from ..view_helpers import *
 
 
-@login_required
-def user_management(request):
-    return render(request, 'reports/employer/user_management.html' , { })
-
-@login_required
-def add_employee(request):
-    if request.method == 'POST':
-        form_registration = UserCreateForm(request.POST)
-        
-        if form_registration.is_valid():
-            form_registration.save(commit=False)
-            form = EmployeeForm(request.POST)
-            if form.is_valid():
-                new_user = form_registration.save()
-                employee_form_data = form.save(commit=False)
-                employer = Employer.objects.get(user=request.user)
-                new_employee = Employee(user=new_user , employer=employer , birthday=employee_form_data.birthday , government_id=employee_form_data.government_id)
-                new_employee.save()
-                return HttpResponseRedirect(reverse('reports:edit_specific_monthly_employer_data' , args=(new_user.id,)))
-            else:
-                return HttpResponseRedirect(reverse('my_login:messages' , args=('user was not added, employee data was not valid',)))
-        else:
-            return HttpResponseRedirect(reverse('my_login:messages' , args=('user was not added, user data was not valid',)))
-            
-    else:
-        form_registration = UserCreateForm()
-        form = EmployeeForm();
-    return render(request, 'reports/employer/add_employee.html' , { 'form' : EmployeeForm , 'form_registration' : form_registration })
-
-@login_required
-def view_all_employees(request):
-    Employer_obj = Employer.objects.get(user=request.user)
-    employees = Employee.objects.filter(employer=Employer_obj)
-    return render(request, 'reports/employer/view_all_employees.html' , { 'json' : serializers.serialize('json' , employees) , 'employees' : employees })
-
-@login_required
-def toggle_employee_status(request):
-    if request.method == 'POST':
-        employer = get_object_or_404(Employer , user=request.user)
-        # employee = Employee.objects.get(employer=employer , user_id=request.POST['employee_user_id'])
-        employee = get_object_or_404(Employee , employer=employer , user_id=request.POST['employee_user_id'])
-
-        if employee.user.is_active:
-            employee.user.is_active = False
-        else:
-            employee.user.is_active = True
-        employee.user.save()
-        return HttpResponseRedirect(reverse('reports:view_all_employees' , ))
-    else:
-        return HttpResponseRedirect(reverse('my_login:messages' , args=('Error, this is a POST gateway, not GET',)))
-
-@login_required
-def view_history(request):
-    pass
-
-
-@login_required
-def view_all_months(request):
-    pass
-
-
-@login_required
-def view_a_single_month(request):
-    pass
-
-
-@login_required
-def view_report_of_type(request , report_type):
-    # calculator = social_security_calculations(request.user)
-    # for_year = get_year_in_question_for_employer_locking()
-    # for_month = get_month_in_question_for_employer_locking()
-    # if report_type == 1:
-
-    # response = calculator.get_count_of_employees_that_are_required_to_pay_social_security_by_employer(for_year, for_month) 
-    # expected_result = 1
-    return render(request, 'reports/general/display_message.html' , { 'headline' : "test response:" , 'body' : str(response) + ' ' + str(expected_result) })
 
 @login_required
 def show_entries(request , for_year , for_month):
@@ -307,13 +192,4 @@ def edit_specific_monthly_employer_data(request, employee_user_id):
         except Monthly_employer_data.DoesNotExist:
             form = EmployerMonthlyEntryForm()
         return render(request, 'reports/employer/monthly_entry.html' , { 'form' : form , 'employee_user_id' : employee_user_id })
-    
-def redirect_to_real_login(request):
-    return redirect_to_login('accounts/profile')
-
-def logout(request):
-    logout_function(request)
-    return render(request, 'reports/general/display_message.html' , { 'headline' : "successfully logged out" , 'body' : "" })
-    
-
-
+  
