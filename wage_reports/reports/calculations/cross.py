@@ -30,6 +30,7 @@ class cross_calculations(object):
                 'income_tax_due_this_month': 0,
                 'social_security_employee_due_this_month': 0,
                 'vat_due_this_month': 0,
+                'input_tax_vat_due_this_month': 0,
                 'monthly_net': 0,
             }
             return report_data
@@ -41,6 +42,7 @@ class cross_calculations(object):
             'income_tax_due_this_month': monthly_employee_report_data.income_tax,
             'social_security_employee_due_this_month': monthly_employee_report_data.monthly_employee_social_security_report_data.total_employee,
             'vat_due_this_month': monthly_employee_report_data.vat,
+            'input_tax_vat_due_this_month': monthly_employee_report_data.input_tax_vat,
             'monthly_net': monthly_employee_report_data.net,
         }   
         return report_data
@@ -53,10 +55,11 @@ class cross_calculations(object):
         else:
             gross_payment = monthly_employee_data.gross_payment
         social_security_response_dict = self.social_security.calculate_social_security(monthly_employee_data)
+        vat, input_tax_vat = self.vat.calculate_vat_for_employee_for_month(employee=employee, for_year=for_year, for_month=for_month)
         report_data = {
             'income_tax_due_this_month': self.income_tax.calculate_income_tax_for_single_employee_for_month(employee=employee, for_year=for_year, for_month=for_month),
             'social_security_employee_due_this_month': social_security_response_dict['total_employee'],
-            'vat_due_this_month': self.vat.calculate_vat_for_employee_for_month(employee=employee, for_year=for_year, for_month=for_month),
+            'vat_due_this_month': vat,
         }
         report_data['monthly_net'] = calculate_monthly_net(overall_gross=gross_payment , output_tax=report_data['vat_due_this_month'] , social_security_employee=report_data['social_security_employee_due_this_month'] , income_tax=report_data['income_tax_due_this_month'])
 
@@ -67,7 +70,7 @@ class cross_calculations(object):
             for_month = for_month ,
             income_tax = report_data['income_tax_due_this_month'] ,
             vat = report_data['vat_due_this_month'] ,
-            input_tax_vat = 0,
+            input_tax_vat = input_tax_vat,
             net = report_data['monthly_net']
         )#FIXME: input tax vat needs to be calculated not stubbed as 0
         monthly_employee_report_data.save()
@@ -172,6 +175,7 @@ class cross_calculations(object):
         income_tax = 0
         social_security = 0
         vat = 0
+        input_tax_vat = 0
         sum_of_gross_payment = 0
         months_in_which_got_paid = []
         for x in range(1,13):
@@ -181,6 +185,7 @@ class cross_calculations(object):
             income_tax += monthly_employee_report['income_tax_due_this_month']
             social_security += monthly_employee_report['social_security_employee_due_this_month']
             vat += monthly_employee_report['vat_due_this_month']
+            input_tax_vat += monthly_employee_report['input_tax_vat_due_this_month']
             if monthly_employee_data:
                 sum_of_gross_payment += monthly_employee_data.gross_payment
                 months_in_which_got_paid.append(x)
@@ -189,6 +194,7 @@ class cross_calculations(object):
             'sum_of_income_tax': income_tax,
             'sum_of_social_security': social_security,
             'sum_of_vat': vat,
+            'sum_of_input_tax_vat': input_tax_vat,
             'sum_of_gross_payment': sum_of_gross_payment,
             'months_in_which_got_paid': months_in_which_got_paid,
         }
@@ -207,7 +213,7 @@ class cross_calculations(object):
             entry['last_name'] = employee.user.last_name
             entry['government_id'] = employee.government_id            
             entry['sum_of_income_tax'] = yearly_employee_report['sum_of_income_tax']
-            entry['sum_input_tax_vat'] = 'sum_input_tax_vat' #sum vat where is_required_to_pay_vat = False
+            entry['sum_input_tax_vat'] = yearly_employee_report['sum_of_input_tax_vat']
             entry['sum_of_vat_and_gross_payment'] = yearly_employee_report['sum_of_vat'] + yearly_employee_report['sum_of_gross_payment']
             employees_list.append(entry)
              

@@ -8,7 +8,7 @@ class Employer(models.Model):
     phone_number = models.BigIntegerField()
     name_of_contact = models.CharField(max_length=200)
     is_required_to_pay_vat = models.BooleanField(default=True) #is osek murshe
-    is_an_npo = models.BooleanField(default=False) #is malkar (non profit organization)
+    is_npo = models.BooleanField(default=False) #is malkar (non profit organization)
     def __str__(self):
         return self.user.username
 

@@ -78,6 +78,13 @@ def calculate_output_tax(overall_gross,vat_percentage,is_required_to_pay_vat):
         return 0
     return overall_gross * vat_percentage
 
+def calculate_input_tax(overall_gross,vat_percentage,is_required_to_pay_vat,is_npo):
+    if not is_npo:
+        return 0
+    if is_required_to_pay_vat:
+        return 0
+    return overall_gross * vat_percentage
+
 def calculate_monthly_net(overall_gross, output_tax, social_security_employee, income_tax ):
     return Decimal(overall_gross) + Decimal(output_tax) - Decimal(social_security_employee) - Decimal(income_tax)
 

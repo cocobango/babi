@@ -12,7 +12,7 @@ from .. import factories , helpers , reports_maker
 from ..calculations import *
 
 def populate_db_with_the_results_of_calculations_for_all_months():
-    first_employer = Employer.objects.order_by('-id')[0]
+    first_employer = Employer.objects.first()
     cross = cross_calculations(user_id=first_employer.user.id)
     getter = data_getter()
     for employee in first_employer.employee_set.all():
