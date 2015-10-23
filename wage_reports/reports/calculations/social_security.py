@@ -20,6 +20,7 @@ class social_security_calculations(object):
 
     def get_sum_of_gross_payment_of_employees_that_are_required_to_pay_social_security_by_employer(self , for_year, for_month):
         return Monthly_employee_data.objects.select_related('employee').filter(is_required_to_pay_social_security=True, employee__employer=self.employer, is_approved=True, for_year=for_year, for_month=for_month).aggregate(my_total = Sum('gross_payment'))
+    
     def get_sum_of_lower_employee_social_security_by_employer(self , for_year, for_month):
         return self.get_sum_of_social_security_of_type_by_employer(for_year = for_year, for_month = for_month , employee_or_employer = 'employee' , upper_or_lower = 'lower')
 
@@ -33,19 +34,11 @@ class social_security_calculations(object):
         return self.get_sum_of_social_security_of_type_by_employer(for_year = for_year, for_month = for_month , employee_or_employer = 'employer' , upper_or_lower = 'upper')
 
     def get_total_of_social_security_due_by_employer(self , for_year, for_month):
-        # return self.get_social_security_entries_for_month(for_year = for_year, for_month = for_month).aggregate(my_total=Sum('total_employee', field="total_employee+total_employer"))['my_total'] 
         return self.get_social_security_entries_for_month(for_year = for_year, for_month = for_month).aggregate(my_total=Sum(F('total_employer')+F('total_employee')))['my_total'] 
 
     def get_count_of_employees_that_do_not_exceed_the_social_security_threshold_by_employer(self , for_year, for_month):
         return self.get_social_security_entries_for_month(for_year = for_year, for_month = for_month).filter(standard_sum_employee=0).aggregate(my_count=Count('total_employee', field="total_employee+total_employer"))['my_count'] 
 
-        # entries = self.internal_get_entries_for_month(for_year=for_year , for_month=for_month , is_required_to_pay_social_security=True)
-        # count = 0
-        # for entry in entries:
-        #     response_employee = self.calculate_social_security_employee_by_employee_monthly_entry(entry)
-        #     if response_employee['standard_sum'] == 0 and response_employee['diminished_sum'] > 0:
-        #         count +=1
-        # return count
     def get_social_security_entries_for_month(self , for_year, for_month):
         return Monthly_employee_social_security_report_data.objects.select_related('monthly_employee_report_data__employee__employer').filter(   monthly_employee_report_data__employee__employer=self.employer, monthly_employee_report_data__for_year=for_year, monthly_employee_report_data__for_month=for_month)
     # internal
@@ -55,8 +48,8 @@ class social_security_calculations(object):
         for entry in entries:
             # return entry.id
             
-            response = self.calculate_social_security(entry) 
-            sum_to_return += response['sum_to_calculate_as_{0}_social_security_percentage_{1}'.format(upper_or_lower , employee_or_employer)]
+            response = self.getter.get_employee_social_security_report_data_by_month(for_year=for_year , for_month=for_month , employee=entry.employee) 
+            sum_to_return += getattr( response, 'sum_to_calculate_as_{0}_social_security_percentage_{1}'.format(upper_or_lower , employee_or_employer))
         
         return sum_to_return
     

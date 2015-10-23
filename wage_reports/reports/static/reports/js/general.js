@@ -13,10 +13,10 @@ toggle_employee_monthly_entry_approval = function(url , entry_id , employee_user
 	generic_ajax_call(url , formData , csrf_token);
 }
 
-approve_and_lock_month = function(url , month_in_question , year_in_question , csrf_token){
+approve_and_lock_month = function(url , for_month , for_year , csrf_token){
 	formData = {
-		for_month : month_in_question,
-		for_year : year_in_question
+		for_month : for_month,
+		for_year : for_year
 	};
 	generic_ajax_call(url , formData , csrf_token);
 }

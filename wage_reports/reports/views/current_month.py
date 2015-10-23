@@ -12,7 +12,7 @@ from django.core import serializers
 from django.utils import timezone
 
 from ..forms import EmployeeForm , EmployeeMonthlyEntryForm , EmployerMonthlyEntryForm , UserCreateForm 
-from ..models import Monthly_employer_data, Monthly_employee_data, Employee , Employer , Locked_months
+from ..models import Monthly_employer_data, Monthly_employee_data, Employee, Employer, Locked_months
 
 
 from ..helpers import get_month_in_question_for_employer_locking , get_year_in_question_for_employer_locking , get_month_in_question_for_employee_locking , get_year_in_question_for_employee_locking
@@ -26,16 +26,13 @@ from ..view_helpers import *
 
 @login_required
 def show_entries(request , for_year , for_month):
-    year_in_question = for_year
-    month_in_question = for_month
     past_or_current_month = 'past'
-    lala = 'testing var'
-    if int(month_in_question) == int(get_month_in_question_for_employee_locking()):
+    if int(for_month) == int(get_month_in_question_for_employee_locking()):
         past_or_current_month = 'current'
     Employer_obj = Employer.objects.get(user=request.user)
     try:
-        locked_month = Locked_months.objects.select_related('employer').filter(employer__user=request.user , for_year=year_in_question , for_month=month_in_question)[0]
-        if locked_month.for_month == month_in_question and locked_month.for_year == year_in_question:
+        locked_month = Locked_months.objects.select_related('employer').filter(employer__user=request.user , for_year=for_year , for_month=for_month)[0]
+        if locked_month.for_month == for_month and locked_month.for_year == for_year:
             return render(request, 'reports/general/display_message.html' , { 'headline' : "Month locked" , 'body' : "This month is locked for editing. you can view reports on it in the appropriate section" })
     except IndexError:
         pass
@@ -49,15 +46,15 @@ def show_entries(request , for_year , for_month):
         else:
             employees_that_do_not_have_employer_data.append(employee)
             
-    return render(request, 'reports/employer/show_entries.html' , { 'employees' : employees , 'entries' : entries , 'employees_that_do_not_have_employer_data' : employees_that_do_not_have_employer_data , 'year_in_question' : year_in_question , 'month_in_question' : month_in_question , 'past_or_current_month':past_or_current_month , 'lala':lala })
+    return render(request, 'reports/employer/show_entries.html' , { 'employees' : employees , 'entries' : entries , 'employees_that_do_not_have_employer_data' : employees_that_do_not_have_employer_data , 'for_year' : for_year , 'for_month' : for_month , 'past_or_current_month':past_or_current_month })
 
 @login_required
 def pre_approve_month(request):
     Employer_obj = Employer.objects.get(user=request.user)
     employees = Employee.objects.filter(employer=Employer_obj)
     this_month = timezone.now()
-    month_in_question = get_month_in_question_for_employer_locking()
-    year_in_question = get_year_in_question_for_employer_locking()
+    for_month = get_month_in_question_for_employer_locking()
+    for_year = get_year_in_question_for_employer_locking()
     approved_entries = []
     disapproved_entries = []
     empty_entries = []
@@ -65,7 +62,7 @@ def pre_approve_month(request):
     for employee in employees:
         try:
             single_entry = Monthly_employee_data.objects.filter(employee=employee).latest('created')
-            if single_entry.for_month == month_in_question and single_entry.for_year == year_in_question:
+            if single_entry.for_month == for_month and single_entry.for_year == for_year:
                 if single_entry.is_approved:
                     approved_entries.append(single_entry) 
                 else:
@@ -75,7 +72,7 @@ def pre_approve_month(request):
         except Monthly_employee_data.DoesNotExist:
             empty_entry = { 'employee' : Employee(user = employee.user) , 'has_data' : False }
             empty_entries.append( empty_entry )
-    return render(request, 'reports/employer/pre_approve_month.html' , { 'month_in_question': month_in_question , 'year_in_question': year_in_question , 'approved_entries' : approved_entries , 'disapproved_entries' : disapproved_entries , 'no_recent_entries' : no_recent_entries , 'empty_entries' : empty_entries })
+    return render(request, 'reports/employer/pre_approve_month.html' , { 'for_month': for_month , 'for_year': for_year , 'approved_entries' : approved_entries , 'disapproved_entries' : disapproved_entries , 'no_recent_entries' : no_recent_entries , 'empty_entries' : empty_entries })
 
 @login_required
 def approve_this_month(request):
@@ -87,8 +84,7 @@ def approve_this_month(request):
         except Locked_months.DoesNotExist:
             if Employer.is_employer(request.user):
                 employer = Employer.get_employer_from_user(request.user) 
-                first_day_in_month = datetime( int(request.POST['for_year']), int(request.POST['for_month']), 1)
-                locked_month = Locked_months(for_year = request.POST['for_year'] , for_month = request.POST['for_month'], employer = employer , first_day_in_month = first_day_in_month)
+                locked_month = Locked_months(for_year = request.POST['for_year'] , for_month = request.POST['for_month'], employer = employer)
                 locked_month.save()
                 return JsonResponse({'is_okay':True , 'message' : 'successfully locked month. you can now get reports for this month' , 'data' : None })
     else:
@@ -100,17 +96,17 @@ def set_as_valid(request):
         try:
             single_entry = Monthly_employee_data.objects.select_related('employee__user').get(pk=request.POST['entry_id'] , employee__user_id=request.POST['employee_user_id'] , employee__employer__user=request.user )
 
-            year_in_question = request.POST['for_year']
-            month_in_question = request.POST['for_month']
+            for_year = request.POST['for_year']
+            for_month = request.POST['for_month']
 
             single_entry.is_approved = True
             single_entry.pk = None
-            single_entry.for_year = year_in_question
-            single_entry.for_month = month_in_question
+            single_entry.for_year = for_year
+            single_entry.for_month = for_month
             single_entry.entered_by = 'employer'
 
             # Monthly_employee_data.objects.filter( employee__user_id=11 , created__gte=timezone.now().replace(day=1,hour=0, minute=0) ).update(is_approved=False)
-            Monthly_employee_data.objects.select_related('employee__user').filter( employee__user_id=request.POST['employee_user_id'] , for_year=year_in_question, for_month=month_in_question).update(is_approved=False)
+            Monthly_employee_data.objects.select_related('employee__user').filter( employee__user_id=request.POST['employee_user_id'] , for_year=for_year, for_month=for_month).update(is_approved=False)
             single_entry.created = None
 
             if single_entry.save():

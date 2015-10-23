@@ -31,7 +31,7 @@ class vat_calculations(object):
     def get_sum_of_vat_due_where_no_vat_is_required(self , for_year, for_month):
         sum_of_gross_payment_where_no_vat_is_required = self.get_sum_of_gross_payment_where_no_vat_is_required(for_year=for_year , for_month=for_month)
         vat_percentage = self.getter.get_system_data_by_month(for_year=for_year , for_month=for_month).vat_percentage
-        return vat_percentage * sum_of_gross_payment_where_no_vat_is_required
+        return calculate_output_tax(overall_gross=sum_of_gross_payment_where_no_vat_is_required,vat_percentage=vat_percentage,is_required_to_pay_vat=True)
     
     def calculate_vat_for_employee_for_month(self, employee, for_month , for_year):
         employee_data = self.getter.get_employee_data_by_month(employee=employee,  for_year=for_year, for_month=for_month)

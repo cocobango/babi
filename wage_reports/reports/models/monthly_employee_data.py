@@ -35,7 +35,7 @@ class Monthly_employee_data(models.Model):
         if commit:
             if self.is_valid_month():
                 if self.duplicate_employer_data():
-                    self.gross_payment = self.set_gross_payment()
+                    self.gross_payment = self.get_gross_payment()
                     super(Monthly_employee_data, self).save(*args, **kwargs)
                     return self
                 else:
@@ -51,7 +51,6 @@ class Monthly_employee_data(models.Model):
         An employee cannot add after a month is over
         An employee and an employer cannot add to a locked month
         """
-        # return False
         if self.entered_by == 'admin':
             return True
         try:
@@ -62,12 +61,12 @@ class Monthly_employee_data(models.Model):
         year_for_employee = get_year_in_question_for_employee_locking()
         if self.entered_by == 'employee':
             if latest_entry:
-                if latest_entry.entered_by == 'employer':
+                if latest_entry.entered_by in ('employer', 'admin'):
                     # return {'is_okay': False , 'message':'Data already entered by employer for this month. Cannot add data from employee'}
                     return False
             if not (self.for_month == month_for_employee and self.for_year == year_for_employee):
                 return False
-        else:
+        else: # (entered_by: employer)
             month_for_employer = get_month_in_question_for_employer_locking()
             year_for_employer = get_year_in_question_for_employer_locking()
             if not (int(self.for_month) == month_for_employer and int(self.for_year) == year_for_employer):
@@ -81,6 +80,12 @@ class Monthly_employee_data(models.Model):
 
     def duplicate_employer_data(self):
         try:
+            Monthly_employer_data.objects.filter(employee=self.employee, for_year=self.for_year, for_month=self.for_month, is_approved=True)[0]
+            return True
+        except IndexError:
+            pass
+
+        try:
             latest_employer_data = Monthly_employer_data.objects.filter(employee=self.employee).order_by('-id')[0]
         except IndexError:
             return False
@@ -91,11 +96,11 @@ class Monthly_employee_data(models.Model):
         latest_employer_data.save()
         return True
 
-    def set_gross_payment(self):
+    def get_gross_payment(self):
         initial_gross = self.salary + self.general_expenses
         latest_employer_data = Monthly_employer_data.objects.filter(employee=self.employee).order_by('-id')[0]
         if latest_employer_data.gross_or_cost:
             return initial_gross
-        monthly_system_data = Monthly_system_data.objects.order_by('-id').filter(for_year=self.for_year , for_month=self.for_month)[0]
+        monthly_system_data = Monthly_system_data().get_relevant(for_year=self.for_year , for_month=self.for_month)
         return calculate_gross_when_cost_or_or_gross_is_set_to_cost(cost=initial_gross , lower_employer_social_security_percentage=monthly_system_data.lower_employer_social_security_percentage , upper_employer_social_security_percentage=monthly_system_data.upper_employer_social_security_percentage , social_security_threshold=monthly_system_data.social_security_threshold)
 

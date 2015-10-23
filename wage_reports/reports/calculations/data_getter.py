@@ -10,12 +10,7 @@ class data_getter(object):
         super(data_getter, self).__init__()
     
     def get_system_data_by_month(self , for_year , for_month):
-        # print('for_year: {0} , for_month: {1}'.format(for_year , for_month))
-        month_count_from_zero = (for_year * 12) + for_month
-        try:
-            return Monthly_system_data.objects.raw('SELECT * FROM reports_monthly_system_data WHERE (for_year * 12) + for_month <= {0} ORDER BY (for_year * 12) + for_month DESC '.format(month_count_from_zero))[0]
-        except IndexError:
-            raise                
+        return Monthly_system_data().get_relevant(for_year=for_year , for_month=for_month)              
         
 
     def get_employee_data_by_month(self , for_year , for_month , employee ):

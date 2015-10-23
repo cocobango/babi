@@ -85,7 +85,6 @@ class cross_calculations(object):
     def get_sum_of_employer_social_security_where_no_vat_is_required(self, for_year , for_month):
         entries = self.vat.internal_get_entries_for_month(for_year=for_year , for_month=for_month , is_required_to_pay_vat=False)
         sum_to_return = 0
-        return_arr = []
         for entry in entries:
             try:
                 sum_to_add = self.getter.get_employee_social_security_report_data_by_month(employee=entry.employee,for_year=for_year , for_month=for_month).total_employer
@@ -114,7 +113,7 @@ class cross_calculations(object):
         entries = self.vat.internal_get_entries_for_month(for_year=for_year , for_month=for_month , is_required_to_pay_vat=False)
         sum_to_return = 0
         for entry in entries:
-            sum_to_return += self.income_tax.calculate_income_tax_for_single_employee_for_month(employee=entry.employee, for_year=for_year , for_month=for_month)
+            sum_to_return += self.getter.get_employee_report_data_by_month(employee=entry.employee, for_year=for_year , for_month=for_month).income_tax
         return sum_to_return
 
     def get_sum_of_social_security_where_no_vat_is_required(self, for_year , for_month):
@@ -136,7 +135,7 @@ class cross_calculations(object):
         entries = self.vat.internal_get_entries_for_month(for_year=for_year , for_month=for_month , is_required_to_pay_vat=True)
         list_of_employees = []
         for entry in entries:
-            income_tax = self.income_tax.calculate_income_tax_for_single_employee_for_month(employee=entry.employee, for_year=for_year , for_month=for_month)
+            income_tax = self.getter.get_employee_report_data_by_month(employee=entry.employee, for_year=for_year , for_month=for_month).income_tax
             list_of_employees.append(
                 { 'income_tax' : income_tax , 'name' : '{0} {1}'.format(entry.employee.user.first_name ,entry.employee.user.last_name) })
         return list_of_employees
@@ -229,4 +228,20 @@ class cross_calculations(object):
             'sum_of_vat_and_gross_payment_from_all_employees':0,
         }        
         return response_dict
+
+    def get_sum_of_income_tax(self , for_year, for_month):
+        unparsed_employees_that_got_paid_this_month = self.income_tax.internal_get_all_of_employees_that_got_paid_this_month(for_year=for_year, for_month=for_month)
+        employees_that_got_paid_this_month = self.income_tax.internal_join_all_of_employees_that_got_paid_this_month(unparsed_employees_that_got_paid_this_month)
+        sum_to_return = 0
+        # return employees_that_got_paid_this_month[1].employee.id
+        # return self.internal_calculate_income_tax(entry=employees_that_got_paid_this_month[1])
+        for entry in employees_that_got_paid_this_month:
+            monthly_employee_report_data = self.getter.get_employee_report_data_by_month(employee=entry.employee, for_year=for_year, for_month=for_month)
+            sum_to_return += monthly_employee_report_data.income_tax
+        if self.employer.is_npo:
+            system_data = self.getter.get_system_data_by_month(for_year=for_year, for_month=for_month)
+            vat_percentage = system_data.vat_percentage
+            vat_where_no_vat_is_required = self.vat.self.vat.get_sum_of_gross_payment_where_no_vat_is_required(for_year=for_year , for_month=for_month)
+            sum_to_return += calculate_output_tax(overall_gross=vat_where_no_vat_is_required,vat_percentage=vat_percentage,is_required_to_pay_vat=True)
+        return sum_to_return
 
