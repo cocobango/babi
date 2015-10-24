@@ -13,6 +13,8 @@ class Monthly_system_data(models.Model):
     upper_employee_social_security_percentage = models.DecimalField(max_digits=16, decimal_places=8)
     upper_employer_social_security_percentage = models.DecimalField(max_digits=16, decimal_places=8)
     maximal_sum_to_pay_social_security = models.DecimalField(max_digits=11, decimal_places=2)
+    lower_health_insurance_percentage = models.DecimalField(max_digits=16, decimal_places=8)
+    upper_health_insurance_percentage = models.DecimalField(max_digits=16, decimal_places=8)
     income_tax_default = models.DecimalField(max_digits=16, decimal_places=8)
 
     def get_relevant(self , for_year , for_month):
