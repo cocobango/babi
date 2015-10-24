@@ -72,9 +72,8 @@ class cross_calculations(object):
             vat = report_data['vat_due_this_month'] ,
             input_tax_vat = input_tax_vat,
             net = report_data['monthly_net']
-        )#FIXME: input tax vat needs to be calculated not stubbed as 0
+        )
         monthly_employee_report_data.save()
-        # print('social_security_response_dict: {0}'.format(social_security_response_dict))
         social_security_response_dict.update({'monthly_employee_report_data': monthly_employee_report_data})
         monthly_employee_social_security_report_data = Monthly_employee_social_security_report_data(**social_security_response_dict)
         

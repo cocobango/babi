@@ -221,15 +221,31 @@ class YearlyReportsTestCase(TestCase):
         for i in range(0,6):
             self.assertEqual(gross_payment_plus_vat_arr[i] , yearly_income_tax_employer_report['employees_list'][i]['sum_of_vat_and_gross_payment'])
 
-    # @unittest.skip("not implemented")
+    
     def test_correctly_caclutates_yearly_employee_sum_input_tax_vat(self):
-        #arange
-        # sum_input_tax_vat_arr = [Decimal(0)*1, Decimal(0)*1, Decimal(2250)*1, Decimal(1530)*1,  Decimal(0)*1, Decimal(1710)*1]
-        sum_input_tax_vat_arr = [0, 0, 0, 0, 0, 0]
+        #arrange
+        
         #act
         yearly_income_tax_employer_report = self.reports_maker.yearly_income_tax_employer_report(for_year=2015)
 
         #assert
         for i in range(0,6):
-            self.assertEqual(sum_input_tax_vat_arr[i] , yearly_income_tax_employer_report['employees_list'][i]['sum_input_tax_vat'])
+            self.assertEqual(0 , yearly_income_tax_employer_report['employees_list'][i]['sum_input_tax_vat'])
+
+    def test_correctly_caclutates_yearly_employee_sum_input_tax_vat_for_npo(self):
+        #arrange
+        sum_input_tax_vat_arr = [Decimal(0)*1, Decimal(0)*1, Decimal(2250)*1, Decimal(1530)*1,  Decimal(0)*1, Decimal(1710)*1]
+        #act
+        yearly_income_tax_employer_report = self.reports_maker.yearly_income_tax_employer_report(for_year=2015)
+
+        #assert
+        for i in range(0,6):
+            self.assertEqual(0 , yearly_income_tax_employer_report['employees_list'][i]['sum_input_tax_vat'])
+
+
+
+
+
+
+
     
