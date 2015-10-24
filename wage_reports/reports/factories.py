@@ -85,6 +85,8 @@ class MonthlySystemDataFactory(factory.django.DjangoModelFactory):
     upper_employee_social_security_percentage = Decimal(0.12)
     upper_employer_social_security_percentage = Decimal(0.14)
     maximal_sum_to_pay_social_security = 100000
+    lower_health_insurance_percentage = Decimal(0.031)
+    upper_health_insurance_percentage = Decimal(0.05)
     income_tax_default = Decimal(0.3)
 
 

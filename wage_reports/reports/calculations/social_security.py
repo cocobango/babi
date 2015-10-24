@@ -61,13 +61,13 @@ class social_security_calculations(object):
     def calculate_social_security(self, entry):
         if entry is None:
             raise
-        all_data = self.internal_calculate_social_security_employee(entry)
-        all_data.update(self.internal_calculate_social_security_employer(entry))
+        all_data = self.internal_calculate_social_security_employer(entry)
+        all_data.update(self.internal_calculate_social_security_employee(entry))
         return all_data
         
     def internal_calculate_social_security_employee(self, entry):
         system_data = self.getter.get_system_data_by_month(for_year=entry.for_year , for_month=entry.for_month)
-        return calculate_social_security_employee(overall_gross=entry.gross_payment,social_security_threshold=system_data.social_security_threshold,lower_employee_social_security_percentage=system_data.lower_employee_social_security_percentage,upper_employee_social_security_percentage=system_data.upper_employee_social_security_percentage,is_required_to_pay_social_security=entry.is_required_to_pay_social_security, is_employer_the_main_employer=entry.is_employer_the_main_employer, gross_payment_from_others=entry.gross_payment_from_others)
+        return calculate_social_security_employee(overall_gross=entry.gross_payment,social_security_threshold=system_data.social_security_threshold,lower_employee_social_security_percentage=system_data.lower_employee_social_security_percentage,upper_employee_social_security_percentage=system_data.upper_employee_social_security_percentage,is_required_to_pay_social_security=entry.is_required_to_pay_social_security, is_employer_the_main_employer=entry.is_employer_the_main_employer, gross_payment_from_others=entry.gross_payment_from_others, lower_health_insurance_percentage=system_data.lower_health_insurance_percentage, upper_health_insurance_percentage=system_data.upper_health_insurance_percentage)
 
     def internal_calculate_social_security_employer(self, entry):
         system_data = self.getter.get_system_data_by_month(for_year=entry.for_year , for_month=entry.for_month)

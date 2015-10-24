@@ -17,16 +17,25 @@ class HelpersTestCase(TestCase):
     def test_social_security_employee_with_upper_percentage(self):
         #arrange
         #act
-        response = helpers.calculate_social_security_employee(overall_gross=7000,social_security_threshold=5500,lower_employee_social_security_percentage=0.033,upper_employee_social_security_percentage=0.12,is_required_to_pay_social_security=True, is_employer_the_main_employer=False, gross_payment_from_others=2000)
+        response = helpers.calculate_social_security_employee(overall_gross=7000,social_security_threshold=5500,lower_employee_social_security_percentage=0.033,upper_employee_social_security_percentage=0.12,is_required_to_pay_social_security=True, is_employer_the_main_employer=False, gross_payment_from_others=2000,lower_health_insurance_percentage=0.031, upper_health_insurance_percentage = 0.05)
         #assert
         self.assertEqual(535.5 , response['total_employee'])
 
     def test_social_security_employee_without_upper_percentage(self):
         #arrange
         #act
-        response = helpers.calculate_social_security_employee(overall_gross=7000,social_security_threshold=5500,lower_employee_social_security_percentage=0.033,upper_employee_social_security_percentage=0.12,is_required_to_pay_social_security=True, is_employer_the_main_employer=True, gross_payment_from_others=2000)
+        response = helpers.calculate_social_security_employee(overall_gross=7000,social_security_threshold=5500,lower_employee_social_security_percentage=0.033,upper_employee_social_security_percentage=0.12,is_required_to_pay_social_security=True, is_employer_the_main_employer=True, gross_payment_from_others=2000,
+            lower_health_insurance_percentage=0.031, upper_health_insurance_percentage = 0.05)
         #assert
         self.assertEqual(361.5 , response['total_employee'])
+
+    def test_social_security_employee_health_insurance(self):
+        #arrange
+        #act
+        response = helpers.calculate_social_security_employee(overall_gross=7000,social_security_threshold=5500,lower_employee_social_security_percentage=0.033,upper_employee_social_security_percentage=0.12,is_required_to_pay_social_security=True, is_employer_the_main_employer=True, gross_payment_from_others=2000,
+            lower_health_insurance_percentage=0.031, upper_health_insurance_percentage = 0.05)
+        #assert
+        self.assertEqual(245.500 , response['health_insurance'])
 
 
     #@todo third and second assertions are wrong.
@@ -64,7 +73,7 @@ class HelpersTestCase(TestCase):
         #arrange
         overall_gross = 7000
         output_tax = helpers.calculate_output_tax(overall_gross=overall_gross,vat_percentage=0.18,is_required_to_pay_vat=True)
-        social_security_employee = helpers.calculate_social_security_employee(overall_gross=overall_gross,social_security_threshold=5500,lower_employee_social_security_percentage=0.035,upper_employee_social_security_percentage=0.12,is_required_to_pay_social_security=True, is_employer_the_main_employer=False, gross_payment_from_others=2000)
+        social_security_employee = helpers.calculate_social_security_employee(overall_gross=overall_gross,social_security_threshold=5500,lower_employee_social_security_percentage=0.035,upper_employee_social_security_percentage=0.12,is_required_to_pay_social_security=True, is_employer_the_main_employer=False, gross_payment_from_others=2000,lower_health_insurance_percentage=0.031, upper_health_insurance_percentage = 0.05)
         income_tax = helpers.calculate_income_tax(overall_gross=overall_gross,income_tax_threshold=15000,lower_tax_threshold=0.05,upper_tax_threshold=0.2,is_required_to_pay_income_tax=True,exact_income_tax_percentage=0,accumulated_gross_including_this_month=9000,accumulated_income_tax_not_including_this_month=200,vat_due_this_month=output_tax)
         #act
         test_set=[

@@ -31,7 +31,7 @@ def get_year_in_question_for_employer_locking():
 def calculate_social_security_employer(overall_gross,social_security_threshold,lower_employer_social_security_percentage,upper_employer_social_security_percentage,is_required_to_pay_social_security):
     return calculate_social_security_generic(overall_gross,social_security_threshold,lower_employer_social_security_percentage,upper_employer_social_security_percentage,is_required_to_pay_social_security, '_employer')
 
-def calculate_social_security_employee(overall_gross,social_security_threshold,lower_employee_social_security_percentage,upper_employee_social_security_percentage,is_required_to_pay_social_security , is_employer_the_main_employer, gross_payment_from_others): 
+def calculate_social_security_employee(overall_gross,social_security_threshold,lower_employee_social_security_percentage,upper_employee_social_security_percentage,is_required_to_pay_social_security , is_employer_the_main_employer, gross_payment_from_others, lower_health_insurance_percentage, upper_health_insurance_percentage): 
     if is_employer_the_main_employer:
         updated_threshold = social_security_threshold
     else:
@@ -42,7 +42,9 @@ def calculate_social_security_employee(overall_gross,social_security_threshold,l
             if updated_threshold < 0:
                 updated_threshold = 0
 
-    return calculate_social_security_generic(overall_gross,updated_threshold,lower_employee_social_security_percentage,upper_employee_social_security_percentage,is_required_to_pay_social_security , '_employee')
+    generic_calculation = calculate_social_security_generic(overall_gross,updated_threshold,lower_employee_social_security_percentage,upper_employee_social_security_percentage,is_required_to_pay_social_security , '_employee')
+    generic_calculation['health_insurance'] = calculate_social_security_generic(overall_gross,updated_threshold, lower_health_insurance_percentage,upper_health_insurance_percentage, is_required_to_pay_social_security , '_employee')['total_employee']
+    return generic_calculation
 
 def calculate_social_security_generic(overall_gross,social_security_threshold,lower_social_security_percentage,upper_social_security_percentage,is_required_to_pay_social_security , extension):
     if not is_required_to_pay_social_security:
