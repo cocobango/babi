@@ -16,8 +16,8 @@ def get_single_entry_for_a_given_employee_and_month(employee , for_year , for_mo
             single_entry = Monthly_employee_data.objects.filter(employee=employee).latest('created')
             single_entry.has_data = True
             single_entry.is_approved = False
-            single_entry.for_year = year_in_question
-            single_entry.for_month = month_in_question
+            single_entry.for_year = for_year
+            single_entry.for_month = for_month
             return single_entry
         except Monthly_employee_data.DoesNotExist:
             empty_entry = Monthly_employee_data(employee=employee)

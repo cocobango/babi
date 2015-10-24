@@ -25,8 +25,9 @@ class income_tax_calculations(object):
         sum_gross = 0
         vat_percentage = self.getter.get_system_data_by_month(for_year=for_year , for_month=for_month).vat_percentage
         for entry in employees_that_got_paid_this_month:
-            if entry.is_required_to_pay_vat:
-                sum_vat += entry.Monthly_employee_data['gross_payment'] * vat_percentage
+            monthly_employee_report_data = self.getter.get_employee_report_data_by_month(employee=entry.employee, for_year=for_year, for_month=for_month)
+            
+            sum_vat += monthly_employee_report_data.vat 
             sum_gross += entry.Monthly_employee_data['gross_payment']
         return sum_vat + sum_gross
 
@@ -34,10 +35,9 @@ class income_tax_calculations(object):
         unparsed_employees_that_got_paid_this_month = self.internal_get_all_of_employees_that_got_paid_this_month(for_year=for_year, for_month=for_month)
         employees_that_got_paid_this_month = self.internal_join_all_of_employees_that_got_paid_this_month(unparsed_employees_that_got_paid_this_month)
         sum_to_return = 0
-        # return employees_that_got_paid_this_month[1].employee.id
-        # return self.internal_calculate_income_tax(entry=employees_that_got_paid_this_month[1])
         for entry in employees_that_got_paid_this_month:
-            sum_to_return += self.internal_calculate_income_tax(employee=entry.employee , for_year=for_year , for_month=for_month)
+            monthly_employee_report_data = self.getter.get_employee_report_data_by_month(employee=entry.employee, for_year=for_year, for_month=for_month)
+            sum_to_return += monthly_employee_report_data.income_tax
         return sum_to_return
    
     def internal_get_entries_for_month(self , for_year, for_month , is_required_to_pay_income_tax=True):

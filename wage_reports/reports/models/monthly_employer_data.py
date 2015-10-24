@@ -14,7 +14,7 @@ class Monthly_employer_data(models.Model):
     is_approved = models.BooleanField(default=False)
     for_month = models.IntegerField(default=0) 
     for_year = models.IntegerField(default=0) 
-    is_required_to_pay_vat = models.BooleanField(default=True)
+    is_required_to_pay_vat = models.BooleanField(default=True) #is osek murshe
     is_required_to_pay_income_tax = models.BooleanField(default=True)
     lower_tax_threshold = models.DecimalField(max_digits=11, decimal_places=2)
     upper_tax_threshold = models.DecimalField(max_digits=11, decimal_places=2)
@@ -38,4 +38,12 @@ class Monthly_employer_data(models.Model):
         is_month_locked = Locked_months.objects.filter(for_month=self.for_month , for_year=self.for_year, employer=self.employee.employer)
         if is_month_locked:
             return False
-        return True
+        month_for_employer = get_month_in_question_for_employer_locking()
+        year_for_employer = get_year_in_question_for_employer_locking()
+        month_for_employee = get_month_in_question_for_employee_locking()
+        year_for_employee = get_year_in_question_for_employee_locking()        
+        if (int(self.for_month) == month_for_employer and int(self.for_year) == year_for_employer):            
+            return True
+        if (int(self.for_month) == month_for_employee and int(self.for_year) == year_for_employee):
+            return True
+        return False

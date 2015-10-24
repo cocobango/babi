@@ -8,4 +8,3 @@ class Locked_months(models.Model):
     for_month = models.IntegerField(default=0) 
     for_year = models.IntegerField(default=0) 
     lock_time = models.DateTimeField(auto_now_add=True , blank=True)
-    first_day_in_month = models.DateTimeField(blank=True)

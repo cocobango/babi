@@ -60,9 +60,9 @@
 		<td>
 			<a href="{% url 'reports:edit_specific_entry_by_employer' entry.employee.user.id %}" class="btn btn-defualt" >Edit entry</a>
 			{% if entry.is_approved %}
-	   			<button class="btn btn-danger" onclick="toggle_employee_monthly_entry_approval('{% url 'reports:withdraw_approval_of_single_entry' %}' ,{{ entry.id }} , {{entry.employee.user.id }} , {{year_in_question}} , {{month_in_question}} , '{{ csrf_token }}')">Cancel approval of this input</button>
+	   			<button class="btn btn-danger" onclick="toggle_employee_monthly_entry_approval('{% url 'reports:withdraw_approval_of_single_entry' %}' ,{{ entry.id }} , {{entry.employee.user.id }} , {{for_year}} , {{for_month}} , '{{ csrf_token }}')">Cancel approval of this input</button>
 			{% elif entry.has_data %}			
-	   			<button class="btn btn-success" onclick="toggle_employee_monthly_entry_approval('{% url 'reports:set_as_valid' %}' ,{{ entry.id }} , {{entry.employee.user.id }} , {{year_in_question}} , {{month_in_question}} , '{{ csrf_token }}')">Approve input</button>
+	   			<button class="btn btn-success" onclick="toggle_employee_monthly_entry_approval('{% url 'reports:set_as_valid' %}' ,{{ entry.id }} , {{entry.employee.user.id }} , {{for_year}} , {{for_month}} , '{{ csrf_token }}')">Approve input</button>
 			{% endif %}
 			
 			

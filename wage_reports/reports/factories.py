@@ -26,7 +26,7 @@ class EmployerFactory(factory.django.DjangoModelFactory):
         model = models.Employer
     user = factory.SubFactory(UserFactory)
     is_required_to_pay_vat = True
-    is_an_npo = False
+    is_npo = False
     business_id = random.randint(1000000,10000000)
     income_tax_id = random.randint(1000000,10000000)
     phone_number = random.randint(10000000,100000000)
@@ -140,9 +140,19 @@ class MyGenerators(object):
         employee_3 = EmployeeFactory(employer=employer)
         employee_4 = EmployeeFactory(employer=employer)
         employee_5 = EmployeeFactory(employer=employer)
-
         # user that does not have data in january
         employee_6 = EmployeeFactory(employer=employer)
+
+        npo_employer = EmployerFactory(is_npo=True)
+        employee_11 = EmployeeFactory(employer=npo_employer)
+        employee_12 = EmployeeFactory(employer=npo_employer)
+        employee_13 = EmployeeFactory(employer=npo_employer)
+        employee_14 = EmployeeFactory(employer=npo_employer)
+        employee_15 = EmployeeFactory(employer=npo_employer)
+        # user that does not have data in january
+        employee_16 = EmployeeFactory(employer=npo_employer)
+
+
         self.generate_monthly_system_data()
 
         #january

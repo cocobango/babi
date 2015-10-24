@@ -48,7 +48,7 @@ class ReportsMaker(object):
 			'book_keeping_where_vat_is_required': {
 				'list_of_names_and_income_tax_where_vat_is_required': self.cross.get_list_of_names_and_income_tax_where_vat_is_required(for_year=for_year , for_month=for_month),
 				'sum_of_income_tax_where_vat_is_required': self.cross.get_sum_of_income_tax_where_vat_is_required(for_year=for_year , for_month=for_month),
-				'list_of_names_and_social_security_employee_where_vat_is_required': self.cross.get_list_of_names_and_social_security_employee_where_vat_is_required(for_year=for_year , for_month=for_month),
+				'list_of_names_and_social_security_employer_where_vat_is_required': self.cross.get_list_of_names_and_social_security_employer_where_vat_is_required(for_year=for_year , for_month=for_month),
 				'sum_of_social_security_employer_where_vat_is_required': self.cross.get_sum_of_social_security_employer_where_vat_is_required(for_year=for_year , for_month=for_month),
 				'sum_of_social_security_where_vat_is_required': self.cross.get_sum_of_social_security_where_vat_is_required(for_year=for_year , for_month=for_month),
 			}
