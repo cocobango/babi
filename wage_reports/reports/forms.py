@@ -1,5 +1,5 @@
 from django import forms
-from django.forms import ModelForm, Textarea , EmailField , CharField
+from django.forms import ModelForm, Textarea , EmailField , CharField, IntegerField, DateField
 from reports.models import Monthly_employee_data , Employee , Monthly_employer_data 
 from django.utils.translation import ugettext_lazy as _
 
@@ -12,10 +12,9 @@ class Html5DateInput(forms.DateInput):
 
 
 class EmployeeForm(ModelForm):
+    government_id = IntegerField(label=_("תעודת זהות"), required=True)
+    birthday = DateField(label=_("תאריך לידה"), required=True, widget=Html5DateInput())
     class Meta:
-        widgets = {
-            'birthday': Html5DateInput()
-        }
         model = Employee
         fields = ['birthday' , 'government_id']
         labels = {
@@ -53,9 +52,12 @@ class EmployerMonthlyEntryForm(ModelForm):
 
 
 class UserCreateForm(UserCreationForm):
-    email = EmailField(label=_("Email address"), required=True)
-    first_name = CharField(label=_("first_name"), required=True,)
-    last_name = CharField(label=_("last_name"), required=True)
+    email = EmailField(label=_("כתובת אימייל"), required=True)
+    first_name = CharField(label=_("שם פרטי"), required=True,)
+    last_name = CharField(label=_("שם משפחה"), required=True,)
+    username = CharField(label=_("שם משתמש"), required=True)
+    password1 = CharField(label=_("סיסמא"), required=True, widget=forms.PasswordInput())
+    password2 = CharField(label=_("ודא סיסמא"), required=True, widget=forms.PasswordInput())
  
     class Meta:
         model = User

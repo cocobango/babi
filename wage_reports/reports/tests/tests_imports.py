@@ -12,14 +12,11 @@ from .. import factories , helpers , reports_maker
 from ..calculations import *
 
 def populate_db_with_the_results_of_calculations_for_all_months():
-    first_employer = Employer.objects.first()
-    cross = cross_calculations(user_id=first_employer.user.id)
-    getter = data_getter()
-    for employee in first_employer.employee_set.all():
+        first_employer = Employer.objects.first()
+        reportsMaker = reports_maker.ReportsMaker(employer=first_employer)
         for for_month in range(1 , 4):
-            entry = getter.get_employee_data_by_month(employee=employee,for_year=2015,for_month=for_month)
-            if entry is not None:
-                cross.monthly_employee_report_to_db(employee=employee,for_year=2015,for_month=for_month)
+            reportsMaker.populate_db_with_calclated_data(for_year=2015, for_month=for_month)
+
 def clear_reports_data():
     Monthly_employee_report_data.objects.all().delete()
     Monthly_employee_social_security_report_data.objects.all().delete()

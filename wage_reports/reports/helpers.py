@@ -96,3 +96,6 @@ def calculate_gross_when_cost_or_or_gross_is_set_to_cost(cost , lower_employer_s
     a = Decimal(cost) - ( Decimal(social_security_threshold) * ( 1 + Decimal(lower_employer_social_security_percentage) ) )
     b = Decimal(upper_employer_social_security_percentage) + 1
     return ( Decimal(a / b) ) + Decimal(social_security_threshold)
+
+def can_edit_past_months(user):
+    return user.groups.filter(name='can_edit_past_months').exists()

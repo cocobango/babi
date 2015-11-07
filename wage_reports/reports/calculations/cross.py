@@ -62,7 +62,6 @@ class cross_calculations(object):
             'vat_due_this_month': vat,
         }
         report_data['monthly_net'] = calculate_monthly_net(overall_gross=gross_payment , output_tax=report_data['vat_due_this_month'] , social_security_employee=report_data['social_security_employee_due_this_month'] , income_tax=report_data['income_tax_due_this_month'])
-
         monthly_employee_report_data = Monthly_employee_report_data(
             employee = employee ,
             entered_by = 'automatic',
@@ -73,10 +72,19 @@ class cross_calculations(object):
             input_tax_vat = input_tax_vat,
             net = report_data['monthly_net']
         )
+        existing_monthly_employee_report_data = self.getter.get_employee_report_data_by_month(employee = employee ,
+            for_year = for_year ,
+            for_month = for_month)
+        if existing_monthly_employee_report_data is not None:
+            monthly_employee_report_data.id = existing_monthly_employee_report_data.id
         monthly_employee_report_data.save()
         social_security_response_dict.update({'monthly_employee_report_data': monthly_employee_report_data})
         monthly_employee_social_security_report_data = Monthly_employee_social_security_report_data(**social_security_response_dict)
-        
+        existing_monthly_employee_social_security_report_data = self.getter.get_employee_social_security_report_data_by_month(employee = employee ,
+            for_year = for_year ,
+            for_month = for_month)
+        if existing_monthly_employee_social_security_report_data is not None:
+            monthly_employee_social_security_report_data.id = existing_monthly_employee_social_security_report_data.id
         monthly_employee_social_security_report_data.save()
         return report_data
 
