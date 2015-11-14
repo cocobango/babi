@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container">
+    <div class="col-sm-10 col-sm-offset-1">
+        {% if form.errors %}
+        <p>שם המשתמש והסיסמא שסיפקת לא היו נכונים. יש לנסות שוב</p>
+        {% endif %}
+
+        {% if next %}
+            {% if user.is_authenticated %}
+            <p>לחשבון שלך אין גישה לעמוד הנוכחי. על מנת להמשיך, התחבר עם חשבון שיש לו גישה</p>
+            {% else %}
+            <p>אנא התחבר למערכת כדי להמשיך</p>
+            {% endif %}
+        {% endif %}
+
+        <form method="post" action="{% url 'django.contrib.auth.views.login' %}">
+        {% csrf_token %}
+        <table>
+        <tr>
+            <td>שם משתמש</td>
+            <td>{{ form.username }}</td>
+        </tr>
+        <tr>
+            <td>סיסמא</td>
+            <td>{{ form.password }}</td>
+        </tr>
+        </table>
+
+        <input type="submit" value="התחבר" />
+        <input type="hidden" name="next" value="{{ next }}" />
+        </form>
+
+        {# Assumes you setup the password_reset view in your URLconf #}
+        <p><a href="{% url 'password_reset' %}">שכחת סיסמא?</a></p>
+    </div>
+</div>
+{% endblock %}

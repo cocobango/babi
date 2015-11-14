@@ -1,6 +1,7 @@
 from datetime import datetime
 
 
+from django.contrib.auth.views import login
 from django.contrib.auth import logout as logout_function
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import redirect_to_login
@@ -23,16 +24,24 @@ from ..view_helpers import *
 
 from ..reports_maker import ReportsMaker
 
+def landing_page(request):
+    return render(request, 'reports/general/display_message.html' , { 'headline' : "עמוד הבית של יובל קפלן רואה חשבון" , 'body' : 'index page' })
+
 @login_required
 def store_data(request, employer_id, for_year, for_month):
     employer = get_object_or_404(Employer , id=employer_id)
     reportsMaker = ReportsMaker(employer)
     reportsMaker.populate_db_with_calclated_data(for_year=for_year, for_month=for_month)
     return render(request, 'reports/general/display_message.html' , { 'headline' : "test response:" , 'body' : 'data stored for year-{for_year}, month-{for_month}, employer-{employer}'.format(for_year=for_year, for_month=for_month, employer=employer) })
+ 
+def custom_login(request):
+    if request.user.is_authenticated():
+        return HttpResponseRedirect(reverse('reports:index'))
+    return login(request)
 
 @user_is_an_employer
 def my_test(request):
-    return render(request, 'reports/general/display_message.html' , { 'headline' : "test response:" , 'body' : get_month_in_question_for_employee_locking() })
+    return render(request, 'test.html' , { 'headline' : "test response:" , 'body' : get_month_in_question_for_employee_locking() })
 
 @login_required
 def index(request):

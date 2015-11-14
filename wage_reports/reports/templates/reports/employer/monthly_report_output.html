@@ -3,13 +3,13 @@
 <h1>דוח חודשי למשלם שכר מרצים</h1>
 
 שם המשלם: {{employer}} <br><br>
-מספר תיק ניכויים המשלם: {{employer.income_tax_id}} <br><br>
+מספר תיק ניכויים: {{employer.income_tax_id}} <br><br>
 עבור שנה: {{for_year}} <br><br>
 עבור חודש: {{for_month}} <br><br>
 
 <br><br><br>
 
-ביטוח לאומי: <br><br>
+<b>דוח חודשי לביטוח לאומי: </b><br><br>
 מספר העובדים החייבים ביטוח לאומי: {{report.social_security.count_of_employees_that_are_required_to_pay_social_security}} <br><br>
 סכום בורוט של העובדים הנ"ל: {{report.social_security.sum_of_gross_payment_of_employees_that_are_required_to_pay_social_security}} <br><br>
 סכום ברוטו בשיעור מופחת עובד: {{report.social_security.sum_of_gross_payment_to_be_paid_at_lower_employee_rate_social_security}} <br><br>
@@ -68,6 +68,5 @@ report_data = {
 ביטוח לאומי: {{report.social_security_employee_due_this_month}}<br><br>
 מס ערך מוסף: {{report.vat_due_this_month}}<br><br>
 נטו למרצה: {{report.monthly_net}}<br><br>
-
 
 {% endblock content %}
