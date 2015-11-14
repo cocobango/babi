@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>דוח חודשי למשלם שכר מרצים</h1>
+
+שם המשלם: {{employer}} <br><br>
+מספר תיק ניכויים: {{employer.income_tax_id}} <br><br>
+עבור שנה: {{for_year}} <br><br>
+עבור חודש: {{for_month}} <br><br>
+
+<br><br><br>
+
+<b>דוח חודשי לביטוח לאומי: </b><br><br>
+מספר העובדים החייבים ביטוח לאומי: {{report.social_security.count_of_employees_that_are_required_to_pay_social_security}} <br><br>
+סכום בורוט של העובדים הנ"ל: {{report.social_security.sum_of_gross_payment_of_employees_that_are_required_to_pay_social_security}} <br><br>
+סכום ברוטו בשיעור מופחת עובד: {{report.social_security.sum_of_gross_payment_to_be_paid_at_lower_employee_rate_social_security}} <br><br>
+סכום ברוטו בשיעור מופחת מעביד: {{report.social_security.sum_of_gross_payment_to_be_paid_at_lower_employer_rate_social_security}} <br><br>
+סה"כ דמי ביטוח )עובד + מעביד(:{{report.social_security.total_of_social_security_due}} <br><br>
+מספר העובדים ששכרם נמוך מהשכר המופחת: {{report.social_security.count_of_employees_that_do_not_exceed_the_social_security_threshold}} <br><br>
+
+
+
+{{report.social_security.count_of_employees_that_are_required_to_pay_social_security}}
+
+report_data = {
+            'social_security': {
+                'count_of_employees_that_do_not_exceed_the_social_security_threshold': self.social_security.get_count_of_employees_that_do_not_exceed_the_social_security_threshold_by_employer(for_year, for_month)
+            } , 
+            'vat': {
+                'sum_of_gross_payment_where_no_vat_is_required': self.vat.get_sum_of_gross_payment_where_no_vat_is_required(for_year=for_year , for_month=for_month),
+                'count_of_employees_where_no_vat_is_required': self.vat.get_count_of_employees_where_no_vat_is_required(for_year=for_year , for_month=for_month),
+                'sum_of_vat_due_where_no_vat_is_required': self.vat.get_sum_of_vat_due_where_no_vat_is_required(for_year=for_year , for_month=for_month)
+            } , 
+            'income_tax': {
+                'count_of_employees_that_got_paid_this_month': self.income_tax.get_count_of_employees_that_got_paid_this_month(for_year=for_year , for_month=for_month),
+                'sum_of_gross_payment_and_vat_for_employees_that_got_paid_this_month': self.income_tax.get_sum_of_gross_payment_and_vat_for_employees_that_got_paid_this_month(for_year=for_year , for_month=for_month),
+                'sum_of_income_tax':self.income_tax.get_sum_of_income_tax(for_year=for_year , for_month=for_month)
+            } ,
+            'book_keeping_where_no_vat_is_required': {
+                'sum_of_gross_payment_where_no_vat_is_required': self.vat.get_sum_of_gross_payment_where_no_vat_is_required(for_year=for_year , for_month=for_month),
+                'sum_of_employer_social_security_where_no_vat_is_required': self.cross.get_sum_of_employer_social_security_where_no_vat_is_required(for_year=for_year , for_month=for_month),
+                'sum_of_net_payment_where_no_vat_is_required': self.cross.get_sum_of_net_payment_where_no_vat_is_required(for_year=for_year , for_month=for_month),
+                'sum_of_income_tax_where_no_vat_is_required': self.cross.get_sum_of_income_tax_where_no_vat_is_required(for_year=for_year , for_month=for_month),
+                'sum_of_social_security_where_no_vat_is_required': self.cross.get_sum_of_social_security_where_no_vat_is_required(for_year=for_year , for_month=for_month),
+                'list_of_names_and_monthly_net_where_no_vat_is_required': self.cross.get_list_of_names_and_monthly_net_where_no_vat_is_required(for_year=for_year , for_month=for_month),
+            } ,
+            'book_keeping_where_vat_is_required': {
+                'list_of_names_and_income_tax_where_vat_is_required': self.cross.get_list_of_names_and_income_tax_where_vat_is_required(for_year=for_year , for_month=for_month),
+                'sum_of_income_tax_where_vat_is_required': self.cross.get_sum_of_income_tax_where_vat_is_required(for_year=for_year , for_month=for_month),
+                'list_of_names_and_social_security_employer_where_vat_is_required': self.cross.get_list_of_names_and_social_security_employer_where_vat_is_required(for_year=for_year , for_month=for_month),
+                'sum_of_social_security_employer_where_vat_is_required': self.cross.get_sum_of_social_security_employer_where_vat_is_required(for_year=for_year , for_month=for_month),
+                'sum_of_social_security_where_vat_is_required': self.cross.get_sum_of_social_security_where_vat_is_required(for_year=for_year , for_month=for_month),
+            }
+            
+        }
+
+
+
+
+
+
+
+
+
+<br><br>
+תשלומים עבור הרצאות: {{report.salary}}<br><br>
+החזרי הוצאות: {{report.general_expenses}}<br><br>
+מס הכנסה: {{report.income_tax_due_this_month}}<br><br>
+ביטוח לאומי: {{report.social_security_employee_due_this_month}}<br><br>
+מס ערך מוסף: {{report.vat_due_this_month}}<br><br>
+נטו למרצה: {{report.monthly_net}}<br><br>
+
+{% endblock content %}

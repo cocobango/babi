@@ -134,3 +134,18 @@ class SetupTestCase(TestCase):
 
         #assert
         self.assertIsInstance(monthly_system_data.id , int)
+
+    def test_able_to_populate_db_with_calculated_data(self):
+        #arrange
+        factories.MyGenerators().generateInitialControlledState()
+        first_employer = Employer.objects.first()
+        reportsMaker = reports_maker.ReportsMaker(employer=first_employer)
+
+        #act
+        reportsMaker.populate_db_with_calclated_data(for_year=2015, for_month=1)
+
+        #assert
+        print(Monthly_employee_report_data.objects.first())
+        self.assertIsNotNone(Monthly_employee_report_data.objects.first())
+        
+

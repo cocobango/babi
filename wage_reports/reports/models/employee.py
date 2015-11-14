@@ -8,4 +8,4 @@ class Employee(models.Model):
     birthday = models.DateField()
     government_id = models.IntegerField()
     def __str__(self):
-        return self.user.username
+        return '{0} {1}'.format(self.user.first_name, self.user.last_name)

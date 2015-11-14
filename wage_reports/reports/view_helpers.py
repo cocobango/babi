@@ -26,34 +26,38 @@ def get_single_entry_for_a_given_employee_and_month(employee , for_year , for_mo
 
 def edit_specific_entry_post(request , employee , entered_by):
     form_entry = EmployeeMonthlyEntryForm(request.POST)
-    if form_entry.is_valid():
-        partial_monthly_entree = form_entry.save(commit=False)
-        partial_monthly_entree.employee = employee
-        partial_monthly_entree.entered_by = entered_by
-        #FIXME: Generate better error messages
-        if partial_monthly_entree.save():
-            return {
-                'is_okay' : True
-            }
-        else:
-            return {
-                'is_okay' : True,
-                'message' : 'Your input was not registerred. Make sure you have the permissions to enter this data at this time.'
-            }
-
-    else:
+    if not form_entry.is_valid():
+        return {
+            'is_okay' : False,
+            'message' : 'entry was not added, data was not valid',
+            'form' : form_entry
+        }
+    partial_monthly_entree = form_entry.save(commit=False)
+    partial_monthly_entree.employee = employee
+    partial_monthly_entree.entered_by = entered_by
+    #FIXME: Generate better error messages
+    if partial_monthly_entree.save():
         return {
             'is_okay' : True,
-            'message' : 'entry was not added, data was not valid'
+            'message': 'Data received'
         }
+    return {
+        'is_okay' : False,
+        'message' : 'Your input was not registerred. Make sure you have the permissions to enter this data at this time.',
+        'form': form_entry
+    }
+
+        
         
 
     
 
-def edit_specific_entry_get(request , employee , error_message , action):
-    try:
-        single_entry = Monthly_employee_data.objects.filter(employee=employee).latest('created')
-        form = EmployeeMonthlyEntryForm(instance=single_entry)
-    except Monthly_employee_data.DoesNotExist:
-        form = EmployeeMonthlyEntryForm()
+def edit_specific_entry_get(request , employee , error_message , action, form=None):
+    if form is None:
+        try:
+            single_entry = Monthly_employee_data.objects.filter(employee=employee).latest('created')
+            form = EmployeeMonthlyEntryForm(instance=single_entry)
+        except Monthly_employee_data.DoesNotExist:
+            form = EmployeeMonthlyEntryForm()
+
     return render(request, 'reports/employee/monthly_entry.html' , { 'form' : form , 'employee_user_id' : employee.user.id , 'error_message': error_message , 'action':action})

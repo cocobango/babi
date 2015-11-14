@@ -11,7 +11,8 @@ from . import views
 
 
 urlpatterns = [
-    url(r'^$', views.index, name='index'),
+    url(r'^$', views.general_views.index, name='index'),
+    url(r'^store_data/(?P<employer_id>[0-9])/(?P<for_year>[0-9]{4})/(?P<for_month>[0-9]{1,2})$', views.general_views.store_data, name='store_data'),
     url(r'^user_management$', views.user_management, name='user_management'),
     url(r'^user_management/add_employee$', views.add_employee, name='add_employee'),
     url(r'^user_management/view_all_employees$', views.view_all_employees, name='view_all_employees'),
@@ -20,6 +21,8 @@ urlpatterns = [
     url(r'^view_history/view_all_months$', views.view_all_months, name='view_all_months'),
     url(r'^view_history/view_a_single_month/(?P<year>[0-9]{4})/(?P<month>[0-9]{1,2})$', views.view_a_single_month, name='view_a_single_month'),
     url(r'^view_history/view_report_of_type/(?P<report_type>[a-z]+)/(?P<year>[0-9]{4})/(?P<month>[0-9]{1,2})$', views.view_report_of_type, name='view_report_of_type'),
+    url(r'^view_history/view_monthly_employee_report/(?P<employee_id>[0-9]+)/(?P<for_year>[0-9]{4})/(?P<for_month>[0-9]{1,2})$', views.view_monthly_employee_report, name='view_monthly_employee_report'),
+    url(r'^view_history/view_monthly_employer_report/(?P<employer_id>[0-9]+)/(?P<for_year>[0-9]{4})/(?P<for_month>[0-9]{1,2})$', views.view_monthly_employer_report, name='view_monthly_employer_report'),
     url(r'^current_month/show_entries/(?P<for_year>[0-9]{4})/(?P<for_month>[0-9]{1,2})$', views.show_entries, name='show_entries'),
     url(r'^current_month/pre_approve_month$', views.pre_approve_month, name='pre_approve_month'),
     url(r'^current_month/approve_this_month$', views.approve_this_month, name='approve_this_month'),

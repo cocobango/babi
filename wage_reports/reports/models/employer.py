@@ -10,7 +10,7 @@ class Employer(models.Model):
     is_required_to_pay_vat = models.BooleanField(default=True) #is osek murshe
     is_npo = models.BooleanField(default=False) #is malkar (non profit organization)
     def __str__(self):
-        return self.user.username
+        return '{0} {1}'.format(self.user.first_name, self.user.last_name)
 
     def is_employer(user):
         try:

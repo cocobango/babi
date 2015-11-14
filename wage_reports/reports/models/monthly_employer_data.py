@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from .locked_months import Locked_months
 
 from .employee import Employee
-from ..helpers import get_month_in_question_for_employer_locking , get_year_in_question_for_employer_locking , get_month_in_question_for_employee_locking , get_year_in_question_for_employee_locking , calculate_gross_when_cost_or_or_gross_is_set_to_cost
+from ..helpers import get_month_in_question_for_employer_locking , get_year_in_question_for_employer_locking , get_month_in_question_for_employee_locking , get_year_in_question_for_employee_locking , calculate_gross_when_cost_or_or_gross_is_set_to_cost, can_edit_past_months
 
 class Monthly_employer_data(models.Model):
     """The information an employer enters each month is called Monthly_employee_data"""
@@ -34,6 +34,8 @@ class Monthly_employer_data(models.Model):
 
     def is_valid_month(self):
         if self.entered_by == 'admin':
+            return True
+        if can_edit_past_months(self.employee.employer.user):
             return True
         is_month_locked = Locked_months.objects.filter(for_month=self.for_month , for_year=self.for_year, employer=self.employee.employer)
         if is_month_locked:

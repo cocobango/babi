@@ -18,13 +18,12 @@ from django.contrib import admin
 from django.contrib.auth import views as auth_views
 
 urlpatterns = [
+    url(r'^$', 'reports.views.general_views.landing_page' , name='landing_page'),
     url(r'^logout/$', 'reports.views.logout', name='main_logout'),
-    url('^', include('django.contrib.auth.urls')),
-    url(r'^$', auth_views.login , name='main_login'),
-    url(r'^accounts/profile/$', 'reports.views.index'), 
+    url(r'^', include('django.contrib.auth.urls')),
+    url(r'^custom_login/$', 'reports.views.general_views.custom_login' , name='main_login'),
     url(r'^accounts/login/$', 'reports.views.redirect_to_real_login'),
-    url(r'^my_login/', include('my_login.urls' , namespace='my_login')),
     url(r'^reports/', include('reports.urls' , namespace='reports') ),
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^my_test/', 'reports.views.my_test'),
+    url(r'^my_test/', 'reports.views.general_views.my_test'),
 ]

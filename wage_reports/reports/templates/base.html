@@ -1,17 +1,98 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <title>Wage reports babi</title>
-        {% load staticfiles %}
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> 
 
-		<link rel="stylesheet" type="text/css" href="{% static 'reports/css/style.css' %}" />
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+<html class="no-js"> <!--<![endif]-->
+    <head>
+
+        <!-- meta -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+        <title>{% block title %}יובל קפלן רואה חשבון{% endblock title %}</title>
+        {% load staticfiles %}
+        <!-- stylesheets -->
+        <link rel="stylesheet" href="{% static 'reports/template/assets/css/bootstrap.min.css' %}">
+        <link rel="stylesheet" href="{% static 'reports/template/assets/css/font-awesome.min.css' %}">
+        <link rel="stylesheet" href="{% static 'reports/template/assets/css/animate.css' %}">
+        <link rel="stylesheet" href="{% static 'reports/template/assets/css/style.css' %}">
+
+        <!-- my stylesheets -->
+        <link rel="stylesheet" type="text/css" href="{% static 'reports/css/style.css' %}" />
+
     </head>
 
     <body>
-    {% block content %}{% endblock content %}
+
+        <nav class="navbar navbar-default navbar-fixed-top">
+            <div class="container">
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header navbar-right">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="/">
+                        <img src="assets/img/logo.png" alt="משרד רואה חשבון יובל קפלן">
+                    </a>
+                </div>
+                <!-- Collect the nav links, forms, and other content for toggling -->
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav">
+                        <li class="active"><a href="#">קישורים של תוכן</span></a></li>
+                        <li><a href="#">קישורים של תוכן</a></li>
+                        <li><a href="{% url 'main_login'%}">שכר מרצים</a></li>
+                    </ul>
+                </div><!-- end of /.navbar-collapse -->
+                
+
+            </div><!-- end of /.container -->
+        </nav>
+        <div dir="rtl" class="content-wrapper">
+        	{% block content %}{% endblock content %}
+        </div>
+        
+        
+
+        <footer>
+            <div class="container">
+                <div class="row">
+                    <!-- copyright -->
+                    <div class="col-md-4 col-sm-4">
+                        copyright &copy; 2015 <a href="/" style="margin-left: 4px;">יובל קפלן רואה חשבון</a>
+                        <br>
+                    </div>
+
+                    <!-- footer-nav -->
+                    <div class="col-md-4 col-sm-4">
+                        <ul class="footer-nav">
+                            <li><a href="#">קישורים סטטיים של תוכן</a></li>
+                        </ul> <!-- /.footer-nav -->
+                    </div> 
+                </div>
+            </div>
+        </footer>
+
+        <!--  Necessary scripts  -->
+        <script type="text/javascript" src="{% static 'reports/template/assets/js/jquery-2.1.3.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'reports/template/assets/js/bootstrap.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'reports/template/assets/js/jQuery.scrollSpeed.js' %}"></script>
+
+        <!--  My scripts  -->
+        <script src="{% static 'reports/js/general.js' %}"></script>
+
+        <!-- smooth-scroll -->
+
+        <script>
+        $(function() {  
+            jQuery.scrollSpeed(100, 1000);
+        });
+        </script>
+
     </body>
-    <script src="{% static 'reports/js/general.js' %}"></script>
 </html>

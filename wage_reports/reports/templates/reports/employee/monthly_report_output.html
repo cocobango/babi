@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>דוח חודשי למרצה</h1>
+
+שם המשלם: {{employer.user}} <br><br>
+מספר תיק ניכויים המשלם: {{employer.income_tax_id}} <br><br>
+עבור שנה: {{for_year}} <br><br>
+עבור חודש: {{for_month}} <br><br>
+
+שם המרצה: {{employee}} <br><br>
+תעודת זהות: {{employee.government_id}} <br><br>
+<br><br>
+תשלומים עבור הרצאות: {{report.salary}}<br><br>
+החזרי הוצאות: {{report.general_expenses}}<br><br>
+מס הכנסה: {{report.income_tax_due_this_month}}<br><br>
+ביטוח לאומי: {{report.social_security_employee_due_this_month}}<br><br>
+מס ערך מוסף: {{report.vat_due_this_month}}<br><br>
+נטו למרצה: {{report.monthly_net}}<br><br>
+
+
+{% endblock content %}

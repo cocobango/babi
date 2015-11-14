@@ -22,6 +22,8 @@ from ..decorators import user_is_an_employer
 
 from ..view_helpers import *
 
+from ..reports_maker import ReportsMaker
+
 @login_required
 def view_history(request):
     pass
@@ -47,3 +49,23 @@ def view_report_of_type(request , report_type):
     # response = calculator.get_count_of_employees_that_are_required_to_pay_social_security_by_employer(for_year, for_month) 
     # expected_result = 1
     return render(request, 'reports/general/display_message.html' , { 'headline' : "test response:" , 'body' : str(response) + ' ' + str(expected_result) })
+
+@login_required
+def view_monthly_employee_report(request, employee_id, for_year, for_month):
+    employer = get_object_or_404(Employer , user_id=request.user.id)
+    employee = get_object_or_404(Employee , id=employee_id)
+    reportsMaker = ReportsMaker(employer)
+    report = reportsMaker.monthly_employee_report(employee=employee, for_year=for_year, for_month=for_month)
+    return render(request, 'reports/employee/monthly_report_output.html' , { 'report':report, 'employer':employer, 'employee':employee, 'for_year':for_year, 'for_month':for_month })
+
+
+@login_required
+def view_monthly_employer_report(request, employer_id, for_year, for_month):
+    employer = get_object_or_404(Employer , id=employer_id)
+    if employer.user.id !=  request.user.id and not request.user.is_superuser:
+        return None
+    reportsMaker = ReportsMaker(employer)
+    report = reportsMaker.monthly_employer_report(for_year=for_year, for_month=for_month)
+    return render(request, 'reports/employer/monthly_report_output.html' , { 'report':report, 'employer':employer, 'for_year':for_year, 'for_month':for_month })
+
+

@@ -138,7 +138,7 @@ def edit_specific_entry_by_employer(request , employee_user_id , error_message='
         if response['is_okay']:
             return HttpResponseRedirect(reverse('reports:show_entries' , kwargs={'for_year':request.POST['for_year'], 'for_month':request.POST['for_month'] } ) )
         else:
-            return HttpResponseRedirect(reverse('reports:edit_specific_entry_by_employer' , kwargs={'employee_user_id':employee_user_id} ) )
+            return edit_specific_entry_get(request=request, employee=employee , error_message=error_message , action=reverse('reports:edit_specific_entry_by_employer' , kwargs={'employee_user_id':employee_user_id} ), form=response['form'])
     else:
         return edit_specific_entry_get(request=request, employee=employee , error_message=error_message , action=reverse('reports:edit_specific_entry_by_employer' , kwargs={'employee_user_id':employee_user_id} ))
         
