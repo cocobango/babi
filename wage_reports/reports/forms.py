@@ -37,17 +37,26 @@ class EmployeeMonthlyEntryForm(ModelForm):
         model = Monthly_employee_data
         fields = ['for_year' , 'for_month' , 'salary' , 'general_expenses' , 'is_required_to_pay_social_security' , 'is_employer_the_main_employer' , 'gross_payment_from_others']
         help_texts = {
-            'for_month': _('month as a number from 1-12, For example, July is 7'),
-            'for_year': _('year as a number like YYYY, For example, 2015'),
+            'for_month': _('חודש כמספר מהטווח 1-12, לדוגמא, יולי הוא 7'),
+            'for_year': _('שנה כמספר בעל ארבע ספרות בפורמט YYYY, לדוגמא, 2015'),
         }
+    def __init__(self, *args, **kwargs):
+        super(EmployeeMonthlyEntryForm, self).__init__(*args, **kwargs)
+        self.fields['for_year'].label = "עבור שנה"
+        self.fields['for_month'].label = "עבור חודש"
+        self.fields['salary'].label = "תשלום עבור הרצאות"
+        self.fields['general_expenses'].label = "החזר הוצאות"
+        self.fields['is_required_to_pay_social_security'].label = "האם חייב בביטוח לאומי"
+        self.fields['is_employer_the_main_employer'].label = "האם המשלם הוא המעסיק עיקרי"
+        self.fields['gross_payment_from_others'].label = "ברוטו ממעסיק אחר"
 
 class EmployerMonthlyEntryForm(ModelForm):
     class Meta:
         model = Monthly_employer_data
         fields = ['for_year' , 'for_month' , 'is_required_to_pay_vat' , 'gross_or_cost' , 'is_required_to_pay_income_tax' , 'lower_tax_threshold' , 'upper_tax_threshold' , 'income_tax_threshold' , 'exact_income_tax_percentage']
         help_texts = {
-            'for_month': _('month as a number from 1-12, For example, July is 7'),
-            'for_year': _('year as a number like YYYY, For example, 2015'),
+            'for_month': _('חודש כמספר מהטווח 1-12, לדוגמא, יולי הוא 7'),
+            'for_year': _('שנה כמספר בעל ארבע ספרות בפורמט YYYY, לדוגמא, 2015'),
         }
 
 

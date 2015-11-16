@@ -8,7 +8,6 @@ from django.contrib.auth.views import redirect_to_login
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect, HttpResponse , JsonResponse
 from django.core.urlresolvers import reverse
-from django.contrib.auth import authenticate, login
 from django.core import serializers
 from django.utils import timezone
 
@@ -28,16 +27,20 @@ def landing_page(request):
     return render(request, 'reports/general/display_message.html' , { 'headline' : "עמוד הבית של יובל קפלן רואה חשבון" , 'body' : 'index page' })
 
 @login_required
-def store_data(request, employer_id, for_year, for_month):
-    employer = get_object_or_404(Employer , id=employer_id)
+def store_data(request):
+    employer = get_object_or_404(Employer , id=request.POST['employer_id'])
     reportsMaker = ReportsMaker(employer)
-    reportsMaker.populate_db_with_calclated_data(for_year=for_year, for_month=for_month)
-    return render(request, 'reports/general/display_message.html' , { 'headline' : "test response:" , 'body' : 'data stored for year-{for_year}, month-{for_month}, employer-{employer}'.format(for_year=for_year, for_month=for_month, employer=employer) })
+    reportsMaker.populate_db_with_calclated_data(for_year=request.POST['for_year'], for_month=request.POST['for_month'])
+    return render(request, 'reports/general/display_message.html' , { 'headline' : "test response:" , 'body' : 'data stored for year-{for_year}, month-{for_month}, employer-{employer}'.format(for_year=request.POST['for_year'], for_month=request.POST['for_month'], employer=employer) })
+
+@login_required
+def store_data_gui(request):
+    return render(request, 'reports/admin/store_data_gui.html' )
  
-def custom_login(request):
+def custom_login(request, *args, **kwargs):
     if request.user.is_authenticated():
         return HttpResponseRedirect(reverse('reports:index'))
-    return login(request)
+    return login(request, *args, **kwargs)
 
 @user_is_an_employer
 def my_test(request):
@@ -59,34 +62,34 @@ def index(request):
                 'display_text':'View data for past months'
             }
         ]
-    if Employer.is_employer(request.user):
-        urls_list.extend([
-            {
-                'link': reverse('reports:user_management'),
-                'display_text':'Manage users'
-            },
-            {
-                'link': reverse('reports:show_entries' , kwargs={'for_year':past_month_dict['for_year'],'for_month':past_month_dict['for_month']}),
-                'display_text':'Manage past month'
-            },
-            {
-                'link': reverse('reports:show_entries' , kwargs={'for_year':current_month_dict['for_year'],'for_month':current_month_dict['for_month']}),
-                'display_text':'Manage current month'
-            }
-        ])
-        return render(request, 'reports/employer/index.html' , {'urls_list':urls_list})
-    else:
-        return render(request, 'reports/employee/index.html' , {'urls_list':urls_list})
+    # if Employer.is_employer(request.user):
+    #     urls_list.extend([
+    #         {
+    #             'link': reverse('reports:user_management'),
+    #             'display_text':'Manage users'
+    #         },
+    #         {
+    #             'link': reverse('reports:show_entries' , kwargs={'for_year':past_month_dict['for_year'],'for_month':past_month_dict['for_month']}),
+    #             'display_text':'Manage past month'
+    #         },
+    #         {
+    #             'link': reverse('reports:show_entries' , kwargs={'for_year':current_month_dict['for_year'],'for_month':current_month_dict['for_month']}),
+    #             'display_text':'Manage current month'
+    #         }
+    #     ])
+    #     return render(request, 'reports/employer/index.html' , {'urls_list':urls_list})
+    # else:
+    return render(request, 'reports/general/index.html', {
+        'past_year':past_month_dict['for_year'],
+        'current_year':current_month_dict['for_year'],
+        'past_month':past_month_dict['for_month'], 
+        'current_month':current_month_dict['for_month'], 
+    })
 
-
-
-  
-def redirect_to_real_login(request):
-    return redirect_to_login('accounts/profile')
 
 def logout(request):
     logout_function(request)
-    return render(request, 'reports/general/display_message.html' , { 'headline' : "successfully logged out" , 'body' : "" })
+    return HttpResponseRedirect(reverse('main_login'))
     
 
 

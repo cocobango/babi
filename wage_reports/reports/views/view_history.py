@@ -10,6 +10,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth import authenticate, login
 from django.core import serializers
 from django.utils import timezone
+from django.core.exceptions import ObjectDoesNotExist
 
 from ..forms import EmployeeForm , EmployeeMonthlyEntryForm , EmployerMonthlyEntryForm , UserCreateForm 
 from ..models import Monthly_employer_data, Monthly_employee_data, Employee , Employer , Locked_months
@@ -26,7 +27,18 @@ from ..reports_maker import ReportsMaker
 
 @login_required
 def view_history(request):
-    pass
+    data = {}
+    try:
+        employee = Employee.objects.get(user=request.user.id)
+        data['employee_id'] = employee.id
+    except ObjectDoesNotExist:
+        pass
+    try:
+        employer = Employer.objects.get(user=request.user.id)
+        data['employer_id'] = employer.id
+    except ObjectDoesNotExist:
+        pass
+    return render(request, 'reports/view_history/index.html' , data)
 
 
 @login_required

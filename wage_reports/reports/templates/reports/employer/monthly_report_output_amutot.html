@@ -1,0 +1,71 @@
+{% extends "reports/employer/monthly_report_output.html" %}
+{% block hanhalat_heshbonot %}
+<h3>פקודה להנהלת החשבונות: </h3>
+<table border="1">
+	<tr>
+		<td> חובה </td>
+		<td></td>
+		<td>שכר מרצים</td>
+		<td> {{report.npo.book_keeping.gross_payment}}</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td> חובה </td>
+		<td></td>
+		<td>מע"מ עסקאות</td>
+		<td>{{report.npo.book_keeping.vat}}</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td> חובה </td>
+		<td></td>
+		<td>ב"ל מעביד</td>
+		<td>{{report.npo.book_keeping.social_security_employer}}</td>
+		<td></td>
+	</tr>		
+	<tr>
+		<td></td>
+		<td>זכות</td>
+		<td>מרצים לפי רשימה</td>
+		<td></td>
+		<td>{{report.npo.book_keeping.list_of_names_and_sum_of_net_payment}}</td>
+	</tr>			
+	<tr>
+		<td></td>
+		<td>זכות</td>
+		<td>פקיד שומה ניכויים</td>
+		<td></td>
+		<td>{{report.npo.income_tax_plus_income_vat}}</td>
+	</tr>				
+	<tr>
+		<td></td>
+		<td>זכות</td>
+		<td>המוסד לביטוח לאומי</td>
+		<td></td>
+		<td>{{report.social_security.total_of_social_security_due}}</td>
+	</tr>				
+</table>
+
+{% endblock hanhalat_heshbonot %}
+
+{% block income_tax %}
+<b>דוח למס הכנסה ניכויים: </b><br>
+
+<table border="1">
+    <tr>
+        <th> תשלום לפקיד שומה</th>
+        <th>סכום התשלום למרצים</th>
+        <th>מספר המקבלים</th>
+    </tr>
+    <tr>
+    <td> {{report.npo.income_tax_plus_income_vat}}
+    </td>
+    <td>{{report.income_tax.sum_of_gross_payment_and_vat_for_employees_that_got_paid_this_month}}
+    </td>
+    <td> {{report.income_tax.count_of_employees_that_got_paid_this_month}}
+    </td>
+    </tr>
+</table>
+
+{% endblock income_tax %}
+

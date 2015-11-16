@@ -47,6 +47,9 @@
                         <li class="active"><a href="#">קישורים של תוכן</span></a></li>
                         <li><a href="#">קישורים של תוכן</a></li>
                         <li><a href="{% url 'main_login'%}">שכר מרצים</a></li>
+                        {% if request.user.is_authenticated %}
+                        <li><a href="{% url 'main_logout'%}">התנתק</a></li>
+                        {% endif %}
                     </ul>
                 </div><!-- end of /.navbar-collapse -->
                 
