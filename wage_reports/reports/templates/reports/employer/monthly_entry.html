@@ -1,14 +1,28 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>Enter Monthly Data</h1>
+<div class="container">
 
-{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+	<h1>הזן מידע חודשי עבור מרצה</h1>
 
-<form action="{% url 'reports:edit_specific_monthly_employer_data' employee_user_id %}" method="post">
-    {% csrf_token %}
-    {{ form }}
-    <input type="hidden" name="employee_user_id" value="{{employee_user_id}}" />
-    <input type="submit" value="submit" />
-</form>
-
-{% endblock content %}
+	{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+	<div class="top-buffer">
+		<form action="{% url 'reports:edit_specific_monthly_employer_data' employee_user_id %}" method="post">
+		    {% csrf_token %}
+		    {% for field in form %}
+			    <div class="form-group">
+			        {{ field.errors }}
+			        {{ field.label_tag }} {{ field }}
+			        {% if field.help_text %}
+			        <p class="help">{{ field.help_text|safe }}</p>
+			        {% endif %}
+			    </div>
+			{% endfor %}
+		    <input type="hidden" name="employee_user_id" value="{{employee_user_id}}" />
+		    <input type="submit" value="submit" />
+		</form>
+	</div>
+</div>
+<script>
+var inside_employer_monthly_entry = true;
+</script>
+	{% endblock content %}

@@ -29,7 +29,7 @@ def edit_specific_entry_post(request , employee , entered_by):
     if not form_entry.is_valid():
         return {
             'is_okay' : False,
-            'message' : 'entry was not added, data was not valid',
+            'message' : 'הרשומה לא נוספה למסד הנתונים. הקלט שהוזן לא היה תקין',
             'form' : form_entry
         }
     partial_monthly_entree = form_entry.save(commit=False)
@@ -39,11 +39,11 @@ def edit_specific_entry_post(request , employee , entered_by):
     if partial_monthly_entree.save():
         return {
             'is_okay' : True,
-            'message': 'Data received'
+            'message': 'המידע התקבל בהצלחה'
         }
     return {
         'is_okay' : False,
-        'message' : 'Your input was not registerred. Make sure you have the permissions to enter this data at this time.',
+        'message' : 'הרשומה לא נוספה למסד הנתונים. יש לוודא שקיימים ברשותך ההרשאות לבצע את הפעולה הזאת בזמן זה',
         'form': form_entry
     }
 

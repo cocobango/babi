@@ -146,23 +146,18 @@ def edit_specific_entry_by_employer(request , employee_user_id , error_message='
 @login_required
 def edit_specific_entry_by_employee(request):
     employee = get_object_or_404(Employee , user_id=request.user.id)
+    error_message = ''
     if request.method == 'POST':
         response = edit_specific_entry_post(request, employee , 'employee')
         if response['is_okay']:
-            raise NotImplemented
-        else:
-            return HttpResponseRedirect(reverse('reports:edit_specific_entry_by_employee' ) )
-    else:
-        return edit_specific_entry_get(request=request, employee=employee , error_message='' , action=reverse('reports:edit_specific_entry_by_employee' ))
+            return render(request, 'reports/general/display_message.html' , { 'headline' : "הצלחה" , 'body' : response['message'] })   
+        error_message = response['message']
+    return edit_specific_entry_get(request=request, employee=employee , error_message=error_message , action=reverse('reports:edit_specific_entry_by_employee' ), form=response['form'])
 #post
 
 # return render(request, 'reports/general/display_message.html' , { 'headline' : "Success" , 'body' : "Your input was received successfully" })
 
 
-
-    
-        
-        return edit_specific_entry_get(request, employee)
 
 @login_required
 def edit_specific_monthly_employer_data(request, employee_user_id):
