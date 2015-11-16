@@ -1,56 +1,64 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>View All Employees</h1>
+<h1>צפה בכל העובדים</h1>
 
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+<div class="container">
+	<div class="row">
+		<a href="{% url 'reports:add_employee' %}" class="btn btn-info">הוסף עובד</a>
+	</div>
+	<div class="row">
+		<table class="table">
+			<tr>
+				<th>מספר משתמש</th>
+				<th>שם פרטי</th>
+				<th>שם משפחה</th>
+				<th>תעודת זהות</th> 
+				<th>אימייל</th>
+				<th>שם משתמש</th>
+				<th>תאריך לידה</th>
+				<th>פעולה</th>
+			</tr>
+			{% for employee in employees %}
+			<tr>
+				<td>
+				  	{{ employee.user.id }}
+				</td>
+				<td>
+					{{ employee.user.first_name }}
+				</td>
+				<td>
+					{{ employee.user.last_name }}
+				</td>
+				<td>
+					{{ employee.government_id }}
+				</td>
+				<td>
+					{{ employee.user.email }}
+				</td>
+				<td>
+					{{ employee.user.username }}
+				</td>
+				<td>
+					{{ employee.birthday }}
+				</td>
+				<td>
+					<a class="btn btn-info" href="{% url 'reports:edit_specific_monthly_employer_data' employee.user.id %}">Edit user financial info</a> 
+				{% if employee.user.is_active %}
+		   			<button class="btn btn-warning" onclick="toggle_user_status({{employee.user.id}})">Disable user</button> 
+				{% else %}
+				    <button class="btn btn-success" onclick="toggle_user_status({{employee.user.id}})">Activate user</button> 
+				{% endif %}
+					
+				</td>
+			</tr>   
+			{% endfor %}
 
-<table class="table">
-	<tr>
-		<th>user id</th>
-		<th>first name</th>
-		<th>last name</th>
-		<th>Government id</th>
-		<th>email</th>
-		<th>username</th>
-		<th>Birthday</th>
-		<th>Action</th>
-	</tr>
-	{% for employee in employees %}
-	<tr>
-		<td>
-		  	{{ employee.user.id }}
-		</td>
-		<td>
-			{{ employee.user.first_name }}
-		</td>
-		<td>
-			{{ employee.user.last_name }}
-		</td>
-		<td>
-			{{ employee.government_id }}
-		</td>
-		<td>
-			{{ employee.user.email }}
-		</td>
-		<td>
-			{{ employee.user.username }}
-		</td>
-		<td>
-			{{ employee.birthday }}
-		</td>
-		<td>
-			<a class="btn btn-info" href="{% url 'reports:edit_specific_monthly_employer_data' employee.user.id %}">Edit user financial info</a> 
-		{% if employee.user.is_active %}
-   			<button class="btn btn-warning" onclick="toggle_user_status({{employee.user.id}})">Disable user</button> 
-		{% else %}
-		    <button class="btn btn-success" onclick="toggle_user_status({{employee.user.id}})">Activate user</button> 
-		{% endif %}
-			
-		</td>
-	</tr>   
-	{% endfor %}
+		</table>
 
-</table>
+	</div>
+</div>
+
 <form id="toggle_employee_status" action="{% url 'reports:toggle_employee_status' %}" method="post">
 	<input type="hidden" value="" name="employee_user_id" id="employee_user_id" />
 	

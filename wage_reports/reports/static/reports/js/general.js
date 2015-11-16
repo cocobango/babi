@@ -21,7 +21,6 @@ approve_and_lock_month = function(url , for_month , for_year , csrf_token){
 	generic_ajax_call(url , formData , csrf_token);
 }
 
-
 default_success_callback = function(data){
 	json = data;
 	// json = JSON.parse(data);
@@ -35,6 +34,28 @@ default_success_callback = function(data){
 default_error_callback = function(){
 	alert('Error, Check your internet connection or contact support!');
 }
+
+generic_get_call = function(url, formData, success_callback, error_callback){
+	console.log(url);
+	console.log(formData);
+	$.ajax({
+	    url : url,
+	    type: "GET",
+	    data : formData,
+	    success: function(data, textStatus, jqXHR)
+	    {
+    	    success_callback = typeof success_callback !== 'undefined' ? success_callback : default_success_callback;
+	        success_callback(data);
+	    },
+	    error: function (jqXHR, textStatus, errorThrown)
+	    {
+    	    error_callback = typeof error_callback !== 'undefined' ? error_callback : default_error_callback;
+	        error_callback();
+	    }
+	});
+
+}
+
 
 generic_ajax_call = function(url , formData , csrf_token , success_callback , error_callback){
 	console.log(url);

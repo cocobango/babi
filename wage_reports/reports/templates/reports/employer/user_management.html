@@ -1,2 +1,9 @@
-<a href="{% url 'reports:add_employee' %}">Add employee</a>
-<a href="{% url 'reports:view_all_employees' %}">View all employees</a>
+{% extends "base.html" %}
+{% block content %}
+<h1>צפה בכל העובדים</h1>
+
+<a href="{% url 'reports:add_employee' %}" class="btn btn-info">הוספת עובד</a>
+<a href="{% url 'reports:view_all_employees' %}" class="btn btn-info">צפייה בכל העובדים</a>
+
+
+{% endblock content %}

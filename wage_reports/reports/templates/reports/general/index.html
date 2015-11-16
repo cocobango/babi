@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+	<h1>שכר מרצים ראשי</h1>
+
+	
+	{% if request.user.is_superuser %}
+	<div class="row">
+		<div class="col-sm-6 col-sm-offset-2">
+			<a class="btn btn-info" href="{% url 'reports:store_data_gui' %}">חשב מידע עבור הזנת מידע היסטורי</a>
+			<a class="btn btn-info" href="{% url 'admin:login' %}">עבור לממשק מנהל</a>
+		</div>
+	</div>
+	{% endif %}
+
+
+	<div class="row">
+		<div class="top-buffer"></div>
+		<div class="col-sm-6 col-sm-offset-2">
+			<a class="btn btn-info" href="{% url 'reports:view_history' %}">צפה בדוחות</a>
+			{% if perms.reports.add_employee %}
+			<a class="btn btn-info" href="{% url 'reports:show_entries' for_year=current_year for_month=current_month %}">נהל חודש נוכחי</a>
+			{% else %}
+			<a class="btn btn-info" href="{% url 'reports:edit_specific_entry_by_employee' %}">הזן מידע עבור החודש</a>
+			{% endif %}
+		</div>
+	</div>
+	{% if perms.reports.add_employee %}
+	<div class="top-buffer"></div>
+	<div class="row">
+		<div class="col-sm-6 col-sm-offset-2">
+			<a class="btn btn-info" href="{% url 'reports:user_management' %}">נהל מרצים</a>
+			<a class="btn btn-info" href="{% url 'reports:show_entries' for_year=past_year for_month=past_month %}">נהל חודש קודם</a>
+		</div>
+	</div>
+	{% endif %}
+</div>
+{% endblock content %}

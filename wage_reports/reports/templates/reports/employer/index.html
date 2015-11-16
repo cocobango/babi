@@ -1,9 +1,13 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>Welcome</h1>
+<div class="container">
+	<h1>שכר מרצים ראשי</h1>
 
-{% for a in urls_list %}
-<a href="{{ a.link }}">{{ a.display_text }}</a>
-<br>
-{% endfor %}
+	{% for a in urls_list %}
+	<div class="row">
+		<a class="btn btn-info" href="{{ a.link }}">{{ a.display_text }}</a>
+	</div>
+	{% endfor %}
+
+</div>
 {% endblock content %}

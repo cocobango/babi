@@ -22,7 +22,7 @@ urlpatterns = [
     url(r'^logout/$', 'reports.views.logout', name='main_logout'),
     url(r'^', include('django.contrib.auth.urls')),
     url(r'^custom_login/$', 'reports.views.general_views.custom_login' , name='main_login'),
-    url(r'^accounts/login/$', 'reports.views.redirect_to_real_login'),
+    url(r'^accounts/profile/$', 'reports.views.index', name='reports_index'), 
     url(r'^reports/', include('reports.urls' , namespace='reports') ),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^my_test/', 'reports.views.general_views.my_test'),
