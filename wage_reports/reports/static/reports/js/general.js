@@ -7,27 +7,97 @@ document_ready_functions = function(){
 }
 
 employer_monthly_entry_on_ready = function(){
-	if (! inside_employer_monthly_entry){
+	if (typeof inside_employer_monthly_entry === 'undefined'){
 		return;
 	}
+
+
+
 	$('#id_is_required_to_pay_income_tax').change(function(e){
 		toggle_income_tax_visibility(document.getElementById('id_is_required_to_pay_income_tax').checked);
 	});
+
+	$('#has_exact').click(function(e){
+		toggle_exact_or_threshold_choice(true);
+	});
+
+	$('#has_threshold').click(function(e){
+		toggle_exact_or_threshold_choice(false);
+	});
 	
+	$('#threshold_fields').hide();
+	$('#exact_fields').hide();
+
+	$('#employer_monthly_entry_form').submit(function(e){
+		employer_monthly_entry_form_handle_submit(e);
+	});
+
+	show_fields_as_percentages(['id_lower_tax_threshold', 'id_upper_tax_threshold', 'id_exact_income_tax_percentage']);
+}
+
+employer_monthly_entry_form_handle_submit = function(e){
+	convert_fields_from_percentages(['id_lower_tax_threshold', 'id_upper_tax_threshold', 'id_exact_income_tax_percentage']);
+}
+
+convert_fields_from_percentages = function(field_list){
+	var change_single_val = function(field_id){
+		$('#' + field_id).val(from_percentage($('#' + field_id).val()));
+
+	}
+	field_list.forEach(change_single_val);
+}
+
+show_fields_as_percentages = function(field_list){
+	var change_single_val = function(field_id){
+		$('#' + field_id).val(to_percentage($('#' + field_id).val()));
+	}
+	field_list.forEach(change_single_val);
+}
+
+from_percentage = function(val_of_input_field){
+	return val_of_input_field * 1 / 100;
+}
+
+to_percentage = function (val_of_input_field){
+	return val_of_input_field * 100;
 }
 
 toggle_income_tax_visibility = function(is_required_to_pay_income_tax){
 	if(is_required_to_pay_income_tax){
-		$('#id_lower_tax_threshold').prop('disabled', false);
-		$('#id_upper_tax_threshold').prop('disabled', false);
-		$('#id_income_tax_threshold').prop('disabled', false);
-		$('#id_exact_income_tax_percentage').prop('disabled', false);
+		toggle_exact_or_threshold_choice_visibility(true);
 	} else {
-		$('#id_lower_tax_threshold').val(0).prop('disabled', true);
-		$('#id_upper_tax_threshold').val(0).prop('disabled', true);
-		$('#id_income_tax_threshold').val(0).prop('disabled', true);
-		$('#id_exact_income_tax_percentage').val(0).prop('disabled', true);
+		toggle_exact_or_threshold_choice_visibility(false);
+		$('#id_lower_tax_threshold').val(0);
+		$('#id_upper_tax_threshold').val(0);
+		$('#id_income_tax_threshold').val(0);
+		$('#id_exact_income_tax_percentage').val(0);
 	}
+}
+
+toggle_exact_or_threshold_choice_visibility = function(is_show){
+	if (is_show) {
+		$('#exact_or_threshold_choice').show();
+	} else {
+		$('#exact_or_threshold_choice').hide();
+	}
+}
+
+toggle_exact_or_threshold_choice = function(is_exact_income_tax) {
+	if(is_exact_income_tax ){
+		$('#threshold_fields').hide();
+		$('#exact_fields').show();
+		$('#id_lower_tax_threshold').val(0);
+		$('#id_upper_tax_threshold').val(0);
+		$('#id_income_tax_threshold').val(0);
+	} else {
+		$('#threshold_fields').show();
+		$('#exact_fields').hide();
+		$('#id_exact_income_tax_percentage').val(0);
+	}
+}
+
+toggle_threshold_tax_visibility = function(exact_income_tax){
+	
 }
 
 toggle_user_status = function(user_id){

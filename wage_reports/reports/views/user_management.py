@@ -31,12 +31,13 @@ def user_management(request):
 
 @login_required
 def add_employee(request):
+    error_message = ''
     if request.method == 'POST':
         form_registration = UserCreateForm(request.POST)
-        
+        form = EmployeeForm(request.POST)
+
         if form_registration.is_valid():
             form_registration.save(commit=False)
-            form = EmployeeForm(request.POST)
             if form.is_valid():
                 new_user = form_registration.save()
                 employee_form_data = form.save(commit=False)
@@ -44,15 +45,11 @@ def add_employee(request):
                 new_employee = Employee(user=new_user , employer=employer , birthday=employee_form_data.birthday , government_id=employee_form_data.government_id)
                 new_employee.save()
                 return HttpResponseRedirect(reverse('reports:edit_specific_monthly_employer_data' , args=(new_user.id,)))
-            else:
-                return HttpResponseRedirect(reverse('my_login:messages' , args=('user was not added, employee data was not valid',)))
-        else:
-            return HttpResponseRedirect(reverse('my_login:messages' , args=('user was not added, user data was not valid',)))
-            
+        error_message = 'המידע שהוזן לא היה נכון. המשתמש לא נוסף. ניתן לנסות שנית.'
     else:
         form_registration = UserCreateForm()
         form = EmployeeForm();
-    return render(request, 'reports/employer/add_employee.html' , { 'form' : EmployeeForm , 'form_registration' : form_registration })
+    return render(request, 'reports/employer/add_employee.html' , { 'form' : EmployeeForm, 'form_registration' : form_registration, 'error_message': error_message})
 
 @login_required
 def view_all_employees(request):
