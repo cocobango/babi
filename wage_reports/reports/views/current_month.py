@@ -19,7 +19,7 @@ from ..models import Monthly_employer_data, Monthly_employee_data, Employee, Emp
 from ..helpers import get_month_in_question_for_employer_locking , get_year_in_question_for_employer_locking , get_month_in_question_for_employee_locking , get_year_in_question_for_employee_locking
 
 from ..calculations import social_security_calculations , vat_calculations , income_tax_calculations
-from ..decorators import user_is_an_employer
+from ..decorators import *
 
 from ..view_helpers import *
 
@@ -92,6 +92,7 @@ def approve_this_month(request):
         return HttpResponseRedirect(reverse('my_login:messages' , args=('Error, this is a POST gateway, not GET',)))
 
 @login_required
+@user_is_a_specific_employer_for_employee(employee_user_id_arg_number=0, employee_user_id_field_name='employee_user_id')
 def set_as_valid(request):
     if request.method == 'POST':
         try:
@@ -114,7 +115,7 @@ def set_as_valid(request):
                 return JsonResponse({'is_okay':True , 'message' : 'successfully approved entry' , 'data' : single_entry.id})
             return JsonResponse({'is_okay':False , 'message' : 'Error: Failed to approve entry, code 4534' , 'data' : 'check permissions of month'})
         except Monthly_employee_data.DoesNotExist:
-            return JsonResponse({'is_okay':True , 'message' : 'Error: Failed to approve entry' , 'data' : 'entry was not added, entry %s ,employee_user %s , employer %s' % { request.POST['entry_id'] , request.POST['employee_user_id'] , request.user}})
+            return JsonResponse({'is_okay':True , 'message' : 'Error: Failed to approve entry' , 'data' : 'entry was not added, entry {0} ,employee_user {1} , employer {2}'.format(request.POST['entry_id'] , request.POST['employee_user_id'] , request.user)})
     else:
         return HttpResponseRedirect(reverse('my_login:messages' , args=('Error, this is a POST gateway, not GET',)))
     
@@ -133,14 +134,16 @@ def withdraw_approval_of_single_entry(request):
         return render(request, 'reports/general/display_message.html' , { 'headline' : "Error" , 'body' : "This is a POST gateway, not GET" })   
 
 @login_required
-def edit_specific_entry_by_employer(request , employee_user_id , error_message=''):
+@user_is_a_specific_employer_for_employee(employee_user_id_arg_number=0, employee_user_id_field_name='employee_user_id')
+def edit_specific_entry_by_employer(request , employee_user_id ):
     employee = get_object_or_404(Employee , user_id=employee_user_id)
+    error_message = ''
     if request.method == 'POST':
         response = edit_specific_entry_post(request, employee , 'employer')
         if response['is_okay']:
             return HttpResponseRedirect(reverse('reports:show_entries' , kwargs={'for_year':request.POST['for_year'], 'for_month':request.POST['for_month'] } ) )
         else:
-            return edit_specific_entry_get(request=request, employee=employee , error_message=error_message , action=reverse('reports:edit_specific_entry_by_employer' , kwargs={'employee_user_id':employee_user_id} ), form=response['form'])
+            return edit_specific_entry_get(request=request, employee=employee , error_message=response['message'] , action=reverse('reports:edit_specific_entry_by_employer' , kwargs={'employee_user_id':employee_user_id} ), form=response['form'])
     else:
         return edit_specific_entry_get(request=request, employee=employee , error_message=error_message , action=reverse('reports:edit_specific_entry_by_employer' , kwargs={'employee_user_id':employee_user_id} ))
         
