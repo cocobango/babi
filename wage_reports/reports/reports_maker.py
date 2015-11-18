@@ -31,7 +31,8 @@ class ReportsMaker(object):
             'vat': {
                 'sum_of_gross_payment_where_no_vat_is_required': self.vat.get_sum_of_gross_payment_where_no_vat_is_required(for_year=for_year , for_month=for_month),
                 'count_of_employees_where_no_vat_is_required': self.vat.get_count_of_employees_where_no_vat_is_required(for_year=for_year , for_month=for_month),
-                'sum_of_vat_due_where_no_vat_is_required': self.vat.get_sum_of_vat_due_where_no_vat_is_required(for_year=for_year , for_month=for_month)
+                'sum_of_vat_due_where_no_vat_is_required': self.vat.get_sum_of_vat_due_where_no_vat_is_required(for_year=for_year , for_month=for_month),
+                'sum_for_self_invoice': self.vat.get_sum_of_gross_payment_where_no_vat_is_required(for_year=for_year , for_month=for_month) + self.vat.get_sum_of_vat_due_where_no_vat_is_required(for_year=for_year , for_month=for_month)
             } , 
             'income_tax': {
                 'count_of_employees_that_got_paid_this_month': self.income_tax.get_count_of_employees_that_got_paid_this_month(for_year=for_year , for_month=for_month),
@@ -44,14 +45,25 @@ class ReportsMaker(object):
                 'sum_of_net_payment_where_no_vat_is_required': self.cross.get_sum_of_net_payment_where_no_vat_is_required(for_year=for_year , for_month=for_month),
                 'sum_of_income_tax_where_no_vat_is_required': self.cross.get_sum_of_income_tax_where_no_vat_is_required(for_year=for_year , for_month=for_month),
                 'sum_of_social_security_where_no_vat_is_required': self.cross.get_sum_of_social_security_where_no_vat_is_required(for_year=for_year , for_month=for_month),
+                'sum_of_debits': self.vat.get_sum_of_gross_payment_where_no_vat_is_required(for_year=for_year , for_month=for_month) + self.cross.get_sum_of_employer_social_security_where_no_vat_is_required(for_year=for_year , for_month=for_month),
+                'sum_of_credits': self.cross.get_sum_of_net_payment_where_no_vat_is_required(for_year=for_year , for_month=for_month) + self.cross.get_sum_of_income_tax_where_no_vat_is_required(for_year=for_year , for_month=for_month) + self.cross.get_sum_of_social_security_where_no_vat_is_required(for_year=for_year , for_month=for_month),
                 'list_of_names_and_monthly_net_where_no_vat_is_required': self.cross.get_list_of_names_and_monthly_net_where_no_vat_is_required(for_year=for_year , for_month=for_month),
             } ,
             'book_keeping_where_vat_is_required': {
                 'list_of_names_and_income_tax_where_vat_is_required': self.cross.get_list_of_names_and_income_tax_where_vat_is_required(for_year=for_year , for_month=for_month),
                 'sum_of_income_tax_where_vat_is_required': self.cross.get_sum_of_income_tax_where_vat_is_required(for_year=for_year , for_month=for_month),
-                'list_of_names_and_social_security_employer_where_vat_is_required': self.cross.get_list_of_names_and_social_security_employer_where_vat_is_required(for_year=for_year , for_month=for_month),
+                'list_of_names_and_social_security_employer_where_vat_is_required': self.cross.get_list_of_names_and_social_security_employee_where_vat_is_required(for_year=for_year , for_month=for_month),
                 'sum_of_social_security_employer_where_vat_is_required': self.cross.get_sum_of_social_security_employer_where_vat_is_required(for_year=for_year , for_month=for_month),
                 'sum_of_social_security_where_vat_is_required': self.cross.get_sum_of_social_security_where_vat_is_required(for_year=for_year , for_month=for_month),
+            },
+            'npo': {
+                'income_tax_plus_income_vat': 100,
+                'book_keeping': {
+                    'gross_payment': 200,
+                    'vat': 300,
+                    'social_security_employer': 400,
+                    'list_of_names_and_sum_of_net_payment': 500,
+                }
             }
             
         }

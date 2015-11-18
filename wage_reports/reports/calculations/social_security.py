@@ -1,3 +1,5 @@
+from django.db import connection
+
 from django.db.models import Count, Min, Sum, Avg, F
 from ..models import Monthly_employer_data, Monthly_employee_data, Monthly_system_data, Employee , Employer , Locked_months , Monthly_employee_report_data , Monthly_employee_social_security_report_data
 
@@ -37,7 +39,31 @@ class social_security_calculations(object):
         return self.get_social_security_entries_for_month(for_year = for_year, for_month = for_month).aggregate(my_total=Sum(F('total_employer')+F('total_employee')))['my_total'] 
 
     def get_count_of_employees_that_do_not_exceed_the_social_security_threshold_by_employer(self , for_year, for_month):
-        return self.get_social_security_entries_for_month(for_year = for_year, for_month = for_month).filter(standard_sum_employee=0).aggregate(my_count=Count('total_employee', field="total_employee+total_employer"))['my_count'] 
+        # to_print = self.get_social_security_entries_for_month(for_year = for_year, for_month = for_month)
+        # for coco in to_print:
+        #     print(coco.standard_sum_employee)
+        #     print(coco.diminished_sum_employee)
+        # to_print = self.get_social_security_entries_for_month(for_year = for_year, for_month = for_month).filter(standard_sum_employee=0, diminished_sum_employee__gt=0)
+        # print('-----------------------------')
+        # for coco in to_print:
+        #     print(coco.standard_sum_employee)
+        #     print(coco.diminished_sum_employee)
+
+
+        # to_print = Monthly_employee_data.objects.filter(for_year = for_year, for_month = for_month)
+        # print('----------------------------- monthly employee data')
+        # for coco in to_print:
+        #     print(self.calculate_social_security(coco))
+        #     print(coco.is_required_to_pay_social_security)
+        #     print(coco.is_employer_the_main_employer)
+        #     print(coco.gross_payment_from_others)
+        #     print(coco.gross_payment)
+        
+
+
+
+
+        return self.get_social_security_entries_for_month(for_year = for_year, for_month = for_month).filter(standard_sum_employer=0, diminished_sum_employee__gt=0).aggregate(my_count=Count('total_employee', field="total_employee+total_employer"))['my_count'] 
 
     def get_social_security_entries_for_month(self , for_year, for_month):
         return Monthly_employee_social_security_report_data.objects.select_related('monthly_employee_report_data__employee__employer').filter(   monthly_employee_report_data__employee__employer=self.employer, monthly_employee_report_data__for_year=for_year, monthly_employee_report_data__for_month=for_month)

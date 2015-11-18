@@ -33,7 +33,7 @@ class Monthly_employer_data(models.Model):
         return self
 
     def is_valid_month(self):
-        if self.entered_by == 'admin':
+        if self.entered_by == 'admin' or self.employee.employer.user.is_superuser:
             return True
         if can_edit_past_months(self.employee.employer.user):
             return True

@@ -109,6 +109,7 @@ class cross_calculations(object):
 
     def get_list_of_names_and_monthly_net_where_no_vat_is_required(self, for_year , for_month):
         entries = self.vat.internal_get_entries_for_month(for_year=for_year , for_month=for_month , is_required_to_pay_vat=False)
+        # print(entries)
         list_of_employees = []
         for entry in entries:
             monthly_employee_report = self.monthly_employee_report(employee=entry.employee, for_year=for_year , for_month=for_month)
