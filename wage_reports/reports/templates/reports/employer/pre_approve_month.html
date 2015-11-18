@@ -7,30 +7,30 @@
 <button class="btn btn-danger" onclick="approve_and_lock_month('{% url 'reports:approve_this_month' %}' ,{{ for_month }} , {{ for_year }} , '{{ csrf_token }}')">אשר ונעל באופן סופי את חודש זה</button>
 <h2>רשומות מאושרות</h2>
 <p>רשומות אלו ואלו בלבד יכללו בחודש הנוגע לחודש הנ"ל</p>
-<table class="table">
+<table class="table table-bordered table-hover">
 	{% include 'reports/employer/monthly_entry_table_headers.html' %}
 	{% for entry in approved_entries %}
-	{% include 'reports/employer/monthly_entry_table_row.html' %}
+	<tr>{% include 'reports/employer/monthly_entry_table_row.html' %}</tr>
 	{% endfor %}
 </table>
 
 
 <h2>רשומות לא מאושרות</h2>
 <p>רשומות מהחודש הנ"ל שלא קיבלו אישור ספציפי ולכן לא יכללו בדוח</p>
-<table class="table">
+<table class="table table-bordered table-hover">
 	{% include 'reports/employer/monthly_entry_table_headers.html' %}
 	{% for entry in disapproved_entries %}
-	{% include 'reports/employer/monthly_entry_table_row.html' %}
+	<tr>{% include 'reports/employer/monthly_entry_table_row.html' %}</tr>
 	{% endfor %}
 </table>
 
 
 <h2>רשומות ישנות</h2>
 <p>רשומות של מרצים שהיה עבורם מידע בחודשים קודמים אך אין עבורם מידע בחודש הנ"ל" ולכן לא יכללו בדוח</p>
-<table class="table">
+<table class="table table-bordered table-hover">
 	{% include 'reports/employer/monthly_entry_table_headers.html' %}
 	{% for entry in no_recent_entries %}
-	{% include 'reports/employer/monthly_entry_table_row.html' %}
+	<tr>{% include 'reports/employer/monthly_entry_table_row.html' %}</tr>
 	{% endfor %}
 </table>
 
@@ -39,10 +39,10 @@
 
 <h2>רשומות ריקות</h2>
 <p>מרצים שלגביהם מעולם לא הוזן מידע חודשי</p>
-<table class="table">
+<table class="table table-bordered table-hover">
 	{% include 'reports/employer/monthly_entry_table_headers.html' %}
 	{% for entry in empty_entries %}
-	{% include 'reports/employer/monthly_entry_table_row.html' %}
+	<tr>{% include 'reports/employer/monthly_entry_table_row.html' %}</tr>
 	{% endfor %}
 </table>
 {% endblock content %}
