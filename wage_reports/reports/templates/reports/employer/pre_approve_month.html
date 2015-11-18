@@ -1,274 +1,48 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>View The Past Month's Entries</h1>
-<h2>NOTICE: The data and approval in this page reffer to the month {{ for_month }} and the year {{ for_year }}</h2>
-<p class="danger">NOTICE: After approving this month you will not be able to change its data.</p>
+<h1>צפה בנתונים מהחודש הקודם</h1>
+<h2>יש לשים לב! המידע בעמוד זה מתייחס לחודש מספר-{{ for_month }} ושנה מספר-{{ for_year }}</h2>
+<p class="danger">יש לשים לב! לאחר אישור זה לא ניתן יהיה לשנות יותר את המידע עבור חודש זה.</p>
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
-<button class="btn btn-danger" onclick="approve_and_lock_month('{% url 'reports:approve_this_month' %}' ,{{ for_month }} , {{ for_year }} , '{{ csrf_token }}')">Finally approve and lock this month</button>
-<h2>Approved Entries</h2>
-<p>These are the only entries that will be included in this month's report.</p>
+<button class="btn btn-danger" onclick="approve_and_lock_month('{% url 'reports:approve_this_month' %}' ,{{ for_month }} , {{ for_year }} , '{{ csrf_token }}')">אשר ונעל באופן סופי את חודש זה</button>
+<h2>רשומות מאושרות</h2>
+<p>רשומות אלו ואלו בלבד יכללו בחודש הנוגע לחודש הנ"ל</p>
 <table class="table">
-	<tr>
-		<th>User id</th>
-		<th>Name</th>
-		<th>created</th>
-		<th>gross_payment</th>
-		<th>general_expenses</th>
-		<th>gross_or_cost</th>
-		<th>is_required_to_pay_social_security</th>
-		<th>is_employer_the_main_employer</th>
-		<th>gross_payment_from_others</th>		
-	</tr>
+	{% include 'reports/employer/monthly_entry_table_headers.html' %}
 	{% for entry in approved_entries %}
-	<tr>
-		<td>
-		  	{{entry.employee.user.id }}
-		</td>
-		<td>
-			{{ entry.employee.user.first_name }} {{ entry.employee.user.last_name }}
-		</td>
-		<td>
-			{{ entry.created }}
-		</td>
-		<td>
-			{{ entry.gross_payment }}
-		</td>
-		<td>
-			{{ entry.general_expenses }}
-		</td>
-		<td>
-		{% if entry.gross_or_cost %}
-   			Gross
-		{% else %}
-		    Cost
-		{% endif %}
-			
-		</td>
-		<td>
-		{% if entry.is_required_to_pay_social_security %}
-   			Need to pay social security 
-		{% else %}
-		    Free of social security 
-		{% endif %}
-			
-		</td>
-		<td>
-		{% if entry.is_employer_the_main_employer %}
-   			Am main employer
-		{% else %}
-		    Not main employer
-		{% endif %}
-		</td>
-		<td>
-			{{ entry.gross_payment_from_others }}	
-		</td>
-	</tr>   
+	{% include 'reports/employer/monthly_entry_table_row.html' %}
 	{% endfor %}
 </table>
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-<h2>Disapproved Entries</h2>
-<p>Entries from this month that have not been approved and will not be included in the report.</p>
+<h2>רשומות לא מאושרות</h2>
+<p>רשומות מהחודש הנ"ל שלא קיבלו אישור ספציפי ולכן לא יכללו בדוח</p>
 <table class="table">
-	<tr>
-		<th>User id</th>
-		<th>Name</th>
-		<th>created</th>
-		<th>gross_payment</th>
-		<th>general_expenses</th>
-		<th>gross_or_cost</th>
-		<th>is_required_to_pay_social_security</th>
-		<th>is_employer_the_main_employer</th>
-		<th>gross_payment_from_others</th>		
-	</tr>
+	{% include 'reports/employer/monthly_entry_table_headers.html' %}
 	{% for entry in disapproved_entries %}
-	<tr>
-		<td>
-		  	{{entry.employee.user.id }}
-		</td>
-		<td>
-			{{ entry.employee.user.first_name }} {{ entry.employee.user.last_name }}
-		</td>
-		<td>
-			{{ entry.created }}
-		</td>
-		<td>
-			{{ entry.gross_payment }}
-		</td>
-		<td>
-			{{ entry.general_expenses }}
-		</td>
-		<td>
-		{% if entry.gross_or_cost %}
-   			Gross
-		{% else %}
-		    Cost
-		{% endif %}
-			
-		</td>
-		<td>
-		{% if entry.is_required_to_pay_social_security %}
-   			Need to pay social security 
-		{% else %}
-		    Free of social security 
-		{% endif %}
-			
-		</td>
-		<td>
-		{% if entry.is_employer_the_main_employer %}
-   			Am main employer
-		{% else %}
-		    Not main employer
-		{% endif %}
-		</td>
-		<td>
-			{{ entry.gross_payment_from_others }}	
-		</td>
-	</tr>   
+	{% include 'reports/employer/monthly_entry_table_row.html' %}
 	{% endfor %}
 </table>
 
 
-<h2>Old Entries</h2>
-<p>Entries from past months that have no new data in this month and will not be included in the report.</p>
+<h2>רשומות ישנות</h2>
+<p>רשומות של מרצים שהיה עבורם מידע בחודשים קודמים אך אין עבורם מידע בחודש הנ"ל" ולכן לא יכללו בדוח</p>
 <table class="table">
-	<tr>
-		<th>User id</th>
-		<th>Name</th>
-		<th>created</th>
-		<th>gross_payment</th>
-		<th>general_expenses</th>
-		<th>gross_or_cost</th>
-		<th>is_required_to_pay_social_security</th>
-		<th>is_employer_the_main_employer</th>
-		<th>gross_payment_from_others</th>		
-	</tr>
+	{% include 'reports/employer/monthly_entry_table_headers.html' %}
 	{% for entry in no_recent_entries %}
-	<tr>
-		<td>
-		  	{{entry.employee.user.id }}
-		</td>
-		<td>
-			{{ entry.employee.user.first_name }} {{ entry.employee.user.last_name }}
-		</td>
-		<td>
-			{{ entry.created }}
-		</td>
-		<td>
-			{{ entry.gross_payment }}
-		</td>
-		<td>
-			{{ entry.general_expenses }}
-		</td>
-		<td>
-		{% if entry.gross_or_cost %}
-   			Gross
-		{% else %}
-		    Cost
-		{% endif %}
-			
-		</td>
-		<td>
-		{% if entry.is_required_to_pay_social_security %}
-   			Need to pay social security 
-		{% else %}
-		    Free of social security 
-		{% endif %}
-			
-		</td>
-		<td>
-		{% if entry.is_employer_the_main_employer %}
-   			Am main employer
-		{% else %}
-		    Not main employer
-		{% endif %}
-		</td>
-		<td>
-			{{ entry.gross_payment_from_others }}	
-		</td>
-	</tr>   
+	{% include 'reports/employer/monthly_entry_table_row.html' %}
 	{% endfor %}
 </table>
 
 
 
 
-
-
-
-
-
-
-<h2>Empty Entries</h2>
-<p>Employees that have never had any entries</p>
+<h2>רשומות ריקות</h2>
+<p>מרצים שלגביהם מעולם לא הוזן מידע חודשי</p>
 <table class="table">
-	<tr>
-		<th>User id</th>
-		<th>Name</th>
-		<th>created</th>
-		<th>gross_payment</th>
-		<th>general_expenses</th>
-		<th>gross_or_cost</th>
-		<th>is_required_to_pay_social_security</th>
-		<th>is_employer_the_main_employer</th>
-		<th>gross_payment_from_others</th>		
-	</tr>
+	{% include 'reports/employer/monthly_entry_table_headers.html' %}
 	{% for entry in empty_entries %}
-	<tr>
-		<td>
-		  	{{entry.employee.user.id }}
-		</td>
-		<td>
-			{{ entry.employee.user.first_name }} {{ entry.employee.user.last_name }}
-		</td>
-		<td>
-			{{ entry.created }}
-		</td>
-		<td>
-			{{ entry.gross_payment }}
-		</td>
-		<td>
-			{{ entry.general_expenses }}
-		</td>
-		<td>
-		{% if entry.gross_or_cost %}
-   			Gross
-		{% else %}
-		    Cost
-		{% endif %}
-			
-		</td>
-		<td>
-		{% if entry.is_required_to_pay_social_security %}
-   			Need to pay social security 
-		{% else %}
-		    Free of social security 
-		{% endif %}
-			
-		</td>
-		<td>
-		{% if entry.is_employer_the_main_employer %}
-   			Am main employer
-		{% else %}
-		    Not main employer
-		{% endif %}
-		</td>
-		<td>
-			{{ entry.gross_payment_from_others }}	
-		</td>
-	</tr>   
+	{% include 'reports/employer/monthly_entry_table_row.html' %}
 	{% endfor %}
 </table>
 {% endblock content %}

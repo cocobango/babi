@@ -2,10 +2,7 @@
 {% block content %}
 <h1>דוח חודשי למשלם שכר מרצים</h1>
 
-שם המשלם: {{employer}} <br><br>
-מספר תיק ניכויים: {{employer.income_tax_id}} <br><br>
-עבור שנה: {{for_year}} <br><br>
-עבור חודש: {{for_month}} <br><br>
+{% include 'reports/view_history/general_information_for_report.html' %}
 
 <br><br>
 {% block social_security %}

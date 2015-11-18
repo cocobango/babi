@@ -1,0 +1,10 @@
+שם המשלם: {{employer.user}} <br><br>
+מספר תיק ניכויים המשלם: {{employer.income_tax_id}} <br><br>
+עבור שנה: {{for_year}} <br><br>
+עבור חודש: {{for_month}} <br><br>
+
+{% if not is_month_locked %}
+
+<h1 style="color: red">יש לשים לב!</h1>
+<h1 style="color: red">דוח זה הוא טיוטה עד שהחודש ינעל לעריכה!</h1>
+{% endif %}
