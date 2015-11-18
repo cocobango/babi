@@ -4,6 +4,14 @@ $(document).ready(function(){
 
 document_ready_functions = function(){
 	employer_monthly_entry_on_ready();
+	add_employee_on_ready_functions();
+}
+
+add_employee_on_ready_functions = function(){
+	$('#id_government_id').change(function(e){ if( ! IDValidator($('#id_government_id').val())){ alert('מספר תעודת הזהות שהוזן לא תקין') }   });
+	$('#id_birthday').datetimepicker({
+		format: 'YYYY-MM-DD',
+	});
 }
 
 employer_monthly_entry_on_ready = function(){
@@ -180,4 +188,20 @@ generic_ajax_call = function(url , formData , csrf_token , success_callback , er
 	});
 
 }
+
+
+function IDValidator(id)
+{
+	id += ""; //cast as string
+	if (id.length != 9 || isNaN(id)) {
+		return false;
+	}
+	var counter = 0, incNum;
+	for (i in id) {
+		incNum = Number(id[i]) * ((i % 2) + 1);//multiply digit by 1 or 2
+		counter += (incNum > 9) ? incNum - 9 : incNum;//sum the digits up and add to counter
+	}
+	return (counter % 10 == 0);
+}
+
 

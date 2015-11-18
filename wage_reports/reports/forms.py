@@ -7,13 +7,9 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 
 
-class Html5DateInput(forms.DateInput):
-    input_type = 'date'
-
-
 class EmployeeForm(ModelForm):
     government_id = IntegerField(label=_("תעודת זהות"), required=True)
-    birthday = DateField(label=_("תאריך לידה"), required=True, widget=Html5DateInput())
+    birthday = DateField(label=_("תאריך לידה"), required=True)
     class Meta:
         model = Employee
         fields = ['birthday' , 'government_id']
