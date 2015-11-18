@@ -1,49 +1,32 @@
 {% extends "base.html" %}
 {% block content %}
+<div class="container">
 <h1>הוסף מרצה חדש</h1>
-
+<div class="top-buffer"></div>
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
-
-<form action="{% url 'reports:add_employee' %}" method="post">
-    {% csrf_token %}
-    {% for field in form %}
-	    <div class="form-group">
-	        {{ field.errors }}
-	        {{ field.label_tag }} {{ field }}
-	        {% if field.help_text %}
-	        <p class="help">{{ field.help_text|safe }}</p>
-	        {% endif %}
-	    </div>
-	{% endfor %}
-    <br>
-    {% for field in form_registration %}
-	    <div class="form-group">
-	        {{ field.errors }}
-	        {{ field.label_tag }} {{ field }}
-	        {% if field.help_text %}
-	        <p class="help">{{ field.help_text|safe }}</p>
-	        {% endif %}
-	    </div>
-	{% endfor %}
-    <input type="submit" value="הוסף" />
-</form>
-
-<script type="text/javascript">
-
-function IDValidator(id)
-{
-	id += ""; //cast as string
-	if (id.length != 9 || isNaN(id)) {
-		return false;
-	}
-	var counter = 0, incNum;
-	for (i in id) {
-		incNum = Number(id[i]) * ((i % 2) + 1);//multiply digit by 1 or 2
-		counter += (incNum > 9) ? incNum - 9 : incNum;//sum the digits up and add to counter
-	}
-	return (counter % 10 == 0);
-}
-$('#id_government_id').change(function(e){ if( ! IDValidator($('#id_government_id').val())){ alert('bad id') }   });
-</script>
+	<form action="{% url 'reports:add_employee' %}" method="post">
+	    {% csrf_token %}
+	    {% for field in form %}
+		    <div class="form-group">
+		        {{ field.errors }}
+		        {{ field.label_tag }} {{ field }}
+		        {% if field.help_text %}
+		        <p class="help">{{ field.help_text|safe }}</p>
+		        {% endif %}
+		    </div>
+		{% endfor %}
+	    <br>
+	    {% for field in form_registration %}
+		    <div class="form-group">
+		        {{ field.errors }}
+		        {{ field.label_tag }} {{ field }}
+		        {% if field.help_text %}
+		        <p class="help">{{ field.help_text|safe }}</p>
+		        {% endif %}
+		    </div>
+		{% endfor %}
+	    <input type="submit" value="הוסף" />
+	</form>
+</div>
 
 {% endblock content %}
