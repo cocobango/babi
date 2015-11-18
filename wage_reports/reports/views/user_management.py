@@ -44,6 +44,8 @@ def add_employee(request):
                 employer = Employer.objects.get(user=request.user)
                 new_employee = Employee(user=new_user , employer=employer , birthday=employee_form_data.birthday , government_id=employee_form_data.government_id)
                 new_employee.save()
+                new_user.is_active = False
+                new_user.save()
                 return HttpResponseRedirect(reverse('reports:edit_specific_monthly_employer_data' , args=(new_user.id,)))
         error_message = 'המידע שהוזן לא היה נכון. המשתמש לא נוסף. ניתן לנסות שנית.'
     else:

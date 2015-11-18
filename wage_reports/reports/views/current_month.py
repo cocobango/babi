@@ -10,6 +10,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth import authenticate, login
 from django.core import serializers
 from django.utils import timezone
+from django.contrib.auth.models import User
 
 from ..forms import EmployeeForm , EmployeeMonthlyEntryForm , EmployerMonthlyEntryForm , UserCreateForm 
 from ..models import Monthly_employer_data, Monthly_employee_data, Employee, Employer, Locked_months
@@ -123,10 +124,11 @@ def withdraw_approval_of_single_entry(request):
         try:
             single_entry = Monthly_employee_data.objects.select_related('employee__user').get(pk=request.POST['entry_id'] , employee__user_id=request.POST['employee_user_id'] , employee__employer__user=request.user )
             single_entry.is_approved = False
-            single_entry.save()
-            return JsonResponse({'is_okay':True , 'message' : 'successfully withdraw approval from entry' , 'data' : single_entry.id})
+            if single_entry.save():
+                return JsonResponse({'is_okay':True , 'message' : 'successfully withdraw approval from entry' , 'data' : single_entry.id})
         except Monthly_employee_data.DoesNotExist:
-            return JsonResponse({'is_okay':True , 'message' : 'Error: Failed to withdraw approval from entry' , 'data' : 'entry was not updated, entry %s ,employee_user %s , employer %s' % { request.POST['entry_id'] , request.POST['employee_user_id'] , request.user}})
+            pass
+        return JsonResponse({'is_okay':False , 'message' : 'Error: Failed to withdraw approval from entry' , 'data' : 'entry was not updated, entry {0} ,employee_user {1} , employer {2}'.format( request.POST['entry_id'] , request.POST['employee_user_id'] , request.user)})
     else:
         return render(request, 'reports/general/display_message.html' , { 'headline' : "Error" , 'body' : "This is a POST gateway, not GET" })   
 
@@ -161,6 +163,7 @@ def edit_specific_entry_by_employee(request):
 
 @login_required
 def edit_specific_monthly_employer_data(request, employee_user_id):
+    error_message = ''
     if request.method == 'POST':
         form_entry = EmployerMonthlyEntryForm(request.POST)
         if form_entry.is_valid():
@@ -170,10 +173,14 @@ def edit_specific_monthly_employer_data(request, employee_user_id):
             partial_monthly_entree.employee = employee
             partial_monthly_entree.entered_by = 'employer'
             partial_monthly_entree.is_approved = True
-            partial_monthly_entree.save()
-            return HttpResponseRedirect(reverse('reports:view_all_employees' ))
-        else:
-            return HttpResponseRedirect(reverse('my_login:messages' , args=('entry was not added, data was not valid',)))
+            if partial_monthly_entree.save():
+                if Monthly_employer_data.objects.filter(employee=employee).count() == 1:
+                    employee_user = User.objects.get(id=request.POST['employee_user_id'])
+                    employee_user.is_active = True
+                    employee_user.save()
+                return HttpResponseRedirect(reverse('reports:view_all_employees' ))
+        form = form_entry
+        error_message = 'המידע לא נקלט במערכת משום שהיה לא תקין'
             
     else:
         employee = get_object_or_404(Employee , user_id=employee_user_id)
@@ -182,5 +189,5 @@ def edit_specific_monthly_employer_data(request, employee_user_id):
             form = EmployerMonthlyEntryForm(instance=single_entry)
         except Monthly_employer_data.DoesNotExist:
             form = EmployerMonthlyEntryForm()
-        return render(request, 'reports/employer/monthly_entry.html' , { 'form' : form , 'employee_user_id' : employee_user_id })
+    return render(request, 'reports/employer/monthly_entry.html' , { 'form' : form , 'employee_user_id' : employee_user_id, 'error_message': error_message })
   
