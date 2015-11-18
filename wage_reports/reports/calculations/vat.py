@@ -46,7 +46,13 @@ class vat_calculations(object):
 
     def internal_get_entries_for_month(self , for_year, for_month , is_required_to_pay_vat=True):
         employer_entries = Monthly_employer_data.objects.select_related('employee').filter(is_required_to_pay_vat=is_required_to_pay_vat, employee__employer=self.employer, is_approved=True, for_year=for_year, for_month=for_month)
+        entries_to_return = []
         for employer_entry in employer_entries:
-            employer_entry.Monthly_employee_data_as_object = Monthly_employee_data.objects.get(employee=employer_entry.employee, is_approved=True, for_year=for_year, for_month=for_month)
-            employer_entry.Monthly_employee_data = vars(employer_entry.Monthly_employee_data_as_object)
-        return employer_entries
+            try:
+                employer_entry.Monthly_employee_data_as_object = Monthly_employee_data.objects.get(employee=employer_entry.employee, is_approved=True, for_year=for_year, for_month=for_month)
+                employer_entry.Monthly_employee_data = vars(employer_entry.Monthly_employee_data_as_object)
+                entries_to_return.append(employer_entry)
+            except Exception as e:
+                pass
+            
+        return entries_to_return
