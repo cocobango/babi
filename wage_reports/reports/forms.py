@@ -7,13 +7,9 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 
 
-class Html5DateInput(forms.DateInput):
-    input_type = 'date'
-
-
 class EmployeeForm(ModelForm):
     government_id = IntegerField(label=_("תעודת זהות"), required=True)
-    birthday = DateField(label=_("תאריך לידה"), required=True, widget=Html5DateInput())
+    birthday = DateField(label=_("תאריך לידה"), required=True)
     class Meta:
         model = Employee
         fields = ['birthday' , 'government_id']
@@ -58,6 +54,17 @@ class EmployerMonthlyEntryForm(ModelForm):
             'for_month': _('חודש כמספר מהטווח 1-12, לדוגמא, יולי הוא 7'),
             'for_year': _('שנה כמספר בעל ארבע ספרות בפורמט YYYY, לדוגמא, 2015'),
         }
+    def __init__(self, *args, **kwargs):
+        super(EmployerMonthlyEntryForm, self).__init__(*args, **kwargs)
+        self.fields['for_year'].label = "עבור שנה"
+        self.fields['for_month'].label = "עבור חודש"
+        self.fields['is_required_to_pay_vat'].label = "האם עוסק מורשה"
+        self.fields['gross_or_cost'].label = "האם חישוב פשוט לפי ברוטו"
+        self.fields['is_required_to_pay_income_tax'].label = "האם חייב במס הכנסה"
+        self.fields['lower_tax_threshold'].label = "אחוז מס נמוך"
+        self.fields['upper_tax_threshold'].label = "אחוז מס גבוה"
+        self.fields['income_tax_threshold'].label = "סכום המדרגה למס"
+        self.fields['exact_income_tax_percentage'].label = "אחוז מס קבוע"
 
 
 class UserCreateForm(UserCreationForm):

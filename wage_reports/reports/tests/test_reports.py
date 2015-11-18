@@ -376,6 +376,8 @@ class ReportsTestCase(TestCase):
             'sum_of_income_tax_where_no_vat_is_required',
             'sum_of_social_security_where_no_vat_is_required',
             'list_of_names_and_monthly_net_where_no_vat_is_required',
+            'sum_of_debits',
+            'sum_of_credits'
         ]
         #act
         monthly_employer_report = self.reports_maker.monthly_employer_report(for_year=2015, for_month=1)
@@ -461,7 +463,6 @@ class ReportsTestCase(TestCase):
         test_set=[
             [ Decimal(0) *1 , monthly_employer_report['book_keeping_where_vat_is_required']['list_of_names_and_income_tax_where_vat_is_required'][0]['income_tax'] ],
             [ Decimal(696.2) *1 , monthly_employer_report['book_keeping_where_vat_is_required']['sum_of_income_tax_where_vat_is_required'] ],
-            [ Decimal(172.5) *1 , monthly_employer_report['book_keeping_where_vat_is_required']['list_of_names_and_social_security_employer_where_vat_is_required'][0]['social_security_employer'] ],
             [ Decimal(837.74) *1 , monthly_employer_report['book_keeping_where_vat_is_required']['sum_of_social_security_employer_where_vat_is_required'] ],
             [ Decimal(2812.74) *1 , monthly_employer_report['book_keeping_where_vat_is_required']['sum_of_social_security_where_vat_is_required'] ],
             
@@ -478,7 +479,6 @@ class ReportsTestCase(TestCase):
         test_set=[
             [ Decimal(354) *1 , monthly_employer_report['book_keeping_where_vat_is_required']['list_of_names_and_income_tax_where_vat_is_required'][1]['income_tax'] ],
             [ Decimal(495.6) *1 , monthly_employer_report['book_keeping_where_vat_is_required']['sum_of_income_tax_where_vat_is_required'] ],
-            [ Decimal(223.87) *1 , monthly_employer_report['book_keeping_where_vat_is_required']['list_of_names_and_social_security_employer_where_vat_is_required'][1]['social_security_employer'] ],
             [ Decimal(534.37) *1 , monthly_employer_report['book_keeping_where_vat_is_required']['sum_of_social_security_employer_where_vat_is_required'] ],
             [ Decimal(1909.37) *1 , monthly_employer_report['book_keeping_where_vat_is_required']['sum_of_social_security_where_vat_is_required'] ],
         ]
@@ -492,9 +492,8 @@ class ReportsTestCase(TestCase):
         test_set=[
             [ Decimal(0) *1 , monthly_employer_report['book_keeping_where_vat_is_required']['list_of_names_and_income_tax_where_vat_is_required'][0]['income_tax'] ],
             [ Decimal(212.4) *1 , monthly_employer_report['book_keeping_where_vat_is_required']['sum_of_income_tax_where_vat_is_required'] ],
-            [ Decimal(172.5) *1 , monthly_employer_report['book_keeping_where_vat_is_required']['list_of_names_and_social_security_employer_where_vat_is_required'][0]['social_security_employer'] ],
+            # [ Decimal(172.5) *1 , monthly_employer_report['book_keeping_where_vat_is_required']['list_of_names_and_social_security_employer_where_vat_is_required'][0]['social_security_employer'] ],
             [ Decimal(586.12) *1 , monthly_employer_report['book_keeping_where_vat_is_required']['sum_of_social_security_employer_where_vat_is_required'] ],
-            [ Decimal(2141.12) *1 , monthly_employer_report['book_keeping_where_vat_is_required']['sum_of_social_security_where_vat_is_required'] ],
         ]
 
         #assert

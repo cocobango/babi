@@ -42,9 +42,16 @@ class income_tax_calculations(object):
    
     def internal_get_entries_for_month(self , for_year, for_month , is_required_to_pay_income_tax=True):
         employer_entries = Monthly_employer_data.objects.select_related('employee').filter(is_required_to_pay_income_tax=is_required_to_pay_income_tax, employee__employer=self.employer, is_approved=True, for_year=for_year, for_month=for_month)
+        entries_to_return = []
         for employer_entry in employer_entries:
-            employer_entry.Monthly_employee_data = vars(Monthly_employee_data.objects.get(employee=employer_entry.employee, is_approved=True, for_year=for_year, for_month=for_month))
-        return employer_entries
+            try:
+                employer_entry.Monthly_employee_data_as_object = Monthly_employee_data.objects.get(employee=employer_entry.employee, is_approved=True, for_year=for_year, for_month=for_month)
+                employer_entry.Monthly_employee_data = vars(employer_entry.Monthly_employee_data_as_object)
+                entries_to_return.append(employer_entry)
+            except Exception as e:
+                pass
+            
+        return entries_to_return
 
     def internal_get_all_of_employees_that_got_paid_this_month(self , for_year, for_month):
         employees_that_are_required_to_pay_income_tax = self.internal_get_entries_for_month(for_year=for_year, for_month=for_month , is_required_to_pay_income_tax=True)

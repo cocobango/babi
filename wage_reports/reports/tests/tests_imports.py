@@ -17,6 +17,11 @@ def populate_db_with_the_results_of_calculations_for_all_months():
         for for_month in range(1 , 4):
             reportsMaker.populate_db_with_calclated_data(for_year=2015, for_month=for_month)
 
+def baseline():
+    models = [Employee , Monthly_employee_data , Monthly_employer_data , Monthly_system_data , Monthly_employee_report_data , Monthly_employee_social_security_report_data]
+    for model in models:
+        model.objects.all().delete()
+
 def clear_reports_data():
     Monthly_employee_report_data.objects.all().delete()
     Monthly_employee_social_security_report_data.objects.all().delete()

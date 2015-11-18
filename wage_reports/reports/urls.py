@@ -35,6 +35,6 @@ urlpatterns = [
     url(r'^current_month/set_as_valid', views.set_as_valid, name='set_as_valid'),
     url(r'^current_month/withdraw_approval_of_single_entry$', views.withdraw_approval_of_single_entry, name='withdraw_approval_of_single_entry'),    
     url(r'^current_month/edit_specific_entry_by_employer/(?P<employee_user_id>[0-9]+)$', views.edit_specific_entry_by_employer, name='edit_specific_entry_by_employer'),
-    url(r'^current_month/edit_specific_entry_by_employee$', views.edit_specific_entry_by_employee, name='edit_specific_entry_by_employee'),   
+    url(r'^current_month/edit_specific_entry_by_employee/$', views.edit_specific_entry_by_employee, name='edit_specific_entry_by_employee'),   
     url(r'^current_month/edit_general_information_entry/(?P<employee_user_id>[0-9]+)$', views.edit_specific_monthly_employer_data, name='edit_specific_monthly_employer_data'),
 ]

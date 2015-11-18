@@ -1,14 +1,42 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>Enter Monthly Data</h1>
+<div class="container">
 
-{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+	<h1>הזן מידע חודשי עבור מרצה</h1>
 
-<form action="{% url 'reports:edit_specific_monthly_employer_data' employee_user_id %}" method="post">
-    {% csrf_token %}
-    {{ form }}
-    <input type="hidden" name="employee_user_id" value="{{employee_user_id}}" />
-    <input type="submit" value="submit" />
-</form>
-
-{% endblock content %}
+	{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+	<div class="top-buffer">
+		<form action="{% url 'reports:edit_specific_monthly_employer_data' employee_user_id %}" method="post" id="employer_monthly_entry_form">
+		    {% csrf_token %}
+		    {% for field in form %}
+		    {% if 'אחוז מס נמוך' in field.label_tag %}
+		    <div id='exact_or_threshold_choice'>
+				<p>סוג המס:</p>
+				<div class="btn btn-primary" id="has_exact">מס הכנסה בשיעור קבוע</div>
+				<div class="btn btn-danger" id="has_threshold">מס מדרגות</div>
+				<div class="top-buffer"></div>
+				<div id="threshold_fields" >
+	        {% endif %}
+	        {% if 'אחוז מס קבוע' in field.label_tag %}
+	        	</div>
+				<div id="exact_fields" >
+	        {% endif %}
+			    <div class="form-group">
+			        {{ field.errors }}
+			        {{ field.label_tag }} {{ field }}
+			        {% if field.help_text %}
+			        <p class="help">{{ field.help_text|safe }}</p>
+			        {% endif %}
+			    </div>
+			{% endfor %}
+				</div>
+			</div>
+		    <input type="hidden" name="employee_user_id" value="{{employee_user_id}}" />
+		    <input type="submit" value="שלח" />
+		</form>
+	</div>
+</div>
+<script>
+var inside_employer_monthly_entry = true;
+</script>
+	{% endblock content %}
