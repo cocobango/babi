@@ -26,6 +26,7 @@ from ..view_helpers import *
 
 
 @login_required
+@user_is_an_employer
 def show_entries(request , for_year , for_month):
     past_or_current_month = 'past'
     if int(for_month) == int(get_month_in_question_for_employee_locking()):
@@ -76,6 +77,7 @@ def pre_approve_month(request):
     return render(request, 'reports/employer/pre_approve_month.html' , { 'for_month': for_month , 'for_year': for_year , 'approved_entries' : approved_entries , 'disapproved_entries' : disapproved_entries , 'no_recent_entries' : no_recent_entries , 'empty_entries' : empty_entries })
 
 @login_required
+@user_is_an_employer
 def approve_this_month(request):
     if request.method == 'POST':
         try:
@@ -92,7 +94,8 @@ def approve_this_month(request):
         return HttpResponseRedirect(reverse('my_login:messages' , args=('Error, this is a POST gateway, not GET',)))
 
 @login_required
-@user_is_a_specific_employer_for_employee(employee_user_id_arg_number=0, employee_user_id_field_name='employee_user_id')
+@user_is_an_employer
+@user_is_a_specific_employer_for_employee(employee_user_id_field_name='employee_user_id')
 def set_as_valid(request):
     if request.method == 'POST':
         try:
@@ -120,6 +123,8 @@ def set_as_valid(request):
         return HttpResponseRedirect(reverse('my_login:messages' , args=('Error, this is a POST gateway, not GET',)))
     
 @login_required
+@user_is_an_employer
+@user_is_a_specific_employer_for_employee(employee_user_id_field_name='employee_user_id')
 def withdraw_approval_of_single_entry(request):
     if request.method == 'POST':
         try:
@@ -134,6 +139,7 @@ def withdraw_approval_of_single_entry(request):
         return render(request, 'reports/general/display_message.html' , { 'headline' : "Error" , 'body' : "This is a POST gateway, not GET" })   
 
 @login_required
+@user_is_an_employer
 @user_is_a_specific_employer_for_employee(employee_user_id_arg_number=0, employee_user_id_field_name='employee_user_id')
 def edit_specific_entry_by_employer(request , employee_user_id ):
     employee = get_object_or_404(Employee , user_id=employee_user_id)
@@ -165,6 +171,8 @@ def edit_specific_entry_by_employee(request):
 
 
 @login_required
+@user_is_an_employer
+@user_is_a_specific_employer_for_employee(employee_user_id_arg_number=0, employee_user_id_field_name='employee_user_id')
 def edit_specific_monthly_employer_data(request, employee_user_id):
     error_message = ''
     if request.method == 'POST':
@@ -193,4 +201,6 @@ def edit_specific_monthly_employer_data(request, employee_user_id):
         except Monthly_employer_data.DoesNotExist:
             form = EmployerMonthlyEntryForm()
     return render(request, 'reports/employer/monthly_entry.html' , { 'form' : form , 'employee_user_id' : employee_user_id, 'error_message': error_message })
+
+
   

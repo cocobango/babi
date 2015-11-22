@@ -1,8 +1,6 @@
 from django.core.exceptions import PermissionDenied
 
-
 from .models import Employer, Employee
-
 
 def user_is_an_employer(function):
     def wrapper(request, *args, **kwargs):
@@ -10,8 +8,6 @@ def user_is_an_employer(function):
             return function(request, *args, **kwargs)
         raise PermissionDenied
     return wrapper
-
-
 
 class tester(object):
     """ based on http://www.artima.com/weblogs/viewpost.jsp?thread=240845 """
@@ -35,8 +31,6 @@ class tester(object):
             return function(request, *args, **kwargs)
         return wrapped_f
 
-
-
 class user_is_a_specific_employer_for_employee(object):
     """ based on http://www.artima.com/weblogs/viewpost.jsp?thread=240845 """
     def __init__(self, employee_user_id_field_name=None, employee_user_id_arg_number=None):
@@ -53,6 +47,9 @@ class user_is_a_specific_employer_for_employee(object):
             employee_user_id = self.get_employee_user_id(request, *args, **kwargs)
             if Employee.objects.select_related('employer').filter(employer__user_id=request.user, user_id=employee_user_id):
                 return function(request, *args, **kwargs)
+            if request.user.is_superuser:
+                return function(request, *args, **kwargs)
+            
             raise PermissionDenied
         return wrapped_f
     def get_employee_user_id(self, request, *args, **kwargs):

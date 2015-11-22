@@ -25,8 +25,8 @@ urlpatterns = [
     url(r'^view_history$', views.view_history, name='view_history'),
     url(r'^view_history/view_a_single_month/(?P<year>[0-9]{4})/(?P<month>[0-9]{1,2})$', views.view_a_single_month, name='view_a_single_month'),
     url(r'^view_history/view_report_of_type/(?P<report_type>[a-z]+)/(?P<year>[0-9]{4})/(?P<month>[0-9]{1,2})$', views.view_report_of_type, name='view_report_of_type'),
-    url(r'^view_history/view_monthly_employee_report/(?P<employee_id>[0-9]+)/(?P<for_year>[0-9]{4})/(?P<for_month>[0-9]{1,2})$', views.view_monthly_employee_report, name='view_monthly_employee_report'),
-    url(r'^view_history/view_monthly_employer_report/(?P<employer_id>[0-9]+)/(?P<for_year>[0-9]{4})/(?P<for_month>[0-9]{1,2})$', views.view_monthly_employer_report, name='view_monthly_employer_report'),
+    url(r'^view_history/view_monthly_employee_report/(?P<employee_user_id>[0-9]+)/(?P<for_year>[0-9]{4})/(?P<for_month>[0-9]{1,2})$', views.view_monthly_employee_report, name='view_monthly_employee_report'),
+    url(r'^view_history/view_monthly_employer_report/(?P<employer_user_id>[0-9]+)/(?P<for_year>[0-9]{4})/(?P<for_month>[0-9]{1,2})$', views.view_monthly_employer_report, name='view_monthly_employer_report'),
     
 
     url(r'^current_month/show_entries/(?P<for_year>[0-9]{4})/(?P<for_month>[0-9]{1,2})$', views.show_entries, name='show_entries'),

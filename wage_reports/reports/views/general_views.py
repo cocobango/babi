@@ -66,23 +66,6 @@ def index(request):
                 'display_text':'View data for past months'
             }
         ]
-    # if Employer.is_employer(request.user):
-    #     urls_list.extend([
-    #         {
-    #             'link': reverse('reports:user_management'),
-    #             'display_text':'Manage users'
-    #         },
-    #         {
-    #             'link': reverse('reports:show_entries' , kwargs={'for_year':past_month_dict['for_year'],'for_month':past_month_dict['for_month']}),
-    #             'display_text':'Manage past month'
-    #         },
-    #         {
-    #             'link': reverse('reports:show_entries' , kwargs={'for_year':current_month_dict['for_year'],'for_month':current_month_dict['for_month']}),
-    #             'display_text':'Manage current month'
-    #         }
-    #     ])
-    #     return render(request, 'reports/employer/index.html' , {'urls_list':urls_list})
-    # else:
     return render(request, 'reports/general/index.html', {
         'past_year':past_month_dict['for_year'],
         'current_year':current_month_dict['for_year'],
