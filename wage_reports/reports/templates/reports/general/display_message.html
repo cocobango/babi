@@ -1,5 +1,14 @@
 {% extends "base.html" %}
 {% block content %}
 <h1>{{headline}}</h1>
-{{ body }}
+<div class="container">
+	<div class="row">
+		<p>
+			{{ body }}
+		</p>
+	</div>
+	<div class="row">
+		<a href="{% url 'reports:index'" class="btn btn-warning">חזרה לתפריט הראשי</a>
+	</div>
+</div>
 {% endblock content %}

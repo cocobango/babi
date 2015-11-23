@@ -30,6 +30,11 @@ def show_entries(request , for_year , for_month):
     past_or_current_month = 'past'
     if int(for_month) == int(get_month_in_question_for_employee_locking()):
         past_or_current_month = 'current'
+
+    if int(for_month) not in [int(get_month_in_question_for_employee_locking()), int(get_month_in_question_for_employer_locking())]:
+        return render(request, 'reports/general/display_message.html' , { 'headline' : "Month locked" , 'body' : "This month is not in the time range of months available for editing" }) 
+    if int(for_year) not in [int(get_year_in_question_for_employee_locking()), int(get_year_in_question_for_employer_locking())]:
+        return render(request, 'reports/general/display_message.html' , { 'headline' : "Month locked" , 'body' : "This month is not in the time range of months available for editing" })
     Employer_obj = Employer.objects.get(user=request.user)
     try:
         locked_month = Locked_months.objects.select_related('employer').filter(employer__user=request.user , for_year=for_year , for_month=for_month)[0]
