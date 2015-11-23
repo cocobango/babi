@@ -18,7 +18,7 @@ from ..models import Monthly_employer_data, Monthly_employee_data, Employee , Em
 from ..helpers import get_month_in_question_for_employer_locking , get_year_in_question_for_employer_locking , get_month_in_question_for_employee_locking , get_year_in_question_for_employee_locking
 
 from ..calculations import social_security_calculations , vat_calculations , income_tax_calculations
-from ..decorators import user_is_an_employer
+from ..decorators import *
 
 from ..view_helpers import *
 
@@ -26,10 +26,12 @@ from ..view_helpers import *
 
 
 @login_required
+@user_is_an_employer
 def user_management(request):
     return render(request, 'reports/employer/user_management.html' , { })
 
 @login_required
+@user_is_an_employer
 def add_employee(request):
     error_message = ''
     if request.method == 'POST':
@@ -54,12 +56,15 @@ def add_employee(request):
     return render(request, 'reports/employer/add_employee.html' , { 'form' : EmployeeForm, 'form_registration' : form_registration, 'error_message': error_message})
 
 @login_required
+@user_is_an_employer
 def view_all_employees(request):
     Employer_obj = Employer.objects.get(user=request.user)
     employees = Employee.objects.filter(employer=Employer_obj)
     return render(request, 'reports/employer/view_all_employees.html' , { 'json' : serializers.serialize('json' , employees) , 'employees' : employees })
 
 @login_required
+@user_is_an_employer
+@user_is_a_specific_employer_for_employee(employee_user_id_arg_number=0, employee_user_id_field_name='employee_user_id')
 def toggle_employee_status(request):
     if request.method == 'POST':
         employer = get_object_or_404(Employer , user=request.user)

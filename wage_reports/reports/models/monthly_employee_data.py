@@ -25,6 +25,7 @@ class Monthly_employee_data(models.Model):
     salary = models.DecimalField(max_digits=11, decimal_places=2)
     general_expenses = models.DecimalField(max_digits=11, decimal_places=2)
     is_required_to_pay_social_security = models.BooleanField(default=True)
+    is_elderly = models.BooleanField(default=False)
     is_employer_the_main_employer = models.BooleanField(default=False)
     gross_payment_from_others = models.DecimalField(max_digits=11, decimal_places=2)
 

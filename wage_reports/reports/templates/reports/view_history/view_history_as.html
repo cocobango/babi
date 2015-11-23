@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+	<h1>צפייה בדוחות</h1>
+
+	{% if request.user.is_superuser %}
+	<div class="row">
+		choose employer to mimic
+		<ul id="employer_user_id">
+		{% for employer in employers_list %}
+			<li><a href="{% url 'reports:view_history' user_id=employer.user.id %}">{{employer.user.first_name}} {{employer.user.last_name}}</a></li>
+		{% endfor %}
+		</ul>
+	</div>
+	{% endif %}
+	<div class="row">
+		בחר מרצה
+		<ul id="employer_user_id">
+		{% for employee in employees_list %}
+			<li><a href="{% url 'reports:view_history' user_id=employee.user.id %}">{{employee.user.first_name}} {{employee.user.last_name}}</a></li>
+		{% endfor %}
+		</ul>
+	</div>
+
+</div>
+{% endblock content %}

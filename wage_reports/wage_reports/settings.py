@@ -113,3 +113,36 @@ MAILGUN_SERVER_NAME = 'sandboxa2fcc9e845a042ea8980a2639449a135.mailgun.org'
 
 
 LOGIN_URL = '/custom_login'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format' : "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
+            'datefmt' : "%d/%b/%Y %H:%M:%S"
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'wage_reports.log',
+            'formatter': 'verbose'
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers':['file'],
+            'propagate': True,
+            'level':'DEBUG',
+        },
+        'reports': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+        },
+    }
+}

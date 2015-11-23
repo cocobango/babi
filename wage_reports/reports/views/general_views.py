@@ -10,6 +10,8 @@ from django.http import HttpResponseRedirect, HttpResponse , JsonResponse
 from django.core.urlresolvers import reverse
 from django.core import serializers
 from django.utils import timezone
+from django.contrib.auth.decorators import user_passes_test
+
 
 from ..forms import EmployeeForm , EmployeeMonthlyEntryForm , EmployerMonthlyEntryForm , UserCreateForm 
 from ..models import Monthly_employer_data, Monthly_employee_data, Employee , Employer , Locked_months
@@ -17,7 +19,7 @@ from ..models import Monthly_employer_data, Monthly_employee_data, Employee , Em
 from ..helpers import get_month_in_question_for_employer_locking , get_year_in_question_for_employer_locking , get_month_in_question_for_employee_locking , get_year_in_question_for_employee_locking
 
 from ..calculations import social_security_calculations , vat_calculations , income_tax_calculations
-from ..decorators import user_is_an_employer
+from ..decorators import *
 
 from ..view_helpers import *
 
@@ -27,6 +29,7 @@ def landing_page(request):
     return render(request, 'reports/general/display_message.html' , { 'headline' : "עמוד הבית של יובל קפלן רואה חשבון" , 'body' : 'index page' })
 
 @login_required
+@user_passes_test(lambda u: u.is_superuser)
 def store_data(request):
     employer = get_object_or_404(Employer , id=request.POST['employer_id'])
     reportsMaker = ReportsMaker(employer)
@@ -34,6 +37,7 @@ def store_data(request):
     return render(request, 'reports/general/display_message.html' , { 'headline' : "test response:" , 'body' : 'data stored for year-{for_year}, month-{for_month}, employer-{employer}'.format(for_year=request.POST['for_year'], for_month=request.POST['for_month'], employer=employer) })
 
 @login_required
+@user_passes_test(lambda u: u.is_superuser)
 def store_data_gui(request):
     return render(request, 'reports/admin/store_data_gui.html' )
  
@@ -56,29 +60,6 @@ def index(request):
         'for_year': get_year_in_question_for_employee_locking(),
         'for_month': get_month_in_question_for_employee_locking()
     }
-    urls_list = [
-            {
-                'link': reverse('reports:view_history'),
-                'display_text':'View data for past months'
-            }
-        ]
-    # if Employer.is_employer(request.user):
-    #     urls_list.extend([
-    #         {
-    #             'link': reverse('reports:user_management'),
-    #             'display_text':'Manage users'
-    #         },
-    #         {
-    #             'link': reverse('reports:show_entries' , kwargs={'for_year':past_month_dict['for_year'],'for_month':past_month_dict['for_month']}),
-    #             'display_text':'Manage past month'
-    #         },
-    #         {
-    #             'link': reverse('reports:show_entries' , kwargs={'for_year':current_month_dict['for_year'],'for_month':current_month_dict['for_month']}),
-    #             'display_text':'Manage current month'
-    #         }
-    #     ])
-    #     return render(request, 'reports/employer/index.html' , {'urls_list':urls_list})
-    # else:
     return render(request, 'reports/general/index.html', {
         'past_year':past_month_dict['for_year'],
         'current_year':current_month_dict['for_year'],

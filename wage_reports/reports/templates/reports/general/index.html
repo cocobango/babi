@@ -13,11 +13,18 @@
 	</div>
 	{% endif %}
 
-
+	{% if request.user.is_superuser or perms.reports.add_employee %}
 	<div class="row">
 		<div class="top-buffer"></div>
 		<div class="col-sm-6 col-sm-offset-2">
-			<a class="btn btn-info" href="{% url 'reports:view_history' %}">צפה בדוחות</a>
+			<a class="btn btn-info" href="{% url 'reports:view_history_as' %}">צפה בדוחות כמשתמש אחר</a>
+		</div>
+	</div>
+	{% endif %}
+	<div class="row">
+		<div class="top-buffer"></div>
+		<div class="col-sm-6 col-sm-offset-2">
+			<a class="btn btn-info" href="{% url 'reports:view_history' user_id=request.user.id %}">צפה בדוחות</a>
 			{% if perms.reports.add_employee %}
 			<a class="btn btn-info" href="{% url 'reports:show_entries' for_year=current_year for_month=current_month %}">נהל חודש נוכחי</a>
 			{% else %}

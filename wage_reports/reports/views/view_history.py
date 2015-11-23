@@ -1,6 +1,5 @@
 from datetime import datetime
 
-
 from django.contrib.auth import logout as logout_function
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import redirect_to_login
@@ -10,76 +9,101 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth import authenticate, login
 from django.core import serializers
 from django.utils import timezone
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
+from django.contrib.auth.decorators import user_passes_test
 
 from ..forms import EmployeeForm , EmployeeMonthlyEntryForm , EmployerMonthlyEntryForm , UserCreateForm 
-from ..models import Monthly_employer_data, Monthly_employee_data, Employee , Employer , Locked_months
+from ..models import Monthly_employer_data, Monthly_employee_data, Monthly_system_data, Employee , Employer , Locked_months , Monthly_employee_report_data , Monthly_employee_social_security_report_data
+
 
 
 from ..helpers import get_month_in_question_for_employer_locking , get_year_in_question_for_employer_locking , get_month_in_question_for_employee_locking , get_year_in_question_for_employee_locking
 
 from ..calculations import social_security_calculations , vat_calculations , income_tax_calculations
-from ..decorators import user_is_an_employer
+from ..decorators import *
 
 from ..view_helpers import *
 
 from ..reports_maker import ReportsMaker
 
 @login_required
-def view_history(request):
+def view_history(request, user_id):
+    logger.debug('employer') 
+    data = {'user_id':user_id}
+    employer = Employer.get_employer_from_user(user_id)
+    logger.debug(employer)
+    data['is_employer'] = employer
+    return render(request, 'reports/view_history/index.html', data)
+
+@login_required
+@user_is_an_employer_or_admin
+def view_history_as(request):
     data = {}
-    try:
-        employee = Employee.objects.get(user=request.user.id)
-        data['employee_id'] = employee.id
-    except ObjectDoesNotExist:
-        pass
-    try:
-        employer = Employer.objects.get(user=request.user.id)
-        data['employer_id'] = employer.id
-    except ObjectDoesNotExist:
-        pass
-    return render(request, 'reports/view_history/index.html' , data)
+    if request.user.is_superuser:
+        data['employers_list'] = Employer.objects.all()
+        data['employees_list'] = Employee.objects.all()
+    employer = Employer.get_employer_from_user(request.user)
+    if employer:
+        data['employees_list'] = Employee.objects.filter(employer=employer)
+    
+    return render(request, 'reports/view_history/view_history_as.html', data)
+
+
+# monthly employee report
+@login_required
+def view_monthly_employee_report_list(request, employee_user_id):
+    employer, employee = get_employer_and_employee(request, employee_user_id)
+    reports_list = Monthly_employee_report_data.objects.select_related('employee').filter(employee=employee.id).values('for_year').distinct()
+    return render(request, 'reports/employee/monthly_report_list_all_years.html' , { 'employer':employer, 'reports_list':reports_list, 'user_id':employee_user_id})
 
 
 @login_required
-def view_all_months(request):
-    pass
+def view_monthly_employee_report_list_by_year(request, employee_user_id, for_year):
+    employer, employee = get_employer_and_employee(request, employee_user_id)
+    reports_list = Monthly_employee_report_data.objects.select_related('employee').filter(employee=employee.id).values('for_month').distinct() 
+    return render(request, 'reports/employee/monthly_report_list_year.html' , { 'employer':employer, 'for_year':for_year, 'reports_list':reports_list, 'user_id':employee_user_id})
 
 
 @login_required
-def view_a_single_month(request):
-    pass
-
-
-@login_required
-def view_report_of_type(request , report_type):
-    # calculator = social_security_calculations(request.user)
-    # for_year = get_year_in_question_for_employer_locking()
-    # for_month = get_month_in_question_for_employer_locking()
-    # if report_type == 1:
-
-    # response = calculator.get_count_of_employees_that_are_required_to_pay_social_security_by_employer(for_year, for_month) 
-    # expected_result = 1
-    return render(request, 'reports/general/display_message.html' , { 'headline' : "test response:" , 'body' : str(response) + ' ' + str(expected_result) })
-
-@login_required
-def view_monthly_employee_report(request, employee_id, for_year, for_month):
-    employer = get_object_or_404(Employer , user_id=request.user.id)
-    employee = get_object_or_404(Employee , id=employee_id)
+def view_monthly_employee_report(request, employee_user_id, for_year, for_month):
+    employer, employee = get_employer_and_employee(request, employee_user_id)
     is_month_locked = Locked_months.objects.filter(for_month=for_month , for_year=for_year, employer=employer)
     reportsMaker = ReportsMaker(employer)
     report = reportsMaker.monthly_employee_report(employee=employee, for_year=for_year, for_month=for_month)
     return render(request, 'reports/employee/monthly_report_output.html' , { 'report':report, 'employer':employer, 'employee':employee, 'for_year':for_year, 'for_month':for_month, 'is_month_locked':is_month_locked })
 
 
+
+# monthly employer report
 @login_required
-def view_monthly_employer_report(request, employer_id, for_year, for_month):
-    employer = get_object_or_404(Employer , id=employer_id)
-    if employer.user.id !=  request.user.id and not request.user.is_superuser:
-        return None
+def view_monthly_employer_report_list(request, employer_user_id):
+    employer = get_employer(request, employer_user_id)
+    reports_list = Monthly_employee_report_data.objects.select_related('employee').filter(employee__employer_id=employer.id).values('for_year').distinct()
+    return render(request, 'reports/employer/monthly_report_list_all_years.html' , { 'employer':employer, 'reports_list':reports_list, 'user_id':employer_user_id})
+
+@login_required
+def view_monthly_employer_report_list_by_year(request, employer_user_id, for_year):
+    employer = get_employer(request, employer_user_id)
+    reports_list = Monthly_employee_report_data.objects.select_related('employee').filter(employee__employer_id=employer.id, for_year=for_year).values('for_month').distinct() 
+    return render(request, 'reports/employer/monthly_report_list_year.html' , { 'employer':employer, 'for_year':for_year, 'reports_list':reports_list, 'user_id':employer_user_id})
+
+@login_required
+def view_monthly_employer_report(request, employer_user_id, for_year, for_month):
+    employer = get_employer(request, employer_user_id)
     is_month_locked = Locked_months.objects.filter(for_month=for_month , for_year=for_year, employer=employer)
     reportsMaker = ReportsMaker(employer)
     report = reportsMaker.monthly_employer_report(for_year=for_year, for_month=for_month)
     return render(request, 'reports/employer/monthly_report_output.html' , { 'report':report, 'employer':employer, 'for_year':for_year, 'for_month':for_month, 'is_month_locked':is_month_locked })
+
+
+
+
+
+
+
+
+
+
+
 
 

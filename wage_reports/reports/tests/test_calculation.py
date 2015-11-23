@@ -48,3 +48,46 @@ class CalculationTestCase(TestCase):
         
         #assert
         self.assertEqual(840, monthly_employee_social_security_report_data.total_employee)
+
+    @unittest.skip("need real values to compare")
+    def test_correctly_calculates_monthly_social_security_for_elderly(self):  
+        #arrange
+        employer = factories.EmployerFactory()
+        employee = factories.EmployeeFactory(employer=employer)
+
+        factories.MonthlyEmployerDataFactory(
+            employee=employee,
+            for_year = 2015,
+            for_month = 1,
+            is_required_to_pay_vat = True,
+            is_required_to_pay_income_tax = False,
+        )
+        monthly_employee_data = factories.MonthlyEmployeeDataFactory(
+            employee=employee,
+            for_year = 2015,
+            for_month = 1,
+            gross_payment = Decimal(5000),
+            salary = Decimal(4500),
+            general_expenses = Decimal(500),
+            is_required_to_pay_social_security = True,
+            is_employer_the_main_employer = True,
+            is_elderly = True,
+            gross_payment_from_others = Decimal(1000)
+        )
+
+        #act
+
+        social_security_dict = self.social_security.calculate_social_security(monthly_employee_data)
+
+        #assert
+        self.assertEqual(840, monthly_employee_social_security_report_data.total_employee)
+
+
+
+
+
+
+
+
+
+

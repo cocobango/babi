@@ -68,6 +68,7 @@ class MonthlyEmployeeDataFactory(factory.django.DjangoModelFactory):
     general_expenses = Decimal(100)
     is_required_to_pay_social_security = True
     is_employer_the_main_employer = False
+    is_elderly = False
     gross_payment_from_others = Decimal(200)
     for_year = 0
     for_month = 0

@@ -8,17 +8,19 @@
 		<a href="{% url 'reports:add_employee' %}" class="btn btn-info">הוסף מרצה</a>
 	</div>
 	<div class="row">
-		<table class="table">
-			<tr>
-				<th>מספר משתמש</th>
-				<th>שם פרטי</th>
-				<th>שם משפחה</th>
-				<th>תעודת זהות</th> 
-				<th>אימייל</th>
-				<th>שם משתמש</th>
-				<th>תאריך לידה</th>
-				<th>פעולה</th>
-			</tr>
+		<table id="all_employees_table" class="table table-bordered table-hover">
+			<thead>
+				<tr>
+					<th>מספר משתמש</th>
+					<th>שם פרטי</th>
+					<th>שם משפחה</th>
+					<th>תעודת זהות</th> 
+					<th>אימייל</th>
+					<th>שם משתמש</th>
+					<th>תאריך לידה</th>
+					<th>פעולה</th>
+				</tr>
+			</thead>
 			{% for employee in employees %}
 			<tr>
 				<td>

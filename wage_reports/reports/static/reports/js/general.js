@@ -5,6 +5,11 @@ $(document).ready(function(){
 document_ready_functions = function(){
 	employer_monthly_entry_on_ready();
 	add_employee_on_ready_functions();
+	show_all_employees_on_ready();
+}
+
+show_all_employees_on_ready = function(){
+	$('#all_employees_table').dataTable();
 }
 
 add_employee_on_ready_functions = function(){

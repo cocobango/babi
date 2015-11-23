@@ -1,6 +1,9 @@
+import logging
+logger = logging.getLogger('reports')
+
 from django.http import HttpResponseRedirect, HttpResponse , JsonResponse
 from django.shortcuts import get_object_or_404, render
-
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 
 from .forms import EmployeeForm , EmployeeMonthlyEntryForm , EmployerMonthlyEntryForm , UserCreateForm 
 from .models import Monthly_employer_data, Monthly_employee_data, Employee , Employer , Locked_months
@@ -47,11 +50,6 @@ def edit_specific_entry_post(request , employee , entered_by):
         'form': form_entry
     }
 
-        
-        
-
-    
-
 def edit_specific_entry_get(request , employee , error_message , action, form=None):
     if form is None:
         try:
@@ -61,3 +59,28 @@ def edit_specific_entry_get(request , employee , error_message , action, form=No
             form = EmployeeMonthlyEntryForm()
 
     return render(request, 'reports/employee/monthly_entry.html' , { 'form' : form , 'employee_user_id' : employee.user.id , 'error_message': error_message , 'action':action})
+
+def get_employer_and_employee(request, employee_user_id):
+    employee = get_object_or_404(Employee , user_id=employee_user_id)
+    employer = get_object_or_404(Employer , id=employee.employer.id)
+    if request.user.id not in [employee.user.id, employer.user.id] and not request.user.is_superuser:
+        raise PermissionDenied
+    return employer, employee
+
+def get_employer(request, employer_user_id):
+    employer = get_object_or_404(Employer , user_id=employer_user_id)
+    if employer.user.id !=  request.user.id and not request.user.is_superuser:
+        raise PermissionDenied
+    return employer
+
+
+
+
+
+
+
+
+
+
+
+
