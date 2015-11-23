@@ -22,12 +22,21 @@ urlpatterns = [
     url(r'^user_management/toggle_employee_status$', views.toggle_employee_status, name='toggle_employee_status'),
     
 
-    url(r'^view_history$', views.view_history, name='view_history'),
-    url(r'^view_history/view_a_single_month/(?P<year>[0-9]{4})/(?P<month>[0-9]{1,2})$', views.view_a_single_month, name='view_a_single_month'),
-    url(r'^view_history/view_report_of_type/(?P<report_type>[a-z]+)/(?P<year>[0-9]{4})/(?P<month>[0-9]{1,2})$', views.view_report_of_type, name='view_report_of_type'),
-    url(r'^view_history/view_monthly_employee_report/(?P<employee_user_id>[0-9]+)/(?P<for_year>[0-9]{4})/(?P<for_month>[0-9]{1,2})$', views.view_monthly_employee_report, name='view_monthly_employee_report'),
-    url(r'^view_history/view_monthly_employer_report/(?P<employer_user_id>[0-9]+)/(?P<for_year>[0-9]{4})/(?P<for_month>[0-9]{1,2})$', views.view_monthly_employer_report, name='view_monthly_employer_report'),
     
+    url(r'^view_history/(?P<user_id>[0-9]+)$', views.view_history, name='view_history'),
+    url(r'^view_history_as/$', views.view_history_as, name='view_history_as'),
+    
+    # monthly employee report
+    url(r'^view_history/view_monthly_employee_report_list/(?P<employee_user_id>[0-9]+)$', views.view_monthly_employee_report_list, name='view_monthly_employee_report_list'),
+    url(r'^view_history/view_monthly_employee_report_list_by_year/(?P<employee_user_id>[0-9]+)/(?P<for_year>[0-9]{4})$', views.view_monthly_employee_report_list_by_year, name='view_monthly_employee_report_list_by_year'),
+    url(r'^view_history/view_monthly_employee_report/(?P<employee_user_id>[0-9]+)/(?P<for_year>[0-9]{4})/(?P<for_month>[0-9]{1,2})$', views.view_monthly_employee_report, name='view_monthly_employee_report'),
+    
+    # monthly employer report
+    url(r'^view_history/view_monthly_employer_report_list/(?P<employer_user_id>[0-9]+)$', views.view_monthly_employer_report_list, name='view_monthly_employer_report_list'),
+    url(r'^view_history/view_monthly_employer_report_list_by_year/(?P<employer_user_id>[0-9]+)/(?P<for_year>[0-9]{4})$', views.view_monthly_employer_report_list_by_year, name='view_monthly_employer_report_list_by_year'),
+    url(r'^view_history/view_monthly_employer_report/(?P<employer_user_id>[0-9]+)/(?P<for_year>[0-9]{4})/(?P<for_month>[0-9]{1,2})$', views.view_monthly_employer_report, name='view_monthly_employer_report'),
+
+
 
     url(r'^current_month/show_entries/(?P<for_year>[0-9]{4})/(?P<for_month>[0-9]{1,2})$', views.show_entries, name='show_entries'),
     url(r'^current_month/pre_approve_month$', views.pre_approve_month, name='pre_approve_month'),

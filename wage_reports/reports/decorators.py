@@ -9,6 +9,16 @@ def user_is_an_employer(function):
         raise PermissionDenied
     return wrapper
 
+def user_is_an_employer_or_admin(function):
+    def wrapper(request, *args, **kwargs):
+        if request.user.is_superuser:
+            return function(request, *args, **kwargs)
+        if Employer.is_employer(request.user):
+            return function(request, *args, **kwargs)
+        raise PermissionDenied
+    return wrapper
+
+
 class tester(object):
     """ based on http://www.artima.com/weblogs/viewpost.jsp?thread=240845 """
     def __init__(self, arg1=None, arg2=None):
@@ -33,9 +43,10 @@ class tester(object):
 
 class user_is_a_specific_employer_for_employee(object):
     """ based on http://www.artima.com/weblogs/viewpost.jsp?thread=240845 """
-    def __init__(self, employee_user_id_field_name=None, employee_user_id_arg_number=None):
+    def __init__(self, employee_user_id_field_name=None, employee_user_id_arg_number=None, allow_employee=False):
         self.employee_user_id_field_name = employee_user_id_field_name
         self.employee_user_id_arg_number = employee_user_id_arg_number
+        self.allow_employee = allow_employee
 
     def __call__(self, function):
         """
@@ -48,6 +59,8 @@ class user_is_a_specific_employer_for_employee(object):
             if Employee.objects.select_related('employer').filter(employer__user_id=request.user, user_id=employee_user_id):
                 return function(request, *args, **kwargs)
             if request.user.is_superuser:
+                return function(request, *args, **kwargs)
+            if request.user.id == employee_user_id and self.allow_employee:
                 return function(request, *args, **kwargs)
             
             raise PermissionDenied

@@ -60,12 +60,6 @@ def index(request):
         'for_year': get_year_in_question_for_employee_locking(),
         'for_month': get_month_in_question_for_employee_locking()
     }
-    urls_list = [
-            {
-                'link': reverse('reports:view_history'),
-                'display_text':'View data for past months'
-            }
-        ]
     return render(request, 'reports/general/index.html', {
         'past_year':past_month_dict['for_year'],
         'current_year':current_month_dict['for_year'],

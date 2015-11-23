@@ -4,42 +4,34 @@
 	<h1>צפייה בדוחות</h1>
 
 	
-	{% if request.user.is_superuser %}
-	{% endif %}
+	{% if is_employer %}
 
-	{% if perms.reports.add_employee %}
 	<div class="top-buffer"></div>
 	<div class="row">
+		<a class="btn btn-info" href="{% url 'reports:view_monthly_employer_report_list' employer_user_id=user_id %}">דוח חודשי למשלם</a>
 		<div class="col-sm-6 col-sm-offset-2">
-			<a class="btn btn-info" href="{% url 'reports:view_monthly_employer_report' employer_user_id=14 for_year=2015 for_month=1 %}">דוח חודשי ינואר</a>
-			<a class="btn btn-info" href="{% url 'reports:view_monthly_employer_report' employer_user_id=14 for_year=2015 for_month=2 %}">דוח חודשי פברואר</a>
-			<a class="btn btn-info" href="{% url 'reports:view_monthly_employer_report' employer_user_id=14 for_year=2015 for_month=3 %}">דוח חודשי מרץ</a>
-			<a class="btn btn-info" href="{% url 'reports:view_monthly_employer_report' employer_user_id=14 for_year=2015 for_month=4 %}">דוח חודשי אפריל</a>
-			<a class="btn btn-info" href="{% url 'reports:view_monthly_employer_report' employer_user_id=14 for_year=2015 for_month=5 %}">דוח חודשי מאי</a>
-			<a class="btn btn-info" href="{% url 'reports:view_monthly_employer_report' employer_user_id=14 for_year=2015 for_month=6 %}">דוח חודשי יוני</a>
-			<a class="btn btn-info" href="{% url 'reports:view_monthly_employer_report' employer_user_id=14 for_year=2015 for_month=7 %}">דוח חודשי יולי</a>
-			<a class="btn btn-info" href="{% url 'reports:view_monthly_employer_report' employer_user_id=14 for_year=2015 for_month=8 %}">דוח חודשי אוגוסט</a>
-			<a class="btn btn-info" href="{% url 'reports:view_monthly_employer_report' employer_user_id=14 for_year=2015 for_month=9 %}">דוח חודשי ספטמבר</a>
-			<a class="btn btn-info" href="{% url 'reports:view_monthly_employer_report' employer_user_id=14 for_year=2015 for_month=10 %}">דוח חודשי אוקטובר</a>
-			<a class="btn btn-info" href="{% url 'reports:view_monthly_employer_report' employer_user_id=14 for_year=2015 for_month=11 %}">דוח חודשי נובמבר</a>
-			<a class="btn btn-info" href="{% url 'reports:view_monthly_employer_report' employer_user_id=14 for_year=2015 for_month=12 %}">דוח חודשי דצמבר</a>
+
+			
+
+
+			<a class="btn btn-info" href="{% url 'reports:view_monthly_employer_report' employer_user_id=user_id for_year=2015 for_month=1 %}">דוח חודשי ינואר</a>
+			<a class="btn btn-info" href="{% url 'reports:view_monthly_employer_report' employer_user_id=user_id for_year=2015 for_month=2 %}">דוח חודשי פברואר</a>
+			<a class="btn btn-info" href="{% url 'reports:view_monthly_employer_report' employer_user_id=user_id for_year=2015 for_month=3 %}">דוח חודשי מרץ</a>
+			<a class="btn btn-info" href="{% url 'reports:view_monthly_employer_report' employer_user_id=user_id for_year=2015 for_month=4 %}">דוח חודשי אפריל</a>
+			<a class="btn btn-info" href="{% url 'reports:view_monthly_employer_report' employer_user_id=user_id for_year=2015 for_month=5 %}">דוח חודשי מאי</a>
+			<a class="btn btn-info" href="{% url 'reports:view_monthly_employer_report' employer_user_id=user_id for_year=2015 for_month=6 %}">דוח חודשי יוני</a>
+			<a class="btn btn-info" href="{% url 'reports:view_monthly_employer_report' employer_user_id=user_id for_year=2015 for_month=7 %}">דוח חודשי יולי</a>
+			<a class="btn btn-info" href="{% url 'reports:view_monthly_employer_report' employer_user_id=user_id for_year=2015 for_month=8 %}">דוח חודשי אוגוסט</a>
+			<a class="btn btn-info" href="{% url 'reports:view_monthly_employer_report' employer_user_id=user_id for_year=2015 for_month=9 %}">דוח חודשי ספטמבר</a>
+			<a class="btn btn-info" href="{% url 'reports:view_monthly_employer_report' employer_user_id=user_id for_year=2015 for_month=10 %}">דוח חודשי אוקטובר</a>
+			<a class="btn btn-info" href="{% url 'reports:view_monthly_employer_report' employer_user_id=user_id for_year=2015 for_month=11 %}">דוח חודשי נובמבר</a>
+			<a class="btn btn-info" href="{% url 'reports:view_monthly_employer_report' employer_user_id=user_id for_year=2015 for_month=12 %}">דוח חודשי דצמבר</a>
 		</div>
 	</div>
 	{% else %}
 	<div class="row">
 		<div class="col-sm-6 col-sm-offset-2">
-			<a class="btn btn-info" href="{% url 'reports:view_monthly_employee_report' employee_user_id=1 for_year=2015 for_month=1 %}">דוח חודשי ינואר</a>
-			<a class="btn btn-info" href="{% url 'reports:view_monthly_employee_report' employee_user_id=1 for_year=2015 for_month=2 %}">דוח חודשי פברואר</a>
-			<a class="btn btn-info" href="{% url 'reports:view_monthly_employee_report' employee_user_id=1 for_year=2015 for_month=3 %}">דוח חודשי מרץ</a>
-			<a class="btn btn-info" href="{% url 'reports:view_monthly_employee_report' employee_user_id=1 for_year=2015 for_month=4 %}">דוח חודשי אפריל</a>
-			<a class="btn btn-info" href="{% url 'reports:view_monthly_employee_report' employee_user_id=1 for_year=2015 for_month=5 %}">דוח חודשי מאי</a>
-			<a class="btn btn-info" href="{% url 'reports:view_monthly_employee_report' employee_user_id=1 for_year=2015 for_month=6 %}">דוח חודשי יוני</a>
-			<a class="btn btn-info" href="{% url 'reports:view_monthly_employee_report' employee_user_id=1 for_year=2015 for_month=7 %}">דוח חודשי יולי</a>
-			<a class="btn btn-info" href="{% url 'reports:view_monthly_employee_report' employee_user_id=1 for_year=2015 for_month=8 %}">דוח חודשי אוגוסט</a>
-			<a class="btn btn-info" href="{% url 'reports:view_monthly_employee_report' employee_user_id=1 for_year=2015 for_month=9 %}">דוח חודשי ספטמבר</a>
-			<a class="btn btn-info" href="{% url 'reports:view_monthly_employee_report' employee_user_id=1 for_year=2015 for_month=10 %}">דוח חודשי אוקטובר</a>
-			<a class="btn btn-info" href="{% url 'reports:view_monthly_employee_report' employee_user_id=1 for_year=2015 for_month=11 %}">דוח חודשי נובמבר</a>
-			<a class="btn btn-info" href="{% url 'reports:view_monthly_employee_report' employee_user_id=1 for_year=2015 for_month=12 %}">דוח חודשי דצמבר</a>
+			<a class="btn btn-info" href="{% url 'reports:view_monthly_employee_report_list' employee_user_id=user_id %}">דוח חודשי</a>
 		</div>
 	</div>
 	{% endif %}
