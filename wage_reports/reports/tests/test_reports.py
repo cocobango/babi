@@ -191,7 +191,7 @@ class ReportsTestCase(TestCase):
             [ 20112 , monthly_employer_report['social_security']['sum_of_gross_payment_to_be_paid_at_lower_employer_rate_social_security'] ],
             [ 7556 , monthly_employer_report['social_security']['sum_of_gross_payment_to_be_paid_at_lower_employee_rate_social_security'] ],
             [ Decimal(3213.48)*1 , monthly_employer_report['social_security']['total_of_social_security_due'] ],
-            [ 2 , monthly_employer_report['social_security']['count_of_employees_that_do_not_exceed_the_social_security_threshold'] ],
+            [ 1 , monthly_employer_report['social_security']['count_of_employees_that_do_not_exceed_the_social_security_threshold'] ],
         ]
 
         #assert
@@ -224,7 +224,7 @@ class ReportsTestCase(TestCase):
             [ 25556 , monthly_employer_report['social_security']['sum_of_gross_payment_to_be_paid_at_lower_employer_rate_social_security'] ],
             [ 9556 , monthly_employer_report['social_security']['sum_of_gross_payment_to_be_paid_at_lower_employee_rate_social_security'] ],
             [ Decimal(3221.61)*1 , monthly_employer_report['social_security']['total_of_social_security_due'] ],
-            # [ 1 , monthly_employer_report['social_security']['count_of_employees_that_do_not_exceed_the_social_security_threshold'] ],
+            [ 1 , monthly_employer_report['social_security']['count_of_employees_that_do_not_exceed_the_social_security_threshold'] ],
         ]
 
         #assert

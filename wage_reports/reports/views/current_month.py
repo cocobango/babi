@@ -114,9 +114,6 @@ def set_as_valid(request):
             single_entry.for_year = for_year
             single_entry.for_month = for_month
             single_entry.entered_by = 'employer'
-
-            # Monthly_employee_data.objects.filter( employee__user_id=11 , created__gte=timezone.now().replace(day=1,hour=0, minute=0) ).update(is_approved=False)
-            Monthly_employee_data.objects.select_related('employee__user').filter( employee__user_id=request.POST['employee_user_id'] , for_year=for_year, for_month=for_month).update(is_approved=False)
             single_entry.created = None
 
             if single_entry.save():
