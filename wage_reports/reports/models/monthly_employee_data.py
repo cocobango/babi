@@ -37,6 +37,7 @@ class Monthly_employee_data(models.Model):
             if self.is_valid_month():
                 if self.duplicate_employer_data():
                     self.gross_payment = self.get_gross_payment()
+                    Monthly_employee_data.objects.filter(employee=self.employee , for_month=self.for_month, for_year=self.for_year).update(is_approved=False)
                     super(Monthly_employee_data, self).save(*args, **kwargs)
                     return self
                 else:

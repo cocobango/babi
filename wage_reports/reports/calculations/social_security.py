@@ -63,7 +63,7 @@ class social_security_calculations(object):
 
 
 
-        return self.get_social_security_entries_for_month(for_year = for_year, for_month = for_month).filter(standard_sum_employer=0, diminished_sum_employee__gt=0).aggregate(my_count=Count('total_employee', field="total_employee+total_employer"))['my_count'] 
+        return self.get_social_security_entries_for_month(for_year = for_year, for_month = for_month).filter(standard_sum_employee=0, diminished_sum_employee__gt=0).aggregate(my_count=Count('total_employee', field="total_employee+total_employer"))['my_count'] 
 
     def get_social_security_entries_for_month(self , for_year, for_month):
         return Monthly_employee_social_security_report_data.objects.select_related('monthly_employee_report_data__employee__employer').filter(   monthly_employee_report_data__employee__employer=self.employer, monthly_employee_report_data__for_year=for_year, monthly_employee_report_data__for_month=for_month)
