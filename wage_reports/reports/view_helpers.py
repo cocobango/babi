@@ -1,6 +1,3 @@
-import logging
-logger = logging.getLogger('reports')
-
 from django.http import HttpResponseRedirect, HttpResponse , JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied

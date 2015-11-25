@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+	<h1>צפייה בדוחות</h1>
+
+	
+	<div class="top-buffer"></div>
+	<div class="row">
+	{% for year in reports_list %}
+		<a class="btn btn-info" href="{% url 'reports:view_yearly_employer_report' employer_user_id=user_id for_year=year.for_year %}">{{year.for_year}}</a>
+	{% empty %}
+    <p>Sorry, no reports to show.</p>
+	{% endfor %}
+	</div>
+</div>
+{% endblock content %}

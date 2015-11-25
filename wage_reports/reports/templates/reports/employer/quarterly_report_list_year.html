@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+	<h1>צפייה בדוחות</h1>
+
+	
+	<div class="top-buffer"></div>
+	<div class="row">
+	{% for quarter in quarters_to_display %}
+		<a class="btn btn-info" href="{% url 'reports:view_quarterly_social_security_report' employer_user_id=user_id for_year=for_year for_month=quarter %}">{{quarter}}</a>
+	{% endfor %}
+	</div>
+</div>
+{% endblock content %}
