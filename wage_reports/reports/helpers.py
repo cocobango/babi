@@ -1,3 +1,6 @@
+import logging
+logger = logging.getLogger('reports')
+
 from decimal import *
 getcontext().prec = 6
 
@@ -27,6 +30,15 @@ def get_year_in_question_for_employer_locking():
     if month_in_question == 12:
         return int(year_in_question - 1)
     return int(year_in_question)
+
+def get_quarter_from_month(month):
+    if int(month) % 3 == 1:
+        return month
+    
+    month = month - 1
+    if int(month) % 3 == 1:
+        return month
+    return month - 1
 
 def calculate_social_security_employer(overall_gross,social_security_threshold,lower_employer_social_security_percentage,upper_employer_social_security_percentage,is_required_to_pay_social_security):
     return calculate_social_security_generic(overall_gross,social_security_threshold,lower_employer_social_security_percentage,upper_employer_social_security_percentage,is_required_to_pay_social_security, '_employer')
