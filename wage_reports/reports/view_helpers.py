@@ -55,7 +55,7 @@ def edit_specific_entry_get(request , employee , error_message , action, form=No
         except Monthly_employee_data.DoesNotExist:
             form = EmployeeMonthlyEntryForm()
 
-    return render(request, 'reports/employee/monthly_entry.html' , { 'form' : form , 'employee_user_id' : employee.user.id , 'error_message': error_message , 'action':action})
+    return render(request, 'reports/employee/monthly_entry.html' , { 'form' : form , 'employee_user_id' : employee.user.id , 'error_message': error_message , 'action':action, 'employee':employee })
 
 def get_employer_and_employee(request, employee_user_id):
     employee = get_object_or_404(Employee , user_id=employee_user_id)

@@ -160,12 +160,14 @@ def edit_specific_entry_by_employer(request , employee_user_id ):
 def edit_specific_entry_by_employee(request):
     employee = get_object_or_404(Employee , user_id=request.user.id)
     error_message = ''
+    form = None
     if request.method == 'POST':
         response = edit_specific_entry_post(request, employee , 'employee')
         if response['is_okay']:
             return render(request, 'reports/general/display_message.html' , { 'headline' : "הצלחה" , 'body' : response['message'] })   
         error_message = response['message']
-    return edit_specific_entry_get(request=request, employee=employee , error_message=error_message , action=reverse('reports:edit_specific_entry_by_employee' ), form=response['form'])
+        form = response['form'] 
+    return edit_specific_entry_get(request=request, employee=employee , error_message=error_message , action=reverse('reports:edit_specific_entry_by_employee' ), form=form)
 #post
 
 # return render(request, 'reports/general/display_message.html' , { 'headline' : "Success" , 'body' : "Your input was received successfully" })
@@ -202,7 +204,7 @@ def edit_specific_monthly_employer_data(request, employee_user_id):
             form = EmployerMonthlyEntryForm(instance=single_entry)
         except Monthly_employer_data.DoesNotExist:
             form = EmployerMonthlyEntryForm()
-    return render(request, 'reports/employer/monthly_entry.html' , { 'form' : form , 'employee_user_id' : employee_user_id, 'error_message': error_message })
+    return render(request, 'reports/employer/monthly_entry.html' , { 'form' : form , 'employee_user_id' : employee_user_id, 'error_message': error_message, 'employee':employee })
 
 
   

@@ -4,6 +4,7 @@
 
 <div class="container">
 	{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+	<p>שם המרצה: {{ employee.user.first_name }} {{ employee.user.last_name }}</p>
 	<form action="{{ action }}" method="post">
 	    {% csrf_token %}
 	    {% for field in form %}

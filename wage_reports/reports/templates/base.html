@@ -52,7 +52,7 @@
                         <li><a href="#">קישורים של תוכן</a></li>
                         <li><a href="{% url 'main_login'%}">שכר מרצים</a></li>
                         {% if request.user.is_authenticated %}
-                        <li><a href="{% url 'main_logout'%}">התנתק</a></li>
+                        <li><a href="{% url 'main_logout'%}">{{ request.user.first_name }} {{ request.user.last_name }} התנתק</a></li>
                         {% endif %}
                     </ul>
                 </div><!-- end of /.navbar-collapse -->
