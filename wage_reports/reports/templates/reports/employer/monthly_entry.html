@@ -5,6 +5,7 @@
 	<h1>הזן מידע חודשי עבור מרצה</h1>
 
 	{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+	<p>שם המרצה: {{ employee.user.first_name }} {{ employee.user.last_name }}</p>
 	<div class="top-buffer">
 		<form action="{% url 'reports:edit_specific_monthly_employer_data' employee_user_id %}" method="post" id="employer_monthly_entry_form">
 		    {% csrf_token %}
