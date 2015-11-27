@@ -104,7 +104,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
 STATIC_URL = '/static/'
-
+STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 
 EMAIL_BACKEND = 'django_mailgun.MailgunBackend'
 MAILGUN_ACCESS_KEY = 'key-61d8b42542dedc76eb6f5524fc76b290'
@@ -130,7 +130,7 @@ LOGGING = {
         'file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': 'wage_reports.log',
+            'filename': '/var/log/django/wage_reports.log',
             'formatter': 'verbose'
         },
     },
