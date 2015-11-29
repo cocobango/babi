@@ -16,7 +16,9 @@ from ..forms import EmployeeForm , EmployeeMonthlyEntryForm , EmployerMonthlyEnt
 from ..models import Monthly_employer_data, Monthly_employee_data, Employee, Employer, Locked_months
 
 
-from ..helpers import get_month_in_question_for_employer_locking , get_year_in_question_for_employer_locking , get_month_in_question_for_employee_locking , get_year_in_question_for_employee_locking
+from ..reports_maker import ReportsMaker
+
+from ..helpers import get_month_in_question_for_employer_locking , get_year_in_question_for_employer_locking , get_month_in_question_for_employee_locking , get_year_in_question_for_employee_locking, logger
 
 from ..calculations import social_security_calculations , vat_calculations , income_tax_calculations
 from ..decorators import *
@@ -117,6 +119,11 @@ def set_as_valid(request):
             single_entry.created = None
 
             if single_entry.save():
+                employer = Employer.get_employer_from_user(request.user) 
+                employee = Employee.get_employee_from_user(request.POST['employee_user_id'])
+                reportsMaker = ReportsMaker(employer)
+                reportsMaker.populate_calculated_data_for_single_employee(employee=employee, for_year=for_year, for_month=for_month)
+
                 return JsonResponse({'is_okay':True , 'message' : 'successfully approved entry' , 'data' : single_entry.id})
             return JsonResponse({'is_okay':False , 'message' : 'Error: Failed to approve entry, code 4534' , 'data' : 'check permissions of month'})
         except Monthly_employee_data.DoesNotExist:

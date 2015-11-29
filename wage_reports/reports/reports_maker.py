@@ -96,5 +96,5 @@ class ReportsMaker(object):
     def populate_calculated_data_for_single_employee(self, employee, for_year, for_month):
         entry = self.data_getter.get_employee_data_by_month(employee=employee,for_year=for_year,for_month=for_month)
         if entry is not None:
-            self.cross.monthly_employee_report_to_db(employee=employee,for_year=for_year,for_month=for_month)
+            return self.cross.monthly_employee_report_to_db(employee=employee,for_year=for_year,for_month=for_month)
 
