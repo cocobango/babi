@@ -53,6 +53,16 @@ urlpatterns = [
     url(r'^view_history/view_yearly_employer_report/(?P<employer_user_id>[0-9]+)/(?P<for_year>[0-9]{4})$', views.view_yearly_employer_report, name='view_yearly_employer_report'),
 
 
+    # internal reports
+    # monthly output report
+    url(r'^view_history/view_monthly_output_report_list/(?P<employer_user_id>[0-9]+)$', views.view_monthly_output_report_list, name='view_monthly_output_report_list'),
+    url(r'^view_history/view_monthly_output_report_list_by_year/(?P<employer_user_id>[0-9]+)/(?P<for_year>[0-9]{4})$', views.view_monthly_output_report_list_by_year, name='view_monthly_output_report_list_by_year'),
+    url(r'^view_history/view_monthly_output_report/(?P<employer_user_id>[0-9]+)/(?P<for_year>[0-9]{4})/(?P<for_month>[0-9]{1,2})$', views.view_monthly_output_report, name='view_monthly_output_report'),
+
+
+
+
+
     url(r'^current_month/show_entries/(?P<for_year>[0-9]{4})/(?P<for_month>[0-9]{1,2})$', views.show_entries, name='show_entries'),
     url(r'^current_month/pre_approve_month$', views.pre_approve_month, name='pre_approve_month'),
     url(r'^current_month/approve_this_month$', views.approve_this_month, name='approve_this_month'),

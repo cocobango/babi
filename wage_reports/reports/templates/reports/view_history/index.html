@@ -14,6 +14,11 @@
 			<a class="btn btn-info" href="{% url 'reports:view_yearly_employer_report_list' employer_user_id=user_id %}">דוח שנתי למשלם</a>
 		</div>
 	</div>
+	<div class="row">
+		<div class="col-sm-6 col-sm-offset-2">
+			<a class="btn btn-info" href="{% url 'reports:view_monthly_output_report_list' employer_user_id=user_id %}">פלט חודשי למשלם</a>
+		</div>
+	</div>
 	{% else %}
 	<div class="row">
 		<div class="col-sm-6 col-sm-offset-2">
