@@ -159,3 +159,33 @@ def view_yearly_employer_report(request, employer_user_id, for_year):
     reportsMaker = ReportsMaker(employer) 
     report = reportsMaker.yearly_income_tax_employer_report(for_year=for_year)
     return render(request, 'reports/employer/yearly_report_output.html' , { 'report':report, 'employer':employer, 'for_year':for_year, 'is_year_locked':is_year_locked })
+
+
+
+# internal reports
+
+# monthly output report
+@login_required
+def view_monthly_output_report_list(request, employer_user_id):
+    employer = get_employer(request, employer_user_id)
+    reports_list = Monthly_employee_report_data.objects.select_related('employee').filter(employee__employer_id=employer.id).values('for_year').distinct()
+    return render(request, 'reports/employer/monthly_output_report_list_all_years.html' , { 'employer':employer, 'reports_list':reports_list, 'user_id':employer_user_id})
+
+@login_required
+def view_monthly_output_report_list_by_year(request, employer_user_id, for_year):
+    employer = get_employer(request, employer_user_id)
+    reports_list = Monthly_employee_report_data.objects.select_related('employee').filter(employee__employer_id=employer.id, for_year=for_year).values('for_month').distinct() 
+    return render(request, 'reports/employer/monthly_output_report_list_year.html' , { 'employer':employer, 'for_year':for_year, 'reports_list':reports_list, 'user_id':employer_user_id})
+
+@login_required
+def view_monthly_output_report(request, employer_user_id, for_year, for_month):
+    employer = get_employer(request, employer_user_id)
+    is_month_locked = Locked_months.objects.filter(for_month=for_month , for_year=for_year, employer=employer)
+    reportsMaker = ReportsMaker(employer)
+    report = reportsMaker.monthly_output_report(for_year=for_year, for_month=for_month)
+    return render(request, 'reports/employer/monthly_output_report_output.html' , { 'report':report, 'employer':employer, 'for_year':for_year, 'for_month':for_month, 'is_month_locked':is_month_locked })
+
+
+
+
+

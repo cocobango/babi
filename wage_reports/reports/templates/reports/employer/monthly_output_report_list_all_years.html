@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+	<h1>צפייה בדוחות</h1>
+
+	
+	<div class="top-buffer"></div>
+	<div class="row">
+	{% for year in reports_list %}
+		<a class="btn btn-info" href="{% url 'reports:view_monthly_output_report_list_by_year' employer_user_id=user_id for_year=year.for_year %}">{{year.for_year}}</a>
+	{% endfor %}
+	</div>
+</div>
+{% endblock content %}
